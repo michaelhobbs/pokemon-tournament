@@ -1,60 +1,99 @@
 :root {
-	--ceefax-font: 'Courier New', 'Nimbus Mono PS', ui-monospace, 'SFMono-Regular', monospace;
-	--ceefax-black: #000000;
-	--ceefax-cyan: #00ffff;
-	--ceefax-yellow: #ffff00;
-	--ceefax-magenta: #ff00ff;
-	--ceefax-red: #ff0000;
-	--ceefax-green: #00ff00;
-	--ceefax-blue: #0000ff;
-	--ceefax-white: #ffffff;
+  --ceefax-font:
+    'Courier New', 'Nimbus Mono PS', ui-monospace, 'SFMono-Regular', monospace;
+  --ceefax-black: #000000;
+  --ceefax-cyan: #00ffff;
+  --ceefax-yellow: #ffff00;
+  --ceefax-magenta: #ff00ff;
+  --ceefax-red: #ff0000;
+  --ceefax-green: #00ff00;
+  --ceefax-blue: #0000ff;
+  --ceefax-white: #ffffff;
 }
 
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html {
-	background: var(--ceefax-black);
+  background: var(--ceefax-black);
 }
 
 body {
-	margin: 0;
-	font-family: var(--ceefax-font);
-	font-size: 17px;
-	line-height: 1.4;
-	color: var(--ceefax-white);
-	background: var(--ceefax-black);
-	text-transform: uppercase;
-	-webkit-font-smoothing: antialiased;
+  margin: 0;
+  font-family: var(--ceefax-font);
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--ceefax-white);
+  background: var(--ceefax-black);
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
-	color: var(--ceefax-cyan);
+  color: var(--ceefax-cyan);
 }
 
 p {
-	margin: 0.5rem 0;
+  margin: 0.5rem 0;
 }
 
 ul,
 ol {
-	padding-left: 1.4rem;
+  padding-left: 1.4rem;
 }
 
 li::marker {
-	color: var(--ceefax-magenta);
+  color: var(--ceefax-magenta);
 }
 
 img,
 svg {
-	display: block;
-	max-width: 100%;
+  display: block;
+  max-width: 100%;
 }
 
 ::selection {
-	background: var(--ceefax-cyan);
-	color: var(--ceefax-black);
+  background: var(--ceefax-cyan);
+  color: var(--ceefax-black);
+}
+
+#ceefax-pagebox {
+  cursor: pointer;
+}
+
+#ceefax-pagebox:hover {
+  outline: 1px solid var(--ceefax-white);
+}
+
+#ceefax-pagebox:focus-visible {
+  outline: 2px solid var(--ceefax-white);
+  outline-offset: 2px;
+}
+
+#ceefax-page-code-input {
+  font-family: var(--ceefax-font);
+  font-size: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  background: var(--ceefax-magenta);
+  color: var(--ceefax-black);
+  border: 0;
+  border-radius: 0;
+  padding: 0.25rem 0.6rem;
+  width: 3ch;
+  min-width: 0;
+  box-sizing: content-box;
+}
+
+#ceefax-page-code-input[data-unknown='true'] {
+  background: var(--ceefax-red);
+  color: var(--ceefax-white);
+}
+
+#ceefax-page-code-input:focus {
+  outline: none;
 }
