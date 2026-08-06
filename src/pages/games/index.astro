@@ -11,7 +11,7 @@ import { WEEKS } from '../../data/matches';
 		<ul class="week-list">
 			{WEEKS.map((week) => (
 				<li>
-					<a class="week-link" href={`/games/${week.number}`}>
+					<a class="week-link" href={`${import.meta.env.BASE_URL}games/${week.number}`}>
 						<span class="week-number">{500 + week.number}</span>
 						<span>WEEK {week.number}</span>
 						<span class="week-date">{week.date}</span>

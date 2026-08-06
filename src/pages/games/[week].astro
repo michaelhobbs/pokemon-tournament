@@ -19,6 +19,7 @@ const pageNumber = String(500 + week.number);
 const weekIndex = WEEKS.findIndex((w) => w.number === week.number);
 const prev = WEEKS[weekIndex - 1];
 const next = WEEKS[weekIndex + 1];
+const base = import.meta.env.BASE_URL;
 ---
 
 <CeefaxLayout title={`GAMES — WEEK ${week.number}`} pageNumber={pageNumber}>
@@ -33,7 +34,7 @@ const next = WEEKS[weekIndex + 1];
 				const hasResult = match.wins1 !== undefined && match.wins2 !== undefined;
 				return (
 					<li class="match">
-						<a class="match-name" href={`/trainers/${p1.number}`}>{p1.name}</a>
+						<a class="match-name" href={`${base}trainers/${p1.number}`}>{p1.name}</a>
 						{hasResult ? (
 							<span class="match-score">
 								{match.wins1} - {match.wins2}
@@ -41,7 +42,7 @@ const next = WEEKS[weekIndex + 1];
 						) : (
 							<span class="match-score match-vs">VS</span>
 						)}
-						<a class="match-name" href={`/trainers/${p2.number}`}>{p2.name}</a>
+						<a class="match-name" href={`${base}trainers/${p2.number}`}>{p2.name}</a>
 					</li>
 				);
 			})}
@@ -49,13 +50,13 @@ const next = WEEKS[weekIndex + 1];
 	</CeefaxBlock>
 	<nav class="week-nav" aria-label="Week pages">
 		{prev ? (
-			<a href={`/games/${prev.number}`}>WEEK {prev.number}</a>
+			<a href={`${base}games/${prev.number}`}>WEEK {prev.number}</a>
 		) : (
 			<span aria-hidden="true"></span>
 		)}
-		<a href="/games">500 FIXTURES</a>
+		<a href={`${base}games`}>500 FIXTURES</a>
 		{next ? (
-			<a href={`/games/${next.number}`}>WEEK {next.number}</a>
+			<a href={`${base}games/${next.number}`}>WEEK {next.number}</a>
 		) : (
 			<span aria-hidden="true"></span>
 		)}

@@ -27,6 +27,7 @@ const outcomeFor = (row: number, col: number): 'W' | 'L' | null => {
 };
 
 const players = [...PLAYERS].sort((a, b) => a.number - b.number);
+const base = import.meta.env.BASE_URL;
 ---
 
 <CeefaxLayout title="HEAD TO HEAD" pageNumber="301">
@@ -40,7 +41,7 @@ const players = [...PLAYERS].sort((a, b) => a.number - b.number);
 						<th scope="col"></th>
 						{players.map((player) => (
 							<th scope="col" class="h2h-th">
-								<a href={`/trainers/${player.number}`}>{player.name.slice(0, 3).toUpperCase()}</a>
+								<a href={`${base}trainers/${player.number}`}>{player.name.slice(0, 3).toUpperCase()}</a>
 							</th>
 						))}
 					</tr>
@@ -49,7 +50,7 @@ const players = [...PLAYERS].sort((a, b) => a.number - b.number);
 					{players.map((row) => (
 						<tr>
 							<th scope="row" class="h2h-th">
-								<a href={`/trainers/${row.number}`}>{row.name.slice(0, 3).toUpperCase()}</a>
+								<a href={`${base}trainers/${row.number}`}>{row.name.slice(0, 3).toUpperCase()}</a>
 							</th>
 							{players.map((col) => {
 								const outcome = outcomeFor(row.number, col.number);
@@ -74,7 +75,7 @@ const players = [...PLAYERS].sort((a, b) => a.number - b.number);
 		</CeefaxBlock>
 	</div>
 	<nav class="h2h-nav" aria-label="Standings pages">
-		<a href="/standings">300 STANDINGS</a>
+		<a href={`${base}standings`}>300 STANDINGS</a>
 	</nav>
 </CeefaxLayout>
 

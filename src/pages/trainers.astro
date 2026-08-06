@@ -9,7 +9,7 @@ import { PLAYERS } from '../data/players';
 const trainerPages: PageLink[] = PLAYERS.map((player) => ({
 	number: String(400 + player.number),
 	label: `${player.name} — ${player.epithet}`,
-	href: `/trainers/${player.number}`,
+	href: `${import.meta.env.BASE_URL}trainers/${player.number}`,
 }));
 ---
 

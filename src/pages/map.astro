@@ -7,6 +7,7 @@ import { findPlayer } from '../data/players';
 
 const COLS = HOMETOWN_MAP.map[0]?.length ?? 1;
 const ROWS = HOMETOWN_MAP.map.length;
+const base = import.meta.env.BASE_URL;
 ---
 
 <CeefaxLayout title="HOMETOWNS" pageNumber="800">
@@ -22,7 +23,7 @@ const ROWS = HOMETOWN_MAP.map.length;
 				return (
 					<a
 						class="map-marker"
-						href={`/trainers/${player.number}`}
+						href={`${base}trainers/${player.number}`}
 						style={`left: ${left}%; top: ${top}%;`}
 						title={`${player.name} — ${player.hometown}`}
 					>
@@ -38,7 +39,7 @@ const ROWS = HOMETOWN_MAP.map.length;
 			if (!player) return null;
 			return (
 				<li>
-					<a href={`/trainers/${player.number}`}>
+					<a href={`${base}trainers/${player.number}`}>
 						<span class="legend-number">{player.number}</span>
 						<span class="legend-name">{player.name}</span>
 						<span class="legend-town">{player.hometown}</span>

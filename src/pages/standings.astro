@@ -22,6 +22,7 @@ for (const week of WEEKS) {
 const rows = PLAYERS.map((player) => ({ player, ...stats.get(player.number)! })).sort(
 	(a, b) => b.wins - a.wins || b.battles - a.battles,
 );
+const base = import.meta.env.BASE_URL;
 ---
 
 <CeefaxLayout title="STANDINGS" pageNumber="300">
@@ -44,7 +45,7 @@ const rows = PLAYERS.map((player) => ({ player, ...stats.get(player.number)! }))
 					<tr>
 						<td>{index + 1}</td>
 						<td>
-							<a href={`/trainers/${player.number}`}>{player.name}</a>
+							<a href={`${base}trainers/${player.number}`}>{player.name}</a>
 						</td>
 						<td>{player.epithet}</td>
 						<td>{player.signature}</td>
@@ -56,7 +57,7 @@ const rows = PLAYERS.map((player) => ({ player, ...stats.get(player.number)! }))
 			</tbody>
 		</table>
 		<p class="standings-note">
-			<a href="/standings/head-to-head">301 HEAD TO HEAD</a>
+			<a href={`${base}standings/head-to-head`}>301 HEAD TO HEAD</a>
 		</p>
 	</CeefaxBlock>
 </CeefaxLayout>

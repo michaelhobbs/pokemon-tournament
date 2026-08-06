@@ -41,6 +41,7 @@ const pageNumber = String(400 + player.number);
 const playerIndex = PLAYERS.findIndex((p) => p.number === player.number);
 const prev = PLAYERS[playerIndex - 1];
 const next = PLAYERS[playerIndex + 1];
+const base = import.meta.env.BASE_URL;
 ---
 
 <CeefaxLayout title={`${player.name} ${player.epithet}`} pageNumber={pageNumber}>
@@ -71,10 +72,10 @@ const next = PLAYERS[playerIndex + 1];
 				{results.map((result) => (
 					<tr class={result.won ? 'result-win' : result.played ? 'result-loss' : ''}>
 						<td>
-							<a href={`/games/${result.week}`}>{result.week}</a>
+							<a href={`${base}games/${result.week}`}>{result.week}</a>
 						</td>
 						<td>
-							<a href={`/trainers/${result.opponent.number}`}>{result.opponent.name}</a>
+							<a href={`${base}trainers/${result.opponent.number}`}>{result.opponent.name}</a>
 						</td>
 						<td>
 							{result.played ? (
@@ -91,13 +92,13 @@ const next = PLAYERS[playerIndex + 1];
 	</CeefaxBlock>
 	<nav class="trainer-nav" aria-label="Trainer pages">
 		{prev ? (
-			<a href={`/trainers/${prev.number}`}>{prev.name}</a>
+			<a href={`${base}trainers/${prev.number}`}>{prev.name}</a>
 		) : (
 			<span aria-hidden="true"></span>
 		)}
-		<a href="/trainers">400 DIRECTORY</a>
+		<a href={`${base}trainers`}>400 DIRECTORY</a>
 		{next ? (
-			<a href={`/trainers/${next.number}`}>{next.name}</a>
+			<a href={`${base}trainers/${next.number}`}>{next.name}</a>
 		) : (
 			<span aria-hidden="true"></span>
 		)}

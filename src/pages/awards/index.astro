@@ -10,7 +10,7 @@ import { AWARDS } from '../../data/awards';
 	<ul class="award-grid">
 		{AWARDS.map((award) => (
 			<li>
-				<a class="award-card" href={`/awards/${award.number}`}>
+				<a class="award-card" href={`${import.meta.env.BASE_URL}awards/${award.number}`}>
 					<span class="award-sprite">
 						<PixelArt sprite={award.sprite} size="6rem" />
 					</span>
