@@ -114,6 +114,30 @@ const isTypingTarget = (target: EventTarget | null): boolean => {
 const hasModifier = (event: KeyboardEvent): boolean =>
   event.metaKey || event.ctrlKey || event.altKey;
 
+const SWIPE_THRESHOLD_PX = 64;
+const SWIPE_DOMINANCE = 1.5;
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+const onTouchStart = (event: TouchEvent): void => {
+  if (event.changedTouches.length !== 1) return;
+  const touch = event.changedTouches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+};
+
+const onTouchEnd = (event: TouchEvent): void => {
+  if (event.changedTouches.length !== 1 || event.touches.length !== 0) return;
+  const touch = event.changedTouches[0];
+  const dx = touch.clientX - touchStartX;
+  const dy = touch.clientY - touchStartY;
+  if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
+  if (Math.abs(dx) <= Math.abs(dy) * SWIPE_DOMINANCE) return;
+  if (isTypingTarget(event.target)) return;
+  step(dx < 0 ? 1 : -1);
+};
+
 const step = (direction: 1 | -1): void => {
   const state = currentState();
   if (!state) return;
@@ -305,6 +329,8 @@ export function initCeefaxNavigation(data: NavData): void {
   if (!navWindow.ceefaxNavInstalled) {
     navWindow.ceefaxNavInstalled = true;
     window.addEventListener('keydown', onKeydown);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
     document.addEventListener('click', onPageBoxClick);
     document.addEventListener('input', onPageInput);
     document.addEventListener('keydown', onPageBoxKeydown);
