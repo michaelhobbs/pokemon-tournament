@@ -1,0 +1,47 @@
+---
+import type { PixelArt } from '../../data/trophy';
+
+interface Props {
+	sprite: PixelArt;
+	size?: string;
+}
+
+const { sprite, size = '10rem' } = Astro.props;
+const rows = sprite.map.length;
+const cols = sprite.map[0]?.length ?? 0;
+
+const pixels = sprite.map.flatMap((row) =>
+	[...row].map((char) => {
+		const color = char === '.' ? null : sprite.palette[char];
+		return { color };
+	}),
+);
+---
+
+<div
+	class="pixel-art"
+	style={`--art-cols: ${cols}; --art-rows: ${rows}; --art-size: ${size};`}
+	role="img"
+	aria-label="Pixel art award sprite"
+>
+	{pixels.map(({ color }) => (
+		<span class="pixel" style={color ? `background: ${color};` : undefined}></span>
+	))}
+</div>
+
+<style>
+	.pixel-art {
+		display: grid;
+		grid-template-columns: repeat(var(--art-cols), 1fr);
+		grid-template-rows: repeat(var(--art-rows), 1fr);
+		width: var(--art-size);
+		max-width: 100%;
+		aspect-ratio: var(--art-cols) / var(--art-rows);
+		gap: 0;
+	}
+
+	.pixel {
+		width: 100%;
+		aspect-ratio: 1;
+	}
+</style>

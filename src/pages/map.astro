@@ -1,0 +1,130 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+import PixelArt from '../components/ceefax/PixelArt.astro';
+import { HOMETOWN_MAP, HOMETOWN_MARKERS } from '../data/hometown-map';
+import { findPlayer } from '../data/players';
+
+const COLS = HOMETOWN_MAP.map[0]?.length ?? 1;
+const ROWS = HOMETOWN_MAP.map.length;
+---
+
+<CeefaxLayout title="HOMETOWNS" pageNumber="800">
+	<CeefaxHeading text="HOMETOWN MAP" color="green" />
+	<div class="map-stage">
+		<div class="map-wrap">
+			<PixelArt sprite={HOMETOWN_MAP} size="42rem" />
+			{HOMETOWN_MARKERS.map((marker) => {
+				const player = findPlayer(marker.playerNumber);
+				if (!player) return null;
+				const left = ((marker.col + 0.5) / COLS) * 100;
+				const top = ((marker.row + 0.5) / ROWS) * 100;
+				return (
+					<a
+						class="map-marker"
+						href={`/trainers/${player.number}`}
+						style={`left: ${left}%; top: ${top}%;`}
+						title={`${player.name} — ${player.hometown}`}
+					>
+						{player.number}
+					</a>
+				);
+			})}
+		</div>
+	</div>
+	<ul class="map-legend">
+		{HOMETOWN_MARKERS.map((marker) => {
+			const player = findPlayer(marker.playerNumber);
+			if (!player) return null;
+			return (
+				<li>
+					<a href={`/trainers/${player.number}`}>
+						<span class="legend-number">{player.number}</span>
+						<span class="legend-name">{player.name}</span>
+						<span class="legend-town">{player.hometown}</span>
+					</a>
+				</li>
+			);
+		})}
+	</ul>
+</CeefaxLayout>
+
+<style>
+	.map-stage {
+		grid-column: 1 / -1;
+		justify-self: center;
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.map-wrap {
+		position: relative;
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.map-wrap :global(.pixel-art) {
+		max-width: 100%;
+	}
+
+	.map-marker {
+		position: absolute;
+		transform: translate(-50%, -50%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.6rem;
+		height: 1.6rem;
+		background: var(--ceefax-black);
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+		border: 2px solid var(--ceefax-cyan);
+		text-decoration: none;
+		z-index: 2;
+	}
+
+	.map-marker:hover {
+		background: var(--ceefax-yellow);
+		color: var(--ceefax-black);
+		border-color: var(--ceefax-black);
+	}
+
+	.map-legend {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+		gap: 0.5rem 1.5rem;
+		grid-column: 1 / -1;
+	}
+
+	.map-legend a {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		text-decoration: none;
+		color: var(--ceefax-white);
+	}
+
+	.map-legend a:hover .legend-name {
+		color: var(--ceefax-green);
+	}
+
+	.legend-number {
+		background: var(--ceefax-black);
+		color: var(--ceefax-green);
+		font-weight: 700;
+		padding: 0 0.35rem;
+		flex-shrink: 0;
+	}
+
+	.legend-name {
+		font-weight: 700;
+		color: var(--ceefax-green);
+	}
+
+	.legend-town {
+		color: var(--ceefax-white);
+	}
+</style>

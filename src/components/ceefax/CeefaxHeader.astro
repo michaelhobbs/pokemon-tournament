@@ -1,0 +1,79 @@
+---
+interface Props {
+	title: string;
+	pageNumber?: string;
+	subtitle?: string;
+}
+
+const { title, pageNumber = '001', subtitle = 'POKEMON TOURNAMENT' } = Astro.props;
+---
+
+<header class="ceefax-header" transition:animate="none">
+	<div class="ceefax-topbar">
+		<span class="ceefax-topbar-item">PAGE {pageNumber}</span>
+		<span class="ceefax-topbar-item ceefax-topbar-center">{subtitle}</span>
+		<span class="ceefax-topbar-item" id="ceefax-clock" transition:persist aria-hidden="true">--:--/--</span>
+	</div>
+	<div class="ceefax-titlerow">
+		<h1 class="ceefax-title">{title}</h1>
+		<span class="ceefax-pagebox" id="ceefax-pagebox" aria-hidden="true">{pageNumber}</span>
+	</div>
+</header>
+
+<style>
+	.ceefax-topbar {
+		display: flex;
+		align-items: stretch;
+		justify-content: space-between;
+		gap: 1rem;
+		background: var(--ceefax-cyan);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		padding: 0.15rem 0.75rem;
+	}
+
+	.ceefax-topbar-center {
+		text-align: center;
+	}
+
+	.ceefax-titlerow {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.5rem 0.75rem;
+		border-bottom: 3px solid var(--ceefax-cyan);
+	}
+
+	.ceefax-title {
+		margin: 0;
+		font-size: clamp(1.5rem, 4vw, 2.5rem);
+		line-height: 1.1;
+		letter-spacing: 0.12em;
+		color: var(--ceefax-yellow);
+	}
+
+	.ceefax-pagebox {
+		flex-shrink: 0;
+		background: var(--ceefax-magenta);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		padding: 0.25rem 0.6rem;
+	}
+
+	.ceefax-pagebox[data-unknown='true'] {
+		background: var(--ceefax-red);
+		color: var(--ceefax-white);
+	}
+</style>
+
+<script is:inline>
+	const clock = document.getElementById('ceefax-clock');
+	const pad = (n) => String(n).padStart(2, '0');
+	const render = () => {
+		const d = new Date();
+		clock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}/${pad(d.getSeconds())}`;
+	};
+	render();
+	setInterval(render, 1000);
+</script>

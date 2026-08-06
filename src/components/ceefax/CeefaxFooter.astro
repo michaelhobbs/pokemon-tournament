@@ -1,0 +1,97 @@
+---
+interface Props {
+	pageNumber?: string;
+	ticker?: string[];
+}
+
+const {
+	pageNumber = '001',
+	ticker = [
+		'WELCOME TO THE POKEMON TOURNAMENT',
+		"GOTTA CATCH 'EM ALL",
+		'LEAGUE NEWS FOLLOWS',
+	],
+} = Astro.props;
+
+const dateLabel = new Date()
+	.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+	.toUpperCase();
+---
+
+<footer class="ceefax-footer" transition:animate="none">
+	<div class="ceefax-ticker" aria-hidden="true">
+		<div class="ceefax-ticker-track">
+			<span class="ceefax-ticker-copy">
+				{ticker.map((entry) => (
+					<span class="ceefax-ticker-item">{entry}</span>
+				))}
+			</span>
+			<span class="ceefax-ticker-copy">
+				{ticker.map((entry) => (
+					<span class="ceefax-ticker-item">{entry}</span>
+				))}
+			</span>
+		</div>
+	</div>
+	<div class="ceefax-statusbar">
+		<span>POKEFAX</span>
+		<span class="ceefax-statusbar-center">{dateLabel}</span>
+		<span>PAGE {pageNumber}</span>
+	</div>
+</footer>
+
+<style>
+	.ceefax-ticker {
+		overflow: hidden;
+		white-space: nowrap;
+		background: var(--ceefax-blue);
+		color: var(--ceefax-white);
+		border-top: 3px solid var(--ceefax-cyan);
+		padding: 0.15rem 0;
+	}
+
+	.ceefax-ticker-track {
+		display: inline-flex;
+		white-space: nowrap;
+		animation: ceefax-scroll 30s linear infinite;
+	}
+
+	.ceefax-ticker-copy {
+		display: inline-flex;
+		white-space: nowrap;
+	}
+
+	.ceefax-ticker-item {
+		padding-right: 3rem;
+	}
+
+	.ceefax-ticker-item::after {
+		content: '▲';
+		color: var(--ceefax-yellow);
+		margin-left: 1.5rem;
+	}
+
+	.ceefax-statusbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		background: var(--ceefax-black);
+		color: var(--ceefax-yellow);
+		border-top: 3px solid var(--ceefax-cyan);
+		padding: 0.15rem 0.75rem;
+	}
+
+	.ceefax-statusbar-center {
+		color: var(--ceefax-white);
+	}
+
+	@keyframes ceefax-scroll {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(-50%);
+		}
+	}
+</style>

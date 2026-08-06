@@ -1,0 +1,149 @@
+---
+import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
+import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
+import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
+import { WEEKS, weekFor } from '../../data/matches';
+import { findPlayer } from '../../data/players';
+
+export function getStaticPaths() {
+	return WEEKS.map((week) => ({
+		params: { week: String(week.number) },
+	}));
+}
+
+const { week: weekParam } = Astro.params;
+const week = weekFor(Number(weekParam));
+if (!week) throw new Error(`Unknown week: ${weekParam}`);
+
+const pageNumber = String(500 + week.number);
+const weekIndex = WEEKS.findIndex((w) => w.number === week.number);
+const prev = WEEKS[weekIndex - 1];
+const next = WEEKS[weekIndex + 1];
+---
+
+<CeefaxLayout title={`GAMES — WEEK ${week.number}`} pageNumber={pageNumber}>
+	<CeefaxHeading text={`WEEK ${week.number}`} color="cyan" />
+	<CeefaxBlock title="FIXTURES" number={week.number} color="yellow">
+		<p class="week-date">{week.date}</p>
+		<ol class="match-list">
+			{week.matches.map((match) => {
+				const p1 = findPlayer(match.p1);
+				const p2 = findPlayer(match.p2);
+				if (!p1 || !p2) throw new Error(`Unknown player in week ${week.number}`);
+				const hasResult = match.wins1 !== undefined && match.wins2 !== undefined;
+				return (
+					<li class="match">
+						<a class="match-name" href={`/trainers/${p1.number}`}>{p1.name}</a>
+						{hasResult ? (
+							<span class="match-score">
+								{match.wins1} - {match.wins2}
+							</span>
+						) : (
+							<span class="match-score match-vs">VS</span>
+						)}
+						<a class="match-name" href={`/trainers/${p2.number}`}>{p2.name}</a>
+					</li>
+				);
+			})}
+		</ol>
+	</CeefaxBlock>
+	<nav class="week-nav" aria-label="Week pages">
+		{prev ? (
+			<a href={`/games/${prev.number}`}>WEEK {prev.number}</a>
+		) : (
+			<span aria-hidden="true"></span>
+		)}
+		<a href="/games">500 FIXTURES</a>
+		{next ? (
+			<a href={`/games/${next.number}`}>WEEK {next.number}</a>
+		) : (
+			<span aria-hidden="true"></span>
+		)}
+	</nav>
+</CeefaxLayout>
+
+<style>
+	.week-date {
+		margin: 0 0 0.5rem;
+		color: var(--ceefax-magenta);
+		font-weight: 700;
+	}
+
+	.match-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.match {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		gap: 0.6rem;
+		border-bottom: 1px dashed var(--ceefax-white);
+		padding-bottom: 0.4rem;
+	}
+
+	.match-name {
+		text-decoration: none;
+		color: var(--ceefax-white);
+	}
+
+	.match-name:first-child {
+		justify-self: end;
+		text-align: right;
+	}
+
+	.match-name:last-child {
+		justify-self: start;
+		text-align: left;
+	}
+
+	.match-name:hover {
+		color: var(--ceefax-cyan);
+	}
+
+	.match-score {
+		justify-self: center;
+		flex-shrink: 0;
+		font-weight: 700;
+		color: var(--ceefax-yellow);
+	}
+
+	.match-vs {
+		color: var(--ceefax-magenta);
+	}
+
+	.week-nav {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		gap: 1rem;
+		padding-top: 0.5rem;
+		border-top: 2px solid var(--ceefax-cyan);
+	}
+
+	.week-nav > :first-child {
+		justify-self: start;
+	}
+
+	.week-nav > :nth-child(2) {
+		justify-self: center;
+	}
+
+	.week-nav > :last-child {
+		justify-self: end;
+	}
+
+	.week-nav a {
+		text-decoration: none;
+		color: var(--ceefax-yellow);
+	}
+
+	.week-nav a:hover {
+		color: var(--ceefax-cyan);
+	}
+</style>

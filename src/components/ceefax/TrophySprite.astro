@@ -1,0 +1,42 @@
+---
+import { TROPHY_SPRITE } from '../../data/trophy';
+
+const sprite = TROPHY_SPRITE;
+const rows = sprite.map.length;
+const cols = sprite.map[0]?.length ?? 0;
+
+const pixels = sprite.map.flatMap((row) =>
+	[...row].map((char) => {
+		const color = char === '.' ? null : sprite.palette[char];
+		return { color };
+	}),
+);
+---
+
+<div
+	class="trophy-sprite"
+	style={`--sprite-cols: ${cols}; --sprite-rows: ${rows};`}
+	role="img"
+	aria-label="Pixel art championship trophy"
+>
+	{pixels.map(({ color }) => (
+		<span class="pixel" style={color ? `background: ${color};` : undefined}></span>
+	))}
+</div>
+
+<style>
+	.trophy-sprite {
+		display: grid;
+		grid-template-columns: repeat(var(--sprite-cols), 1fr);
+		grid-template-rows: repeat(var(--sprite-rows), 1fr);
+		width: 16rem;
+		max-width: 100%;
+		aspect-ratio: var(--sprite-cols) / var(--sprite-rows);
+		gap: 0;
+	}
+
+	.pixel {
+		width: 100%;
+		aspect-ratio: 1;
+	}
+</style>

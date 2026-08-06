@@ -1,0 +1,108 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
+import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+import { PLAYERS } from '../data/players';
+import { WEEKS } from '../data/matches';
+
+const stats = new Map<number, { wins: number; battles: number }>();
+for (const player of PLAYERS) stats.set(player.number, { wins: 0, battles: 0 });
+for (const week of WEEKS) {
+	for (const match of week.matches) {
+		const a = stats.get(match.p1);
+		const b = stats.get(match.p2);
+		if (!a || !b) continue;
+		a.battles += match.wins1 ?? 0;
+		b.battles += match.wins2 ?? 0;
+		if ((match.wins1 ?? 0) > (match.wins2 ?? 0)) a.wins += 1;
+		else if ((match.wins2 ?? 0) > (match.wins1 ?? 0)) b.wins += 1;
+	}
+}
+
+const rows = PLAYERS.map((player) => ({ player, ...stats.get(player.number)! })).sort(
+	(a, b) => b.wins - a.wins || b.battles - a.battles,
+);
+---
+
+<CeefaxLayout title="STANDINGS" pageNumber="300">
+	<CeefaxHeading text="LEAGUE TABLE" color="cyan" />
+	<CeefaxBlock title="STANDINGS" number="300" color="cyan">
+		<table class="standings">
+			<thead>
+				<tr>
+					<th scope="col">POS</th>
+					<th scope="col">TRAINER</th>
+					<th scope="col">EPITHET</th>
+					<th scope="col">SIGNATURE</th>
+					<th scope="col">W</th>
+					<th scope="col">B</th>
+					<th scope="col">PTS</th>
+				</tr>
+			</thead>
+			<tbody>
+				{rows.map(({ player, wins, battles }, index) => (
+					<tr>
+						<td>{index + 1}</td>
+						<td>
+							<a href={`/trainers/${player.number}`}>{player.name}</a>
+						</td>
+						<td>{player.epithet}</td>
+						<td>{player.signature}</td>
+						<td>{wins}</td>
+						<td>{battles}</td>
+						<td>{wins * 3}</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+		<p class="standings-note">
+			<a href="/standings/head-to-head">301 HEAD TO HEAD</a>
+		</p>
+	</CeefaxBlock>
+</CeefaxLayout>
+
+<style>
+	.standings {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.standings th,
+	.standings td {
+		border: 1px solid var(--ceefax-cyan);
+		padding: 0.25rem 0.5rem;
+		text-align: left;
+	}
+
+	.standings th {
+		background: var(--ceefax-cyan);
+		color: var(--ceefax-black);
+		font-weight: 700;
+	}
+
+	.standings td {
+		color: var(--ceefax-white);
+	}
+
+	.standings td:first-child {
+		color: var(--ceefax-yellow);
+	}
+
+	.standings td a {
+		color: var(--ceefax-cyan);
+	}
+
+	.standings-note {
+		margin: 0.75rem 0 0;
+	}
+
+	.standings-note a {
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.standings-note a:hover {
+		color: var(--ceefax-cyan);
+	}
+</style>

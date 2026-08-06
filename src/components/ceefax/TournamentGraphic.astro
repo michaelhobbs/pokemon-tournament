@@ -1,0 +1,141 @@
+---
+const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white'] as const;
+---
+
+<div class="tg">
+	<div class="tg-ball" aria-hidden="true">
+		<div class="tg-ball-band"></div>
+		<div class="tg-ball-button"></div>
+	</div>
+	<div class="tg-wordmark">
+		<p class="tg-kicker">THE LEAGUE CHAMPIONSHIP</p>
+		<h2 class="tg-title">POKEMON<br />TOURNAMENT</h2>
+		<p class="tg-stats">10 TRAINERS · 6 POKEMON EACH · SEASON 3 · PICK 4 DOUBLES</p>
+	</div>
+</div>
+<div class="tg-bar" aria-hidden="true">
+	{barColors.map((color) => (
+		<i data-color={color}></i>
+	))}
+</div>
+
+<style>
+	.tg {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: clamp(1.5rem, 4vw, 3rem);
+		padding: 1.5rem 0 1rem;
+	}
+
+	.tg-ball {
+		position: relative;
+		width: 150px;
+		height: 150px;
+		flex-shrink: 0;
+		border-radius: 50%;
+		overflow: hidden;
+		background: var(--ceefax-white);
+		border: 3px solid var(--ceefax-black);
+		box-shadow:
+			0 0 0 3px rgba(255, 255, 255, 0.2),
+			0 0 28px rgba(0, 255, 255, 0.18);
+	}
+
+	.tg-ball::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		height: 50%;
+		background: var(--ceefax-red);
+	}
+
+	.tg-ball-band {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 50%;
+		height: 12px;
+		transform: translateY(-50%);
+		background: var(--ceefax-black);
+	}
+
+	.tg-ball-button {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 30px;
+		height: 30px;
+		transform: translate(-50%, -50%);
+		border-radius: 50%;
+		background: var(--ceefax-white);
+		border: 6px solid var(--ceefax-black);
+	}
+
+	.tg-wordmark {
+		text-align: center;
+	}
+
+	.tg-kicker {
+		margin: 0;
+		color: var(--ceefax-magenta);
+		font-weight: 700;
+		letter-spacing: 0.35em;
+	}
+
+	.tg-title {
+		margin: 0.5rem 0;
+		color: var(--ceefax-yellow);
+		font-size: clamp(2.2rem, 7vw, 4rem);
+		line-height: 1.05;
+		letter-spacing: 0.08em;
+		text-shadow: 3px 3px 0 rgba(255, 0, 255, 0.35);
+	}
+
+	.tg-stats {
+		margin: 0;
+		color: var(--ceefax-cyan);
+		font-weight: 700;
+	}
+
+	.tg-bar {
+		display: flex;
+		height: 12px;
+		margin: 0 0 0.5rem;
+	}
+
+	.tg-bar i {
+		flex: 1;
+	}
+
+	.tg-bar i[data-color='cyan'] {
+		background: var(--ceefax-cyan);
+	}
+
+	.tg-bar i[data-color='yellow'] {
+		background: var(--ceefax-yellow);
+	}
+
+	.tg-bar i[data-color='magenta'] {
+		background: var(--ceefax-magenta);
+	}
+
+	.tg-bar i[data-color='red'] {
+		background: var(--ceefax-red);
+	}
+
+	.tg-bar i[data-color='green'] {
+		background: var(--ceefax-green);
+	}
+
+	.tg-bar i[data-color='blue'] {
+		background: var(--ceefax-blue);
+	}
+
+	.tg-bar i[data-color='white'] {
+		background: var(--ceefax-white);
+	}
+</style>

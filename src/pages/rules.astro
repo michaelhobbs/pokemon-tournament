@@ -1,0 +1,48 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
+import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+---
+
+<CeefaxLayout title="RULES" pageNumber="200">
+	<CeefaxHeading text="TOURNAMENT RULES" color="cyan" />
+	<CeefaxBlock title="FORMAT" number="1" color="cyan">
+		<p>DRAFT: TAKE TURNS PICKING POKEMON UNTIL ALL HAVE 6.</p>
+		<p>ROUND ROBIN: EVERY TRAINER FACES EVERY OTHER, ONE MATCH PER WEEK.</p>
+		<p>EACH MATCH IS BEST OF THREE — ALL THREE GAMES ARE PLAYED.</p>
+		<p>AFTER 9 WEEKS: REDRAFT — SWAP UP TO 2 POKEMON.</p>
+		<p>SECOND HALF: FULL ROUND ROBIN AGAIN, ONE MATCH PER WEEK.</p>
+	</CeefaxBlock>
+	<CeefaxBlock title="DRAFT RULES" number="2" color="blue">
+		<ul>
+			<li>UP TO GEN 6</li>
+			<li>NO LEGENDARY</li>
+			<li>NO MEGA</li>
+		</ul>
+	</CeefaxBlock>
+	<CeefaxBlock title="BATTLE RULES" number="3" color="yellow">
+		<ul>
+			<li>PICK 4 FROM A POOL OF 6</li>
+			<li>CONFIGURATION FIXED PER SET OF 3 BATTLES</li>
+		</ul>
+	</CeefaxBlock>
+	<CeefaxBlock title="SCHEDULE" number="4" color="magenta">
+		<p>1 - INITIAL DRAFT</p>
+		<p>2 - ROUND ROBIN — 9 WEEKS</p>
+		<p class="schedule-active">3 - MID-SEASON SUB DRAFT</p>
+		<p>4 - ROUND ROBIN — 9 WEEKS</p>
+		<p>5 - RESULTS</p>
+	</CeefaxBlock>
+	<CeefaxBlock title="RULEBREAKS" number="5" color="red">
+		<p>FUN AND FAIR PLAY ARE MANDATORY — INFRACTORS WILL BE FORCED TO WATCH THEIR OWN REPLAYS.</p>
+		<p>PLAYERS MAY AGREE ON CUSTOM RULES IN THEIR OWN GAMES.</p>
+		<p>DECISIONS OF THE LEAGUE JUDGE ARE FINAL.</p>
+	</CeefaxBlock>
+</CeefaxLayout>
+
+<style>
+	.schedule-active {
+		color: var(--ceefax-green);
+		font-weight: 700;
+	}
+</style>

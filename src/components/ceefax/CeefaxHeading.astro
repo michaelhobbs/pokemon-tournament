@@ -1,0 +1,52 @@
+---
+type CeefaxColor = 'cyan' | 'yellow' | 'magenta' | 'red' | 'green' | 'white';
+
+interface Props {
+	text: string;
+	color?: CeefaxColor;
+	level?: 1 | 2 | 3;
+}
+
+const { text, color = 'yellow', level = 2 } = Astro.props;
+const Tag = `h${level}` as const;
+---
+
+<Tag class="ceefax-heading" data-color={color}>
+	{text}
+</Tag>
+
+<style>
+	.ceefax-heading[data-color='cyan'] {
+		--heading-color: var(--ceefax-cyan);
+	}
+
+	.ceefax-heading[data-color='yellow'] {
+		--heading-color: var(--ceefax-yellow);
+	}
+
+	.ceefax-heading[data-color='magenta'] {
+		--heading-color: var(--ceefax-magenta);
+	}
+
+	.ceefax-heading[data-color='red'] {
+		--heading-color: var(--ceefax-red);
+	}
+
+	.ceefax-heading[data-color='green'] {
+		--heading-color: var(--ceefax-green);
+	}
+
+	.ceefax-heading[data-color='white'] {
+		--heading-color: var(--ceefax-white);
+	}
+
+	.ceefax-heading {
+		margin: 0;
+		font-size: 1.5rem;
+		font-weight: 700;
+		line-height: 1.15;
+		letter-spacing: 0.1em;
+		color: var(--heading-color);
+		text-shadow: 2px 2px 0 var(--ceefax-black);
+	}
+</style>

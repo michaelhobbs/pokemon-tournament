@@ -1,0 +1,60 @@
+:root {
+	--ceefax-font: 'Courier New', 'Nimbus Mono PS', ui-monospace, 'SFMono-Regular', monospace;
+	--ceefax-black: #000000;
+	--ceefax-cyan: #00ffff;
+	--ceefax-yellow: #ffff00;
+	--ceefax-magenta: #ff00ff;
+	--ceefax-red: #ff0000;
+	--ceefax-green: #00ff00;
+	--ceefax-blue: #0000ff;
+	--ceefax-white: #ffffff;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	background: var(--ceefax-black);
+}
+
+body {
+	margin: 0;
+	font-family: var(--ceefax-font);
+	font-size: 17px;
+	line-height: 1.4;
+	color: var(--ceefax-white);
+	background: var(--ceefax-black);
+	text-transform: uppercase;
+	-webkit-font-smoothing: antialiased;
+}
+
+a {
+	color: var(--ceefax-cyan);
+}
+
+p {
+	margin: 0.5rem 0;
+}
+
+ul,
+ol {
+	padding-left: 1.4rem;
+}
+
+li::marker {
+	color: var(--ceefax-magenta);
+}
+
+img,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+::selection {
+	background: var(--ceefax-cyan);
+	color: var(--ceefax-black);
+}

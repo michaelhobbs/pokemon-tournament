@@ -1,0 +1,28 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
+import TournamentGraphic from '../components/ceefax/TournamentGraphic.astro';
+import PageDirectory from '../components/ceefax/PageDirectory.astro';
+import { PAGES } from '../data/navigation';
+---
+
+<CeefaxLayout title="TOURNAMENT" pageNumber="100">
+	<div class="home-hero">
+		<TournamentGraphic />
+	</div>
+	<CeefaxBlock title="STATUS" number="1" color="green">
+		<p>MID-SEASON SUB DRAFT</p>
+	</CeefaxBlock>
+	<CeefaxBlock title="NAVIGATION" number="2" color="yellow">
+		<p>TYPE A PAGE NUMBER (E.G. 100) TO JUMP</p>
+		<p>USE ARROW KEYS TO MOVE BETWEEN PAGES</p>
+		<p>PRESS H FOR NAVIGATION HELP</p>
+	</CeefaxBlock>
+	<PageDirectory pages={PAGES} />
+</CeefaxLayout>
+
+<style>
+	.home-hero {
+		grid-column: 1 / -1;
+	}
+</style>

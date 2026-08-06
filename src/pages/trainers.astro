@@ -1,0 +1,22 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
+import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+import PageDirectory from '../components/ceefax/PageDirectory.astro';
+import type { PageLink } from '../data/navigation';
+import { PLAYERS } from '../data/players';
+
+const trainerPages: PageLink[] = PLAYERS.map((player) => ({
+	number: String(400 + player.number),
+	label: `${player.name} — ${player.epithet}`,
+	href: `/trainers/${player.number}`,
+}));
+---
+
+<CeefaxLayout title="TRAINERS" pageNumber="400">
+	<CeefaxHeading text="TRAINER DIRECTORY" color="cyan" />
+	<PageDirectory title="TRAINERS" number="400" color="yellow" pages={trainerPages} />
+	<CeefaxBlock title="NOTE" number="1" color="green">
+		<p>SELECT A TRAINER TO VIEW PROFILE AND TEAM.</p>
+	</CeefaxBlock>
+</CeefaxLayout>

@@ -1,0 +1,86 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
+import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+import TrophySprite from '../components/ceefax/TrophySprite.astro';
+---
+
+<CeefaxLayout title="TROPHY" pageNumber="600">
+	<CeefaxHeading text="TROPHY" color="yellow" />
+	<div class="trophy-wrap">
+		<CeefaxBlock title="CHAMPIONS TROPHY" number="600" color="yellow">
+			<div class="trophy-display">
+				<TrophySprite />
+				<div class="trophy-nameplate">
+					<span class="nameplate-label">CHAMPION</span>
+					<span class="nameplate-name">TO BE DECIDED</span>
+				</div>
+			</div>
+			<p class="trophy-note">UNDER CONSTRUCTION</p>
+			<p class="trophy-detail">
+				THE WINNER OF SEASON 3 WILL HAVE THEIR NAME ENGRAVED HERE.
+			</p>
+		</CeefaxBlock>
+	</div>
+</CeefaxLayout>
+
+<style>
+	.trophy-wrap {
+		grid-column: 1 / -1;
+		justify-self: center;
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.trophy-wrap :global(.ceefax-block) {
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.trophy-display {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.25rem;
+		padding: 0.5rem 0;
+	}
+
+	.trophy-nameplate {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+		border: 3px solid var(--ceefax-black);
+		background: var(--ceefax-black);
+		color: var(--ceefax-yellow);
+		padding: 0.5rem 2rem;
+		min-width: 12rem;
+	}
+
+	.nameplate-label {
+		font-size: 0.8rem;
+		letter-spacing: 0.2em;
+		color: var(--ceefax-white);
+	}
+
+	.nameplate-name {
+		font-weight: 700;
+		font-size: 1.1rem;
+		letter-spacing: 0.08em;
+		color: var(--ceefax-yellow);
+		text-transform: uppercase;
+	}
+
+	.trophy-note {
+		margin: 0.75rem 0 0;
+		text-align: center;
+		font-weight: 700;
+		color: var(--ceefax-red);
+	}
+
+	.trophy-detail {
+		margin: 0.5rem 0 0;
+		text-align: center;
+		color: var(--ceefax-white);
+	}
+</style>

@@ -1,0 +1,41 @@
+---
+import { spriteFor } from '../../data/trainer-sprites';
+
+interface Props {
+	number: number;
+}
+
+const { number } = Astro.props;
+const sprite = spriteFor(number);
+const rows = sprite.map.length;
+const cols = sprite.map[0]?.length ?? 0;
+
+const pixels = sprite.map.flatMap((row) =>
+	[...row].map((char) => {
+		const color = char === '.' ? null : sprite.palette[char];
+		return { color };
+	}),
+);
+---
+
+<div class="trainer-sprite" style={`--sprite-cols: ${cols}; --sprite-rows: ${rows};`} role="img" aria-label={`Trainer sprite`}>
+	{pixels.map(({ color }) => (
+		<span class="pixel" style={color ? `background: ${color};` : undefined}></span>
+	))}
+</div>
+
+<style>
+	.trainer-sprite {
+		display: grid;
+		grid-template-columns: repeat(var(--sprite-cols), 1fr);
+		grid-template-rows: repeat(var(--sprite-rows), 1fr);
+		width: 12rem;
+		aspect-ratio: var(--sprite-cols) / var(--sprite-rows);
+		gap: 0;
+	}
+
+	.pixel {
+		width: 100%;
+		aspect-ratio: 1;
+	}
+</style>
