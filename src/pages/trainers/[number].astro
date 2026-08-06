@@ -5,6 +5,7 @@ import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import TrainerSprite from '../../components/ceefax/TrainerSprite.astro';
 import { PLAYERS, findPlayer } from '../../data/players';
 import { WEEKS } from '../../data/matches';
+import { POKEMON_TYPES, analyzeTeam } from '../../data/pokemon';
 
 export function getStaticPaths() {
 	return PLAYERS.map((player) => ({
@@ -42,6 +43,7 @@ const playerIndex = PLAYERS.findIndex((p) => p.number === player.number);
 const prev = PLAYERS[playerIndex - 1];
 const next = PLAYERS[playerIndex + 1];
 const base = import.meta.env.BASE_URL;
+const teamStats = analyzeTeam(player.team);
 ---
 
 <CeefaxLayout title={`${player.name} ${player.epithet}`} pageNumber={pageNumber}>
@@ -54,9 +56,50 @@ const base = import.meta.env.BASE_URL;
 	<CeefaxBlock title="TEAM" number={player.number} color="yellow">
 		<ol class="trainer-team">
 			{player.team.map((pokemon) => (
-				<li>{pokemon}</li>
+				<li>
+					{pokemon}
+					{POKEMON_TYPES[pokemon] && (
+						<span class="type-chip">{POKEMON_TYPES[pokemon].join('/')}</span>
+					)}
+				</li>
 			))}
 		</ol>
+	</CeefaxBlock>
+	<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
+		<div class="team-analysis">
+			<section class="analysis-group">
+				<h3 class="analysis-label analysis-weak">WEAK TO</h3>
+				{teamStats.weaknesses.length > 0 ? (
+					<ul class="analysis-list">
+						{teamStats.weaknesses.map((weakness) => (
+							<li>
+								<span class="analysis-type">{weakness.type}</span>
+								<span class="analysis-count">×{weakness.count}</span>
+								{weakness.quad && <span class="analysis-quad">4×</span>}
+							</li>
+						))}
+					</ul>
+				) : (
+					<p class="analysis-empty">NONE</p>
+				)}
+			</section>
+			<section class="analysis-group">
+				<h3 class="analysis-label analysis-resist">RESISTS</h3>
+				{teamStats.resistances.length > 0 ? (
+					<ul class="analysis-list">
+						{teamStats.resistances.map((resistance) => (
+							<li>
+								<span class="analysis-type">{resistance.type}</span>
+								<span class="analysis-count">×{resistance.count}</span>
+							</li>
+						))}
+					</ul>
+				) : (
+					<p class="analysis-empty">NONE</p>
+				)}
+			</section>
+		</div>
+		<p class="analysis-note">×N = POKÉMON AFFECTED — 4× = DOUBLE WEAKNESS</p>
 	</CeefaxBlock>
 	<CeefaxBlock title="RESULTS" number={player.number} color="green">
 		<table class="trainer-results">
@@ -122,6 +165,93 @@ const base = import.meta.env.BASE_URL;
 		content: '▶';
 		color: var(--ceefax-magenta);
 		font-size: 0.7rem;
+	}
+
+	.type-chip {
+		background: var(--ceefax-black);
+		color: var(--ceefax-white);
+		border: 1px solid var(--ceefax-yellow);
+		padding: 0 0.3rem;
+		font-size: 0.75rem;
+		margin-left: 0.4rem;
+	}
+
+	.team-analysis {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+	}
+
+	@media (max-width: 30rem) {
+		.team-analysis {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.analysis-label {
+		margin: 0 0 0.4rem;
+		font-size: 0.9rem;
+		letter-spacing: 0.1em;
+	}
+
+	.analysis-weak {
+		color: var(--ceefax-red);
+	}
+
+	.analysis-resist {
+		color: var(--ceefax-green);
+	}
+
+	.analysis-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+		gap: 0.25rem 0.5rem;
+	}
+
+	.analysis-list li {
+		display: flex;
+		align-items: baseline;
+		gap: 0.3rem;
+	}
+
+	.analysis-type {
+		font-weight: 700;
+		color: var(--ceefax-white);
+	}
+
+	.analysis-weak .analysis-type {
+		color: var(--ceefax-red);
+	}
+
+	.analysis-resist .analysis-type {
+		color: var(--ceefax-green);
+	}
+
+	.analysis-count {
+		color: var(--ceefax-white);
+		font-size: 0.8rem;
+	}
+
+	.analysis-quad {
+		background: var(--ceefax-red);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		padding: 0 0.25rem;
+		font-size: 0.7rem;
+	}
+
+	.analysis-empty {
+		margin: 0;
+		color: var(--ceefax-white);
+	}
+
+	.analysis-note {
+		margin: 0.75rem 0 0;
+		color: var(--ceefax-cyan);
+		font-size: 0.8rem;
 	}
 
 	.trainer-results {
