@@ -4,25 +4,25 @@ import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
 import PixelArt from '../components/ceefax/PixelArt.astro';
 import SecretAwardBanner from '../components/ceefax/SecretAwardBanner.astro';
-import { SURPRISE_SPRITE } from '../data/awards';
+import { JOAk_SPRITE, JOAk_JOKES } from '../data/professor-joak';
 ---
 
-<CeefaxLayout title="SECRET" pageNumber="000">
-	<div class="secret-block">
-		<PixelArt sprite={SURPRISE_SPRITE} size="8rem" />
-		<CeefaxHeading text="YOU FOUND THE HIDDEN PAGE" color="magenta" />
-		<CeefaxBlock title="DO NOT TELL ANYONE" color="magenta">
-			<p>THIS IS PAGE 000.</p>
-			<p>THE HUMON SAID IT HAD 000 IDEA WHERE THIS WAS. NOW YOU KNOW.</p>
-			<p>THERE IS NOTHING HERE. YET.</p>
-			<p>KEEP YOUR EYES OPEN FOR OTHER SECRETS.</p>
+<CeefaxLayout title="PROFESSOR JOAK" pageNumber="123">
+	<div class="joak-block">
+		<PixelArt sprite={JOAk_SPRITE} size="8rem" label="Professor Joak sprite" />
+		<CeefaxHeading text="PROFESSOR JOAK" color="cyan" />
+		<p class="joak-tagline">POKEMON TRAINER TRAINER</p>
+		<CeefaxBlock title="A FEW JOKES" color="cyan">
+			{JOAk_JOKES.map((joke) => (
+				<p>{joke}</p>
+			))}
 		</CeefaxBlock>
 	</div>
 	<SecretAwardBanner />
 </CeefaxLayout>
 
 <style>
-	.secret-block {
+	.joak-block {
 		grid-column: 1 / -1;
 		justify-self: center;
 		display: flex;
@@ -33,8 +33,13 @@ import { SURPRISE_SPRITE } from '../data/awards';
 		max-width: 100%;
 	}
 
-	.secret-block :global(.ceefax-block) {
+	.joak-block :global(.ceefax-block) {
 		width: fit-content;
 		max-width: 100%;
+	}
+
+	.joak-tagline {
+		color: var(--ceefax-cyan);
+		letter-spacing: 0.05em;
 	}
 </style>

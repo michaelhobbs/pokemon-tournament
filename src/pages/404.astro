@@ -2,6 +2,7 @@
 import CeefaxLayout from '../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+import SecretAwardBanner from '../components/ceefax/SecretAwardBanner.astro';
 ---
 
 <CeefaxLayout title="PAGE NOT FOUND" pageNumber="404">
@@ -13,6 +14,7 @@ import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
 			<a href={`${import.meta.env.BASE_URL}`}>GO BACK TO HOME (100)</a>
 		</p>
 	</CeefaxBlock>
+	<SecretAwardBanner />
 </CeefaxLayout>
 
 <style>

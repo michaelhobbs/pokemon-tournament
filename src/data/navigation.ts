@@ -35,6 +35,12 @@ export const NOT_FOUND_PAGE: PageLink = {
 	href: `${base}404`,
 	hidden: true,
 };
+export const JOAk_PAGE: PageLink = {
+	number: '123',
+	label: 'PROFESSOR JOAK',
+	href: `${base}123`,
+	hidden: true,
+};
 
 export const PAGES: PageLink[] = [
 	HOME_PAGE,
@@ -70,6 +76,7 @@ export const AWARD_PAGES: PageLink[] = AWARDS.map((award) => ({
 export const ALL_PAGES: PageLink[] = [
 	HIDDEN_PAGE,
 	NOT_FOUND_PAGE,
+	JOAk_PAGE,
 	HOME_PAGE,
 	RULES_PAGE,
 	STANDINGS_PAGE,
