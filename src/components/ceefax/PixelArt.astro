@@ -4,9 +4,11 @@ import type { PixelArt } from '../../data/trophy';
 interface Props {
 	sprite: PixelArt;
 	size?: string;
+	label?: string;
+	decorative?: boolean;
 }
 
-const { sprite, size = '10rem' } = Astro.props;
+const { sprite, size = '10rem', label = 'Pixel art sprite', decorative = false } = Astro.props;
 const rows = sprite.map.length;
 const cols = sprite.map[0]?.length ?? 0;
 
@@ -21,8 +23,9 @@ const pixels = sprite.map.flatMap((row) =>
 <div
 	class="pixel-art"
 	style={`--art-cols: ${cols}; --art-rows: ${rows}; --art-size: ${size};`}
-	role="img"
-	aria-label="Pixel art award sprite"
+	role={decorative ? undefined : 'img'}
+	aria-label={decorative ? undefined : label}
+	aria-hidden={decorative ? 'true' : undefined}
 >
 	{pixels.map(({ color }) => (
 		<span class="pixel" style={color ? `background: ${color};` : undefined}></span>

@@ -1,11 +1,28 @@
 ---
+import PixelArt from './PixelArt.astro';
+import { POKEBALL } from '../../data/pokeball';
+
 const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white'] as const;
 ---
 
 <div class="tg">
-	<div class="tg-ball" aria-hidden="true">
-		<div class="tg-ball-band"></div>
-		<div class="tg-ball-button"></div>
+	<div
+		class="tg-ball"
+		id="tg-ball"
+		role="button"
+		tabindex="0"
+		aria-label="Pokeball — click three times to catch a HUMON"
+	>
+		<div class="tg-ball-inner" aria-hidden="true">
+			<div class="tg-ball-half tg-ball-top">
+				<PixelArt sprite={POKEBALL} size="100%" decorative />
+			</div>
+			<div class="tg-ball-half tg-ball-bottom">
+				<PixelArt sprite={POKEBALL} size="100%" decorative />
+			</div>
+		</div>
+		<span class="tg-flash" aria-hidden="true"></span>
+		<p class="tg-bubble" role="status">YOU CAUGHT A HUMON</p>
 	</div>
 	<div class="tg-wordmark">
 		<p class="tg-kicker">THE LEAGUE CHAMPIONSHIP</p>
@@ -18,6 +35,61 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 		<i data-color={color}></i>
 	))}
 </div>
+
+<script>
+	document.addEventListener('astro:page-load', initBall);
+	initBall();
+
+	function initBall() {
+		const ball = document.getElementById('tg-ball');
+		if (!ball || ball.dataset.bound) return;
+		ball.dataset.bound = 'true';
+
+		let clicks = 0;
+		let shakeTimer = 0;
+		let openTimer = 0;
+
+		function shake() {
+			ball.classList.remove('is-shake');
+			void ball.offsetWidth;
+			ball.classList.add('is-shake');
+		}
+
+		function reset() {
+			window.clearTimeout(shakeTimer);
+			window.clearTimeout(openTimer);
+			ball.classList.remove('is-open', 'is-shake', 'has-bubble');
+			clicks = 0;
+		}
+
+		function activate() {
+			if (ball.classList.contains('has-bubble')) {
+				reset();
+				return;
+			}
+			if (ball.classList.contains('is-open') || clicks >= 3) return;
+			clicks += 1;
+			shake();
+			if (clicks >= 3) {
+				shakeTimer = window.setTimeout(() => {
+					ball.classList.add('is-open');
+					openTimer = window.setTimeout(() => {
+						ball.classList.add('has-bubble');
+						ball.classList.remove('is-open');
+					}, 650);
+				}, 360);
+			}
+		}
+
+		ball.addEventListener('click', activate);
+		ball.addEventListener('keydown', (event) => {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				activate();
+			}
+		});
+	}
+</script>
 
 <style>
 	.tg {
@@ -32,47 +104,119 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 	.tg-ball {
 		position: relative;
 		width: 150px;
-		height: 150px;
+		aspect-ratio: 22 / 20;
 		flex-shrink: 0;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+		animation: tg-idle 3.6s ease-in-out infinite;
+	}
+
+	.tg-ball:focus-visible {
+		outline: 2px solid var(--ceefax-cyan);
+		outline-offset: 4px;
+	}
+
+	.tg-ball-inner {
+		position: absolute;
+		inset: 0;
+		filter: drop-shadow(0 0 14px rgba(0, 255, 255, 0.35));
+		transition: transform 0.25s ease;
+	}
+
+	.tg-ball.is-open .tg-ball-inner {
+		transform: scale(0.9);
+	}
+
+	.tg-ball-half {
+		position: absolute;
+		inset: 0;
+		transition: transform 0.28s ease;
+	}
+
+	.tg-ball-top {
+		clip-path: inset(0 0 50% 0);
+	}
+
+	.tg-ball-bottom {
+		clip-path: inset(50% 0 0 0);
+	}
+
+	.tg-ball.is-open .tg-ball-top {
+		transform: translateY(-18px);
+	}
+
+	.tg-ball.is-open .tg-ball-bottom {
+		transform: translateY(18px);
+	}
+
+	.tg-ball.is-shake .tg-ball-inner {
+		animation: tg-shake 0.35s ease-in-out;
+	}
+
+	.tg-flash {
+		position: absolute;
+		inset: 0;
 		border-radius: 50%;
-		overflow: hidden;
-		background: var(--ceefax-white);
-		border: 3px solid var(--ceefax-black);
-		box-shadow:
-			0 0 0 3px rgba(255, 255, 255, 0.2),
-			0 0 28px rgba(0, 255, 255, 0.18);
+		background: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 1) 0%,
+			rgba(255, 255, 255, 0.85) 35%,
+			rgba(255, 255, 255, 0) 70%
+		);
+		opacity: 0;
+		transform: scale(0.2);
+		pointer-events: none;
+		z-index: 2;
 	}
 
-	.tg-ball::before {
-		content: '';
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		height: 50%;
-		background: var(--ceefax-red);
+	.tg-ball.is-open .tg-flash {
+		animation: tg-flash 0.5s ease-out forwards;
 	}
 
-	.tg-ball-band {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 50%;
-		height: 12px;
-		transform: translateY(-50%);
-		background: var(--ceefax-black);
-	}
-
-	.tg-ball-button {
+	.tg-bubble {
 		position: absolute;
 		left: 50%;
-		top: 50%;
-		width: 30px;
-		height: 30px;
-		transform: translate(-50%, -50%);
-		border-radius: 50%;
-		background: var(--ceefax-white);
-		border: 6px solid var(--ceefax-black);
+		top: calc(100% + 12px);
+		transform: translateX(-50%) translateY(-6px);
+		background: var(--ceefax-yellow);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		margin: 0;
+		padding: 0.35rem 0.8rem;
+		border: 2px solid var(--ceefax-black);
+		box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
+		white-space: nowrap;
+		opacity: 0;
+		pointer-events: none;
+		z-index: 3;
+		transition:
+			opacity 0.2s ease,
+			transform 0.25s ease;
+	}
+
+	.tg-ball.has-bubble .tg-bubble {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+
+	.tg-bubble::before,
+	.tg-bubble::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		border-left: 6px solid transparent;
+		border-right: 6px solid transparent;
+	}
+
+	.tg-bubble::before {
+		top: -11px;
+		border-bottom: 9px solid var(--ceefax-black);
+	}
+
+	.tg-bubble::after {
+		top: -7px;
+		border-bottom: 7px solid var(--ceefax-yellow);
 	}
 
 	.tg-wordmark {
@@ -137,5 +281,70 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 
 	.tg-bar i[data-color='white'] {
 		background: var(--ceefax-white);
+	}
+
+	@keyframes tg-idle {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-5px);
+		}
+	}
+
+	@keyframes tg-shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		15% {
+			transform: translateX(-7px) rotate(-7deg);
+		}
+		30% {
+			transform: translateX(7px) rotate(7deg);
+		}
+		45% {
+			transform: translateX(-5px) rotate(-5deg);
+		}
+		60% {
+			transform: translateX(5px) rotate(5deg);
+		}
+		75% {
+			transform: translateX(-3px) rotate(-3deg);
+		}
+		90% {
+			transform: translateX(2px) rotate(2deg);
+		}
+	}
+
+	@keyframes tg-flash {
+		0% {
+			opacity: 0;
+			transform: scale(0.2);
+		}
+		25% {
+			opacity: 1;
+			transform: scale(1.1);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(1.7);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.tg-ball {
+			animation: none;
+		}
+
+		.tg-ball.is-shake .tg-ball-inner {
+			animation-duration: 0.01s;
+		}
+
+		.tg-ball.is-open .tg-ball-top,
+		.tg-ball.is-open .tg-ball-bottom {
+			transition: none;
+		}
 	}
 </style>
