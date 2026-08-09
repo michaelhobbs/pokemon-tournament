@@ -3,383 +3,485 @@ import PixelArt from './PixelArt.astro';
 import { HUMON } from '../../data/humon';
 import { POKEBALL } from '../../data/pokeball';
 
-const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white'] as const;
+const barColors = [
+  'cyan',
+  'yellow',
+  'magenta',
+  'red',
+  'green',
+  'blue',
+  'white',
+] as const;
 ---
 
 <div class="tg">
-	<div
-		class="tg-ball"
-		id="tg-ball"
-		role="button"
-		tabindex="0"
-		aria-label="Pokeball — click three times to catch a HUMON"
-	>
-		<div class="tg-ball-inner" aria-hidden="true">
-			<div class="tg-ball-half tg-ball-top">
-				<PixelArt sprite={POKEBALL} size="100%" decorative />
-			</div>
-			<div class="tg-ball-half tg-ball-bottom">
-				<PixelArt sprite={POKEBALL} size="100%" decorative />
-			</div>
-		</div>
-		<span class="tg-flash" aria-hidden="true"></span>
-		<p class="tg-bubble" role="status">YOU CAUGHT A HUMON</p>
-		<span class="tg-free" aria-hidden="true">
-			<PixelArt sprite={HUMON} size="100%" decorative />
-		</span>
-	</div>
-	<div class="tg-wordmark">
-		<p class="tg-kicker">THE LEAGUE CHAMPIONSHIP</p>
-		<h2 class="tg-title">POKEMON<br />TOURNAMENT</h2>
-		<p class="tg-stats">10 TRAINERS · 6 POKEMON EACH · SEASON 3 · PICK 4 DOUBLES</p>
-	</div>
+  <div class="tg-stage">
+    <div
+      class="tg-ball"
+      id="tg-ball"
+      role="button"
+      tabindex="0"
+      aria-label="Pokeball — click three times to catch a HUMON"
+    >
+      <div class="tg-ball-inner" aria-hidden="true">
+        <div class="tg-ball-half tg-ball-top">
+          <PixelArt sprite={POKEBALL} size="100%" decorative />
+        </div>
+        <div class="tg-ball-half tg-ball-bottom">
+          <PixelArt sprite={POKEBALL} size="100%" decorative />
+        </div>
+      </div>
+      <span class="tg-flash" aria-hidden="true"></span>
+      <p class="tg-bubble" role="status">YOU CAUGHT A HUMON</p>
+    </div>
+    <div
+      class="tg-free"
+      id="tg-humon"
+      role="button"
+      tabindex="0"
+      aria-label="HUMON"
+    >
+      <PixelArt sprite={HUMON} size="100%" decorative />
+      <p class="tg-bubble tg-humon-bubble tg-humon-msg" role="status">
+        I USED TO BE TRAINER.<br />NOW I'M A MON.<br />I STILL HAVE MY TEAM
+        THOUGH.<br />POKECEPTION!
+      </p>
+      <p class="tg-bubble tg-humon-bubble tg-humon-msg2" role="status">
+        THERE IS A LEGEND OF A HIDDEN PAGE SOMEWHERE BUT I HAVE&nbsp;<span
+          class="tg-page">000</span
+        >&nbsp;IDEA WHERE IT IS…
+      </p>
+    </div>
+  </div>
+  <div class="tg-wordmark">
+    <p class="tg-kicker">THE LEAGUE CHAMPIONSHIP</p>
+    <h2 class="tg-title">POKEMON<br />TOURNAMENT</h2>
+    <p class="tg-stats">
+      10 TRAINERS · 6 POKEMON EACH · SEASON 3 · PICK 4 DOUBLES
+    </p>
+  </div>
 </div>
 <div class="tg-bar" aria-hidden="true">
-	{barColors.map((color) => (
-		<i data-color={color}></i>
-	))}
+  {barColors.map((color) => <i data-color={color} />)}
 </div>
 
 <script>
-	import { readCaught, writeCaught } from '../../data/humon';
+  import { readCaught, writeCaught } from '../../data/humon';
 
-	document.addEventListener('astro:page-load', initBall);
-	initBall();
+  document.addEventListener('astro:page-load', initBall);
+  initBall();
 
-	function initBall() {
-		const ball = document.getElementById('tg-ball');
-		if (!ball || ball.dataset.bound) return;
-		ball.dataset.bound = 'true';
+  function initBall() {
+    const ball = document.getElementById('tg-ball');
+    if (!ball || ball.dataset.bound) return;
+    ball.dataset.bound = 'true';
 
-		let clicks = 0;
-		let shakeTimer = 0;
+    let clicks = 0;
+    let shakeTimer = 0;
 
-		function shake() {
-			ball.classList.remove('is-shake');
-			void ball.offsetWidth;
-			ball.classList.add('is-shake');
-		}
+    function shake() {
+      ball.classList.remove('is-shake');
+      void ball.offsetWidth;
+      ball.classList.add('is-shake');
+    }
 
-		if (readCaught()) {
-			ball.classList.add('has-bubble');
-		}
+    if (readCaught()) {
+      ball.classList.add('has-bubble');
+    }
 
-		function activate() {
-			if (ball.classList.contains('has-bubble')) {
-				ball.classList.toggle('is-open');
-				return;
-			}
-			if (clicks >= 3) return;
-			clicks += 1;
-			shake();
-			if (clicks >= 3) {
-				shakeTimer = window.setTimeout(() => {
-					ball.classList.add('is-open');
-					window.setTimeout(() => {
-						ball.classList.add('has-bubble');
-						writeCaught(true);
-						window.dispatchEvent(new CustomEvent('humon:caught'));
-					}, 650);
-				}, 360);
-			}
-		}
+    function activate() {
+      if (ball.classList.contains('has-bubble')) {
+        ball.classList.toggle('is-open');
+        return;
+      }
+      if (clicks >= 3) return;
+      clicks += 1;
+      shake();
+      if (clicks >= 3) {
+        shakeTimer = window.setTimeout(() => {
+          ball.classList.add('is-open');
+          window.setTimeout(() => {
+            ball.classList.add('has-bubble');
+            writeCaught(true);
+            window.dispatchEvent(new CustomEvent('humon:caught'));
+          }, 650);
+        }, 360);
+      }
+    }
 
-		ball.addEventListener('click', activate);
-		ball.addEventListener('keydown', (event) => {
-			if (event.key === 'Enter' || event.key === ' ') {
-				event.preventDefault();
-				activate();
-			}
-		});
-	}
+    ball.addEventListener('click', activate);
+    ball.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        activate();
+      }
+    });
+
+    const humon = document.getElementById('tg-humon');
+    if (humon) {
+      let msgIndex = 1;
+      const talk = () => {
+        msgIndex = 1 - msgIndex;
+        humon.classList.add('is-talking');
+        humon.classList.toggle('is-talking-two', msgIndex === 1);
+      };
+      humon.addEventListener('click', talk);
+      humon.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          talk();
+        }
+      });
+    }
+  }
 </script>
 
 <style>
-	.tg {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-wrap: wrap;
-		gap: clamp(1.5rem, 4vw, 3rem);
-		padding: 1.5rem 0 1rem;
-	}
+  .tg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding: 1.5rem 0 1rem;
+  }
 
-	.tg-ball {
-		position: relative;
-		width: 150px;
-		aspect-ratio: 22 / 20;
-		flex-shrink: 0;
-		cursor: pointer;
-		-webkit-tap-highlight-color: transparent;
-		animation: tg-idle 3.6s ease-in-out infinite;
-	}
+  .tg-stage {
+    position: relative;
+    width: 150px;
+    flex-shrink: 0;
+  }
 
-	.tg-ball:focus-visible {
-		outline: 2px solid var(--ceefax-cyan);
-		outline-offset: 4px;
-	}
+  .tg-ball {
+    position: relative;
+    width: 150px;
+    aspect-ratio: 22 / 20;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    animation: tg-idle 3.6s ease-in-out infinite;
+  }
 
-	.tg-ball-inner {
-		position: absolute;
-		inset: 0;
-		filter: drop-shadow(0 0 14px rgba(0, 255, 255, 0.35));
-		transition: transform 0.25s ease;
-	}
+  .tg-ball:focus-visible {
+    outline: 2px solid var(--ceefax-cyan);
+    outline-offset: 4px;
+  }
 
-	.tg-ball.is-open .tg-ball-inner {
-		transform: scale(0.9);
-	}
+  .tg-ball-inner {
+    position: absolute;
+    inset: 0;
+    filter: drop-shadow(0 0 14px rgba(0, 255, 255, 0.35));
+    transition: transform 0.25s ease;
+  }
 
-	.tg-ball-half {
-		position: absolute;
-		inset: 0;
-		transition: transform 0.28s ease;
-	}
+  .tg-ball.is-open .tg-ball-inner {
+    transform: scale(0.9);
+  }
 
-	.tg-ball-top {
-		clip-path: inset(0 0 50% 0);
-	}
+  .tg-ball-half {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.28s ease;
+  }
 
-	.tg-ball-bottom {
-		clip-path: inset(50% 0 0 0);
-	}
+  .tg-ball-top {
+    clip-path: inset(0 0 50% 0);
+  }
 
-	.tg-ball.is-open .tg-ball-top {
-		transform: translateY(-18px);
-	}
+  .tg-ball-bottom {
+    clip-path: inset(50% 0 0 0);
+  }
 
-	.tg-ball.is-open .tg-ball-bottom {
-		transform: translateY(18px);
-	}
+  .tg-ball.is-open .tg-ball-top {
+    transform: translateY(-18px);
+  }
 
-	.tg-ball.is-shake .tg-ball-inner {
-		animation: tg-shake 0.35s ease-in-out;
-	}
+  .tg-ball.is-open .tg-ball-bottom {
+    transform: translateY(18px);
+  }
 
-	.tg-flash {
-		position: absolute;
-		inset: 0;
-		border-radius: 50%;
-		background: radial-gradient(
-			circle,
-			rgba(255, 255, 255, 1) 0%,
-			rgba(255, 255, 255, 0.85) 35%,
-			rgba(255, 255, 255, 0) 70%
-		);
-		opacity: 0;
-		transform: scale(0.2);
-		pointer-events: none;
-		z-index: 2;
-	}
+  .tg-ball.is-shake .tg-ball-inner {
+    animation: tg-shake 0.35s ease-in-out;
+  }
 
-	.tg-ball.is-open .tg-flash {
-		animation: tg-flash 0.5s ease-out forwards;
-	}
+  .tg-flash {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0.85) 35%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    opacity: 0;
+    transform: scale(0.2);
+    pointer-events: none;
+    z-index: 2;
+  }
 
-	.tg-bubble {
-		position: absolute;
-		left: 50%;
-		top: calc(100% + 12px);
-		transform: translateX(-50%) translateY(-6px);
-		background: var(--ceefax-yellow);
-		color: var(--ceefax-black);
-		font-weight: 700;
-		margin: 0;
-		padding: 0.35rem 0.8rem;
-		border: 2px solid var(--ceefax-black);
-		box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
-		white-space: nowrap;
-		opacity: 0;
-		pointer-events: none;
-		z-index: 3;
-		transition:
-			opacity 0.2s ease,
-			transform 0.25s ease;
-	}
+  .tg-ball.is-open .tg-flash {
+    animation: tg-flash 0.5s ease-out forwards;
+  }
 
-	.tg-ball.is-open .tg-bubble {
-		opacity: 1;
-		transform: translateX(-50%) translateY(0);
-	}
+  .tg-bubble {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 12px);
+    transform: translateX(-50%) translateY(-6px);
+    background: var(--ceefax-yellow);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    margin: 0;
+    padding: 0.35rem 0.8rem;
+    border: 2px solid var(--ceefax-black);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    transition:
+      opacity 0.2s ease,
+      transform 0.25s ease;
+  }
 
-	.tg-bubble::before,
-	.tg-bubble::after {
-		content: '';
-		position: absolute;
-		left: 50%;
-		transform: translateX(-50%);
-		border-left: 6px solid transparent;
-		border-right: 6px solid transparent;
-	}
+  .tg-ball.is-open .tg-bubble {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 
-	.tg-bubble::before {
-		top: -11px;
-		border-bottom: 9px solid var(--ceefax-black);
-	}
+  .tg-bubble::before,
+  .tg-bubble::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+  }
 
-	.tg-bubble::after {
-		top: -7px;
-		border-bottom: 7px solid var(--ceefax-yellow);
-	}
+  .tg-bubble::before {
+    top: -11px;
+    border-bottom: 9px solid var(--ceefax-black);
+  }
 
-	.tg-free {
-		position: absolute;
-		left: -3rem;
-		top: 50%;
-		width: 3.6rem;
-		transform: translateY(-50%);
-		opacity: 0;
-		pointer-events: none;
-		z-index: 2;
-		filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.35));
-		transition: opacity 0.3s ease;
-	}
+  .tg-bubble::after {
+    top: -7px;
+    border-bottom: 7px solid var(--ceefax-yellow);
+  }
 
-	.tg-ball.has-bubble .tg-free {
-		opacity: 1;
-		animation: tg-humon-idle 3.2s ease-in-out infinite;
-	}
+  .tg-free {
+    position: absolute;
+    left: -3rem;
+    top: 50%;
+    width: 3.6rem;
+    transform: translateY(-50%);
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.35));
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+  }
 
-	.tg-wordmark {
-		text-align: center;
-	}
+  .tg-ball.has-bubble ~ .tg-free {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
+    animation: tg-humon-idle 3.2s ease-in-out infinite;
+  }
 
-	.tg-kicker {
-		margin: 0;
-		color: var(--ceefax-magenta);
-		font-weight: 700;
-		letter-spacing: 0.35em;
-	}
+  .tg-humon-bubble {
+    left: auto;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+    width: max-content;
+    max-width: min(240px, 55vw);
+    white-space: normal;
+    z-index: 4;
+  }
 
-	.tg-title {
-		margin: 0.5rem 0;
-		color: var(--ceefax-yellow);
-		font-size: clamp(2.2rem, 7vw, 4rem);
-		line-height: 1.05;
-		letter-spacing: 0.08em;
-		text-shadow: 3px 3px 0 rgba(255, 0, 255, 0.35);
-	}
+  .tg-free.is-talking .tg-humon-msg {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 
-	.tg-stats {
-		margin: 0;
-		color: var(--ceefax-cyan);
-		font-weight: 700;
-	}
+  .tg-free.is-talking-two .tg-humon-msg {
+    opacity: 0;
+  }
 
-	.tg-bar {
-		display: flex;
-		height: 12px;
-		margin: 0 0 0.5rem;
-	}
+  .tg-free.is-talking-two .tg-humon-msg2 {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 
-	.tg-bar i {
-		flex: 1;
-	}
+  .tg-humon-bubble::before,
+  .tg-humon-bubble::after {
+    left: auto;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 9px solid var(--ceefax-black);
+    border-right: 0;
+  }
 
-	.tg-bar i[data-color='cyan'] {
-		background: var(--ceefax-cyan);
-	}
+  .tg-humon-bubble::after {
+    right: -8px;
+    border-left: 7px solid var(--ceefax-yellow);
+  }
 
-	.tg-bar i[data-color='yellow'] {
-		background: var(--ceefax-yellow);
-	}
+  .tg-humon-bubble .tg-page {
+    background: var(--ceefax-magenta);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    padding: 0 0.2em;
+  }
 
-	.tg-bar i[data-color='magenta'] {
-		background: var(--ceefax-magenta);
-	}
+  .tg-wordmark {
+    text-align: center;
+  }
 
-	.tg-bar i[data-color='red'] {
-		background: var(--ceefax-red);
-	}
+  .tg-kicker {
+    margin: 0;
+    color: var(--ceefax-magenta);
+    font-weight: 700;
+    letter-spacing: 0.35em;
+  }
 
-	.tg-bar i[data-color='green'] {
-		background: var(--ceefax-green);
-	}
+  .tg-title {
+    margin: 0.5rem 0;
+    color: var(--ceefax-yellow);
+    font-size: clamp(2.2rem, 7vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: 0.08em;
+    text-shadow: 3px 3px 0 rgba(255, 0, 255, 0.35);
+  }
 
-	.tg-bar i[data-color='blue'] {
-		background: var(--ceefax-blue);
-	}
+  .tg-stats {
+    margin: 0;
+    color: var(--ceefax-cyan);
+    font-weight: 700;
+  }
 
-	.tg-bar i[data-color='white'] {
-		background: var(--ceefax-white);
-	}
+  .tg-bar {
+    display: flex;
+    height: 12px;
+    margin: 0 0 0.5rem;
+  }
 
-	@keyframes tg-idle {
-		0%,
-		100% {
-			transform: translateY(0);
-		}
-		50% {
-			transform: translateY(-5px);
-		}
-	}
+  .tg-bar i {
+    flex: 1;
+  }
 
-	@keyframes tg-shake {
-		0%,
-		100% {
-			transform: translateX(0);
-		}
-		15% {
-			transform: translateX(-7px) rotate(-7deg);
-		}
-		30% {
-			transform: translateX(7px) rotate(7deg);
-		}
-		45% {
-			transform: translateX(-5px) rotate(-5deg);
-		}
-		60% {
-			transform: translateX(5px) rotate(5deg);
-		}
-		75% {
-			transform: translateX(-3px) rotate(-3deg);
-		}
-		90% {
-			transform: translateX(2px) rotate(2deg);
-		}
-	}
+  .tg-bar i[data-color='cyan'] {
+    background: var(--ceefax-cyan);
+  }
 
-	@keyframes tg-flash {
-		0% {
-			opacity: 0;
-			transform: scale(0.2);
-		}
-		25% {
-			opacity: 1;
-			transform: scale(1.1);
-		}
-		100% {
-			opacity: 0;
-			transform: scale(1.7);
-		}
-	}
+  .tg-bar i[data-color='yellow'] {
+    background: var(--ceefax-yellow);
+  }
 
-	@keyframes tg-humon-idle {
-		0%,
-		100% {
-			transform: translateY(-50%) translateY(0);
-		}
-		50% {
-			transform: translateY(-50%) translateY(-3px);
-		}
-	}
+  .tg-bar i[data-color='magenta'] {
+    background: var(--ceefax-magenta);
+  }
 
-	@media (prefers-reduced-motion: reduce) {
-		.tg-ball {
-			animation: none;
-		}
+  .tg-bar i[data-color='red'] {
+    background: var(--ceefax-red);
+  }
 
-		.tg-ball.is-shake .tg-ball-inner {
-			animation-duration: 0.01s;
-		}
+  .tg-bar i[data-color='green'] {
+    background: var(--ceefax-green);
+  }
 
-		.tg-ball.is-open .tg-ball-top,
-		.tg-ball.is-open .tg-ball-bottom {
-			transition: none;
-		}
+  .tg-bar i[data-color='blue'] {
+    background: var(--ceefax-blue);
+  }
 
-		.tg-ball.has-bubble .tg-free {
-			animation: none;
-		}
-	}
+  .tg-bar i[data-color='white'] {
+    background: var(--ceefax-white);
+  }
+
+  @keyframes tg-idle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes tg-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    15% {
+      transform: translateX(-7px) rotate(-7deg);
+    }
+    30% {
+      transform: translateX(7px) rotate(7deg);
+    }
+    45% {
+      transform: translateX(-5px) rotate(-5deg);
+    }
+    60% {
+      transform: translateX(5px) rotate(5deg);
+    }
+    75% {
+      transform: translateX(-3px) rotate(-3deg);
+    }
+    90% {
+      transform: translateX(2px) rotate(2deg);
+    }
+  }
+
+  @keyframes tg-flash {
+    0% {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+    25% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.7);
+    }
+  }
+
+  @keyframes tg-humon-idle {
+    0%,
+    100% {
+      transform: translateY(-50%) translateY(0);
+    }
+    50% {
+      transform: translateY(-50%) translateY(-3px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tg-ball {
+      animation: none;
+    }
+
+    .tg-ball.is-shake .tg-ball-inner {
+      animation-duration: 0.01s;
+    }
+
+    .tg-ball.is-open .tg-ball-top,
+    .tg-ball.is-open .tg-ball-bottom {
+      transition: none;
+    }
+
+    .tg-ball.has-bubble ~ .tg-free {
+      animation: none;
+    }
+  }
 </style>
