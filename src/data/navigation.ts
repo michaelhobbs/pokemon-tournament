@@ -7,6 +7,8 @@ export interface PageLink {
 	number: string;
 	label: string;
 	href: string;
+	/** Hidden pages are reachable by number but omitted from directories. */
+	hidden?: boolean;
 }
 
 const base = import.meta.env.BASE_URL;
@@ -21,6 +23,12 @@ export const TROPHY_PAGE: PageLink = { number: '600', label: 'TROPHY', href: `${
 export const AWARDS_PAGE: PageLink = { number: '700', label: 'AWARDS', href: `${base}awards` };
 export const HOMETOWNS_PAGE: PageLink = { number: '800', label: 'HOMETOWNS', href: `${base}map` };
 export const HELP_PAGE: PageLink = { number: '900', label: 'HELP', href: `${base}help` };
+export const HIDDEN_PAGE: PageLink = {
+	number: '000',
+	label: 'SECRET',
+	href: `${base}000`,
+	hidden: true,
+};
 
 export const PAGES: PageLink[] = [
 	HOME_PAGE,
@@ -54,6 +62,7 @@ export const AWARD_PAGES: PageLink[] = AWARDS.map((award) => ({
 
 /** Every navigable page in arrow-key order: main pages, then trainers, games, weeks, then help. */
 export const ALL_PAGES: PageLink[] = [
+	HIDDEN_PAGE,
 	HOME_PAGE,
 	RULES_PAGE,
 	STANDINGS_PAGE,
@@ -68,6 +77,9 @@ export const ALL_PAGES: PageLink[] = [
 	HOMETOWNS_PAGE,
 	HELP_PAGE,
 ];
+
+/** Every non-hidden page, used for the help page directory. */
+export const VISIBLE_PAGES: PageLink[] = ALL_PAGES.filter((page) => !page.hidden);
 
 export function findPage(number: string): PageLink | undefined {
 	return ALL_PAGES.find((page) => page.number === number);

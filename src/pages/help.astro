@@ -3,7 +3,7 @@ import CeefaxLayout from '../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
 import PageDirectory from '../components/ceefax/PageDirectory.astro';
-import { ALL_PAGES } from '../data/navigation';
+import { VISIBLE_PAGES } from '../data/navigation';
 ---
 
 <CeefaxLayout title="HELP" pageNumber="900">
@@ -17,7 +17,7 @@ import { ALL_PAGES } from '../data/navigation';
 			<li><b>ESC</b> RETURN TO HOME</li>
 		</ul>
 	</CeefaxBlock>
-	<PageDirectory title="PAGE DIRECTORY" number="2" color="cyan" pages={ALL_PAGES} />
+	<PageDirectory title="PAGE DIRECTORY" number="2" color="cyan" pages={VISIBLE_PAGES} />
 </CeefaxLayout>
 
 <style>
