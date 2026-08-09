@@ -15,6 +15,9 @@ import { VISIBLE_PAGES } from '../data/navigation';
 			<li><b>&larr; / &darr;</b> PREVIOUS PAGE</li>
 			<li><b>H / ?</b> RETURN TO THIS HELP PAGE</li>
 			<li><b>ESC</b> RETURN TO HOME</li>
+			<li>
+				<b>TAP</b> THE PAGE BOX TOP-RIGHT ON MOBILE<span class="hotkey-pagebox" aria-hidden="true">100</span>
+			</li>
 		</ul>
 	</CeefaxBlock>
 	<PageDirectory title="PAGE DIRECTORY" number="2" color="cyan" pages={VISIBLE_PAGES} />
@@ -31,5 +34,16 @@ import { VISIBLE_PAGES } from '../data/navigation';
 
 	.hotkeys b {
 		color: var(--ceefax-yellow);
+	}
+
+	.hotkey-pagebox {
+		display: inline-block;
+		background: var(--ceefax-magenta);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		padding: 0.1rem 0.4rem;
+		margin-left: 0.5rem;
+		width: 3ch;
+		box-sizing: content-box;
 	}
 </style>

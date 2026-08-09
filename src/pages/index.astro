@@ -17,6 +17,9 @@ import { PAGES } from '../data/navigation';
 		<p>TYPE A PAGE NUMBER (E.G. 100) TO JUMP</p>
 		<p>USE ARROW KEYS TO MOVE BETWEEN PAGES</p>
 		<p>PRESS H FOR NAVIGATION HELP</p>
+		<p>
+			TAP THE PAGE BOX TOP-RIGHT ON MOBILE<span class="home-pagebox" aria-hidden="true">100</span>
+		</p>
 	</CeefaxBlock>
 	<PageDirectory pages={PAGES} />
 </CeefaxLayout>
@@ -24,5 +27,16 @@ import { PAGES } from '../data/navigation';
 <style>
 	.home-hero {
 		grid-column: 1 / -1;
+	}
+
+	.home-pagebox {
+		display: inline-block;
+		background: var(--ceefax-magenta);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		padding: 0.1rem 0.4rem;
+		margin-left: 0.5rem;
+		width: 3ch;
+		box-sizing: content-box;
 	}
 </style>
