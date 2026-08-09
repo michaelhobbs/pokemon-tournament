@@ -32,7 +32,8 @@ const barColors = [
         </div>
       </div>
       <span class="tg-flash" aria-hidden="true"></span>
-      <p class="tg-bubble" role="status">
+      <p class="tg-bubble tg-bubble-catch" role="status">YOU CAUGHT A HUMON!</p>
+      <p class="tg-bubble tg-bubble-forever" role="status">
         A MON IS FOR LIFE.<br />NO TAKESIE-BACKSIES!
       </p>
     </div>
@@ -108,7 +109,9 @@ const barColors = [
 
     function activate() {
       if (ball.classList.contains('has-bubble')) {
+        const isOpen = ball.classList.contains('is-open');
         ball.classList.toggle('is-open');
+        if (isOpen) ball.classList.add('has-reopened');
         return;
       }
       if (clicks >= 3) return;
@@ -271,10 +274,10 @@ const barColors = [
       transform 0.25s ease;
   }
 
-  .tg-ball.is-open.has-bubble .tg-bubble {
+  .tg-ball.is-open:not(.has-reopened) .tg-bubble-catch,
+  .tg-ball.is-open.has-reopened .tg-bubble-forever {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
   }
 
   .tg-bubble::before,
