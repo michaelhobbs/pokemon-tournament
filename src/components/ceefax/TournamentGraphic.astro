@@ -1,5 +1,6 @@
 ---
 import PixelArt from './PixelArt.astro';
+import { HUMON } from '../../data/humon';
 import { POKEBALL } from '../../data/pokeball';
 
 const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white'] as const;
@@ -23,6 +24,9 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 		</div>
 		<span class="tg-flash" aria-hidden="true"></span>
 		<p class="tg-bubble" role="status">YOU CAUGHT A HUMON</p>
+		<span class="tg-free" aria-hidden="true">
+			<PixelArt sprite={HUMON} size="100%" decorative />
+		</span>
 	</div>
 	<div class="tg-wordmark">
 		<p class="tg-kicker">THE LEAGUE CHAMPIONSHIP</p>
@@ -37,27 +41,7 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 </div>
 
 <script>
-	const STORAGE_KEY = 'pkm:humon-caught';
-
-	function readCaught() {
-		try {
-			return sessionStorage.getItem(STORAGE_KEY) === 'true';
-		} catch {
-			return false;
-		}
-	}
-
-	function writeCaught(caught) {
-		try {
-			if (caught) {
-				sessionStorage.setItem(STORAGE_KEY, 'true');
-			} else {
-				sessionStorage.removeItem(STORAGE_KEY);
-			}
-		} catch {
-			// storage unavailable — keep in-memory state only
-		}
-	}
+	import { readCaught, writeCaught } from '../../data/humon';
 
 	document.addEventListener('astro:page-load', initBall);
 	initBall();
@@ -77,34 +61,32 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 			ball.classList.add('is-shake');
 		}
 
-		function reset() {
-			window.clearTimeout(shakeTimer);
-			window.clearTimeout(openTimer);
-			ball.classList.remove('is-open', 'is-shake', 'has-bubble');
-			clicks = 0;
-			writeCaught(false);
-		}
-
 		if (readCaught()) {
 			ball.classList.add('has-bubble');
 		}
 
 		function activate() {
 			if (ball.classList.contains('has-bubble')) {
-				reset();
+				ball.classList.remove('is-open');
+				void ball.offsetWidth;
+				ball.classList.add('is-open');
+				openTimer = window.setTimeout(() => {
+					ball.classList.remove('is-open');
+				}, 650);
 				return;
 			}
-			if (ball.classList.contains('is-open') || clicks >= 3) return;
+			if (clicks >= 3) return;
 			clicks += 1;
 			shake();
 			if (clicks >= 3) {
 				shakeTimer = window.setTimeout(() => {
 					ball.classList.add('is-open');
-				openTimer = window.setTimeout(() => {
-					ball.classList.add('has-bubble');
-					ball.classList.remove('is-open');
-					writeCaught(true);
-				}, 650);
+					openTimer = window.setTimeout(() => {
+						ball.classList.remove('is-open');
+						ball.classList.add('has-bubble');
+						writeCaught(true);
+						window.dispatchEvent(new CustomEvent('humon:caught'));
+					}, 650);
 				}, 360);
 			}
 		}
@@ -247,6 +229,24 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 		border-bottom: 7px solid var(--ceefax-yellow);
 	}
 
+	.tg-free {
+		position: absolute;
+		left: -3rem;
+		top: 50%;
+		width: 3.6rem;
+		transform: translateY(-50%);
+		opacity: 0;
+		pointer-events: none;
+		z-index: 2;
+		filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.35));
+		transition: opacity 0.3s ease;
+	}
+
+	.tg-ball.has-bubble .tg-free {
+		opacity: 1;
+		animation: tg-humon-idle 3.2s ease-in-out infinite;
+	}
+
 	.tg-wordmark {
 		text-align: center;
 	}
@@ -361,6 +361,16 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 		}
 	}
 
+	@keyframes tg-humon-idle {
+		0%,
+		100% {
+			transform: translateY(-50%) translateY(0);
+		}
+		50% {
+			transform: translateY(-50%) translateY(-3px);
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.tg-ball {
 			animation: none;
@@ -373,6 +383,10 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 		.tg-ball.is-open .tg-ball-top,
 		.tg-ball.is-open .tg-ball-bottom {
 			transition: none;
+		}
+
+		.tg-ball.has-bubble .tg-free {
+			animation: none;
 		}
 	}
 </style>
