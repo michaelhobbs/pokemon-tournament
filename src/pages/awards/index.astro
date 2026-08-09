@@ -2,7 +2,12 @@
 import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
 import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import PixelArt from '../../components/ceefax/PixelArt.astro';
-import { AWARDS } from '../../data/awards';
+import {
+	AWARDS,
+	awardDisplayName,
+	awardDisplayDescription,
+	awardDisplaySprite,
+} from '../../data/awards';
 ---
 
 <CeefaxLayout title="AWARDS" pageNumber="700">
@@ -10,13 +15,17 @@ import { AWARDS } from '../../data/awards';
 	<ul class="award-grid">
 		{AWARDS.map((award) => (
 			<li>
-				<a class="award-card" href={`${import.meta.env.BASE_URL}awards/${award.number}`}>
+				<a
+					class="award-card"
+					data-hidden={award.hidden}
+					href={`${import.meta.env.BASE_URL}awards/${award.number}`}
+				>
 					<span class="award-sprite">
-						<PixelArt sprite={award.sprite} size="6rem" />
+						<PixelArt sprite={awardDisplaySprite(award)} size="6rem" />
 					</span>
 					<span class="award-number">{award.number}</span>
-					<span class="award-name">{award.name}</span>
-					<span class="award-desc">{award.description}</span>
+					<span class="award-name">{awardDisplayName(award)}</span>
+					<span class="award-desc">{awardDisplayDescription(award)}</span>
 				</a>
 			</li>
 		))}
@@ -62,6 +71,23 @@ import { AWARDS } from '../../data/awards';
 
 	.award-card:hover {
 		background: var(--ceefax-yellow);
+	}
+
+	.award-card[data-hidden='true'] {
+		border-style: dashed;
+		border-color: var(--ceefax-magenta);
+	}
+
+	.award-card[data-hidden='true'] .award-number {
+		background: var(--ceefax-magenta);
+	}
+
+	.award-card[data-hidden='true'] .award-name {
+		color: var(--ceefax-magenta);
+	}
+
+	.award-card[data-hidden='true']:hover .award-name {
+		color: var(--ceefax-black);
 	}
 
 	.award-sprite {

@@ -1,6 +1,6 @@
 import { PLAYERS } from './players';
 import { WEEKS } from './matches';
-import { AWARDS } from './awards';
+import { AWARDS, awardDisplayName } from './awards';
 
 export interface PageLink {
 	/** Ceefax page number shown in nav, e.g. "100" */
@@ -48,7 +48,7 @@ export const GAME_WEEK_PAGES: PageLink[] = WEEKS.map((week) => ({
 
 export const AWARD_PAGES: PageLink[] = AWARDS.map((award) => ({
 	number: String(award.number),
-	label: award.name,
+	label: awardDisplayName(award),
 	href: `${base}awards/${award.number}`,
 }));
 

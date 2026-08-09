@@ -3,7 +3,13 @@ import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import PixelArt from '../../components/ceefax/PixelArt.astro';
-import { AWARDS, awardFor } from '../../data/awards';
+import {
+	AWARDS,
+	awardFor,
+	awardDisplayName,
+	awardDisplayDescription,
+	awardDisplaySprite,
+} from '../../data/awards';
 
 export function getStaticPaths() {
 	return AWARDS.map((award) => ({
@@ -21,13 +27,16 @@ const next = AWARDS[awardIndex + 1];
 const base = import.meta.env.BASE_URL;
 ---
 
-<CeefaxLayout title={`AWARDS — ${award.name}`} pageNumber={String(award.number)}>
-	<CeefaxHeading text={award.name} color="yellow" />
+<CeefaxLayout
+	title={`AWARDS — ${awardDisplayName(award)}`}
+	pageNumber={String(award.number)}
+>
+	<CeefaxHeading text={awardDisplayName(award)} color="yellow" />
 	<div class="award-wrap">
-		<CeefaxBlock title={award.name} number={award.number} color="yellow">
+		<CeefaxBlock title={awardDisplayName(award)} number={award.number} color="yellow">
 			<div class="award-display">
-				<PixelArt sprite={award.sprite} size="14rem" />
-				<p class="award-desc">{award.description}</p>
+				<PixelArt sprite={awardDisplaySprite(award)} size="14rem" />
+				<p class="award-desc">{awardDisplayDescription(award)}</p>
 				<div class="award-nameplate">
 					<span class="nameplate-label">WINNER</span>
 					<span class="nameplate-name">TBD</span>
@@ -37,13 +46,17 @@ const base = import.meta.env.BASE_URL;
 	</div>
 	<nav class="award-nav" aria-label="Award pages">
 		{prev ? (
-			<a href={`${base}awards/${prev.number}`}>{prev.number} {prev.name}</a>
+			<a href={`${base}awards/${prev.number}`}>
+				{prev.number} {awardDisplayName(prev)}
+			</a>
 		) : (
 			<span aria-hidden="true"></span>
 		)}
 		<a href={`${base}awards`}>700 AWARDS</a>
 		{next ? (
-			<a href={`${base}awards/${next.number}`}>{next.number} {next.name}</a>
+			<a href={`${base}awards/${next.number}`}>
+				{next.number} {awardDisplayName(next)}
+			</a>
 		) : (
 			<span aria-hidden="true"></span>
 		)}

@@ -6,6 +6,49 @@ export interface Award {
 	name: string;
 	description: string;
 	sprite: PixelArt;
+	/** True while the award is a season-end surprise: shown as SURPRISE until revealed. */
+	hidden?: boolean;
+}
+
+export const SURPRISE_NAME = 'SURPRISE';
+export const SURPRISE_DESCRIPTION =
+	'This award will be revealed at the end of the season.';
+
+export const SURPRISE_SPRITE: PixelArt = {
+	map: [
+		'................',
+		'................',
+		'.....MMMMMM.....',
+		'...MMMMMMMMMM...',
+		'..MMM......MMM..',
+		'..MM........MM..',
+		'..MM........MM..',
+		'..MM........MM..',
+		'..MM........MM..',
+		'............MM..',
+		'............MM..',
+		'..........MM....',
+		'.........MM.....',
+		'.........MM.....',
+		'..........MM....',
+		'..........MM....',
+	],
+	palette: { M: '#ff00ff' },
+};
+
+/** Display name for an award, hiding the real one until revealed. */
+export function awardDisplayName(award: Award): string {
+	return award.hidden ? SURPRISE_NAME : award.name;
+}
+
+/** Display description for an award, hiding the real one until revealed. */
+export function awardDisplayDescription(award: Award): string {
+	return award.hidden ? SURPRISE_DESCRIPTION : award.description;
+}
+
+/** Sprite shown for an award — a question mark until revealed. */
+export function awardDisplaySprite(award: Award): PixelArt {
+	return award.hidden ? SURPRISE_SPRITE : award.sprite;
 }
 
 export const AWARDS: Award[] = [
@@ -267,6 +310,141 @@ export const AWARDS: Award[] = [
 				'................',
 			],
 			palette: { G: '#ffd700', W: '#e8e8e8' },
+		},
+	},
+	{
+		number: 711,
+		name: 'DARK HORSE',
+		description: 'BEAT THE EVENTUAL CHAMPION',
+		hidden: true,
+		sprite: {
+			map: [
+				'................',
+				'........BB......',
+				'......BBBBB.....',
+				'...BBBBBBBBBB...',
+				'..BBBBBBBBBBBB..',
+				'..BBBWBBBBBBBB..',
+				'..BBBBBBBBBBBB..',
+				'...BBBBBBBBBBB..',
+				'....BBBBBBBBBB..',
+				'.....BBBBBBBBBB.',
+				'......BBBBBBBBB.',
+				'.....BBBBBBBBBB.',
+				'...BBBBBBBBBBBB.',
+				'..BBBBBBBBBBBB..',
+				'..BB...BB...BB..',
+				'..BB...BB...BB..',
+			],
+			palette: { B: '#000000', W: '#ffffff' },
+		},
+	},
+	{
+		number: 712,
+		name: 'CLUTCH',
+		description: 'MOST 2-1 WINS',
+		hidden: true,
+		sprite: {
+			map: [
+				'................',
+				'.....RRRRR......',
+				'....RRRRRRR.....',
+				'....RRBBRRR.....',
+				'....RRRRRRR.....',
+				'....WWWWWWW.....',
+				'.....WWWWW......',
+				'.....KKKKK......',
+				'....KKKKKKK.....',
+				'....KKKKKKK.....',
+				'...KKKKKKKKK....',
+				'...KKKKKKKKK....',
+				'...KKK.KKKKK....',
+				'...KK...KKKK....',
+				'...KK....KKK....',
+				'...K......KK....',
+			],
+			palette: { R: '#ff1a1a', W: '#ffffff', B: '#000000', K: '#e8c39e' },
+		},
+	},
+	{
+		number: 713,
+		name: 'IRON LEGEND',
+		description: 'NEVER SWEPT 0-3',
+		hidden: true,
+		sprite: {
+			map: [
+				'................',
+				'......BBB.......',
+				'.....BBBBB......',
+				'....BBBBBBB.....',
+				'...BBBBBBBBB....',
+				'...BBBBBBBBB....',
+				'..BBSSSSSSSBB...',
+				'..BSSSSSSSSSB...',
+				'..BSSSSSSSSSB...',
+				'..BSSSYSSSSSB...',
+				'..BSSSYSSSSSB...',
+				'..BSSSSSSYSSB...',
+				'..BSSSSSSYSSB...',
+				'...BSSSSSSSB....',
+				'....BSSSSSB.....',
+				'.....BBBBB......',
+			],
+			palette: { B: '#000000', S: '#c9d1d9', Y: '#ffd700' },
+		},
+	},
+	{
+		number: 714,
+		name: 'PARTY CRASHER',
+		description: 'BEAT THE MOST TOP-3 FINISHERS',
+		hidden: true,
+		sprite: {
+			map: [
+				'................',
+				'.......KKK......',
+				'......KKKKK.....',
+				'......KKKKK.....',
+				'.....KKKKKKK....',
+				'.....KKKKKKK....',
+				'......KKKKK.....',
+				'..RRRRRRRRRRR...',
+				'.RRRRRRRRRRRRR..',
+				'.RRRRRRRRRRRRR..',
+				'.WWWWWWWWWWWWW..',
+				'.WWWWWWWWWWWWW..',
+				'.BBBBBBBBBBBBB..',
+				'.BBBBBBBBBBBBB..',
+				'................',
+				'................',
+			],
+			palette: { K: '#e8c39e', R: '#ff5a7a', W: '#ffffff', B: '#8a5a2b' },
+		},
+	},
+	{
+		number: 715,
+		name: 'HOT STREAK',
+		description: 'MOST CONSECUTIVE WINS',
+		hidden: true,
+		sprite: {
+			map: [
+				'................',
+				'.......YY.......',
+				'......YYYY......',
+				'......YYY.......',
+				'.....YYYYYY.....',
+				'....RYYYYYYR....',
+				'...RRYYYYYYRR...',
+				'...RRYYYYYYRR...',
+				'...RRYYYYYYRR...',
+				'..RRRYYYYYYRRR..',
+				'..RRRRYYYYRRRR..',
+				'..RRRRRRRRRRRR..',
+				'..RRRRRRRRRRRR..',
+				'...RRRRRRRRRR...',
+				'....RRRRRRRR....',
+				'.....RRRRRR.....',
+			],
+			palette: { Y: '#ffd700', R: '#ff5a1f' },
 		},
 	},
 ];
