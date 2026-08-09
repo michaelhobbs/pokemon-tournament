@@ -37,6 +37,28 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 </div>
 
 <script>
+	const STORAGE_KEY = 'pkm:humon-caught';
+
+	function readCaught() {
+		try {
+			return sessionStorage.getItem(STORAGE_KEY) === 'true';
+		} catch {
+			return false;
+		}
+	}
+
+	function writeCaught(caught) {
+		try {
+			if (caught) {
+				sessionStorage.setItem(STORAGE_KEY, 'true');
+			} else {
+				sessionStorage.removeItem(STORAGE_KEY);
+			}
+		} catch {
+			// storage unavailable — keep in-memory state only
+		}
+	}
+
 	document.addEventListener('astro:page-load', initBall);
 	initBall();
 
@@ -60,6 +82,11 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 			window.clearTimeout(openTimer);
 			ball.classList.remove('is-open', 'is-shake', 'has-bubble');
 			clicks = 0;
+			writeCaught(false);
+		}
+
+		if (readCaught()) {
+			ball.classList.add('has-bubble');
 		}
 
 		function activate() {
@@ -73,10 +100,11 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 			if (clicks >= 3) {
 				shakeTimer = window.setTimeout(() => {
 					ball.classList.add('is-open');
-					openTimer = window.setTimeout(() => {
-						ball.classList.add('has-bubble');
-						ball.classList.remove('is-open');
-					}, 650);
+				openTimer = window.setTimeout(() => {
+					ball.classList.add('has-bubble');
+					ball.classList.remove('is-open');
+					writeCaught(true);
+				}, 650);
 				}, 360);
 			}
 		}
