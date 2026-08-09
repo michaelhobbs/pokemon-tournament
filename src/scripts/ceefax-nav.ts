@@ -302,6 +302,14 @@ const onPageBoxFocusOut = (event: FocusEvent): void => {
   deactivatePageBox();
 };
 
+const onNavButtonClick = (event: Event): void => {
+  const target = event.target as HTMLElement | null;
+  if (!target || typeof target.closest !== 'function') return;
+  const button = target.closest('#ceefax-prev, #ceefax-next');
+  if (!button) return;
+  step(button.id === 'ceefax-prev' ? -1 : 1);
+};
+
 export function initCeefaxNavigation(data: NavData): void {
   navWindow.ceefaxNavState = data;
 
@@ -312,6 +320,7 @@ export function initCeefaxNavigation(data: NavData): void {
     document.addEventListener('input', onPageInput);
     document.addEventListener('keydown', onPageBoxKeydown);
     document.addEventListener('focusout', onPageBoxFocusOut);
+    document.addEventListener('click', onNavButtonClick);
   }
 
   if (!navWindow.ceefaxNavPageLoadAttached) {

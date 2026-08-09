@@ -56,6 +56,14 @@ const navJson = JSON.stringify(navData);
 			</main>
 			<CeefaxFooter pageNumber={pageNumber} />
 		</div>
+		<div class="ceefax-nav-buttons">
+			<button id="ceefax-prev" class="ceefax-nav-btn" type="button" aria-label="Previous page">
+				&larr;
+			</button>
+			<button id="ceefax-next" class="ceefax-nav-btn" type="button" aria-label="Next page">
+				&rarr;
+			</button>
+		</div>
 		<div class="ceefax-crt" transition:persist aria-hidden="true"></div>
 		<script>
 			import { initCeefaxNavigation } from '../scripts/ceefax-nav';
@@ -118,6 +126,50 @@ const navJson = JSON.stringify(navData);
 		max-width: 1100px;
 		margin: 0 auto;
 		padding: 1.5rem;
+	}
+
+	.ceefax-nav-buttons {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 4rem;
+		z-index: 5;
+		display: flex;
+		justify-content: space-between;
+		padding: 0 1rem;
+		pointer-events: none;
+	}
+
+	.ceefax-nav-btn {
+		pointer-events: auto;
+		display: grid;
+		place-items: center;
+		width: 3.25rem;
+		height: 3.25rem;
+		border-radius: 50%;
+		border: 2px solid var(--ceefax-black);
+		background: var(--ceefax-cyan);
+		color: var(--ceefax-black);
+		font-size: 1.5rem;
+		font-weight: 700;
+		cursor: pointer;
+		opacity: 0.92;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.ceefax-nav-btn:focus-visible {
+		outline: 2px solid var(--ceefax-white);
+		outline-offset: 3px;
+	}
+
+	.ceefax-nav-btn:active {
+		opacity: 0.7;
+	}
+
+	@media (min-width: 768px) {
+		.ceefax-nav-buttons {
+			display: none;
+		}
 	}
 
 	.ceefax-crt {
