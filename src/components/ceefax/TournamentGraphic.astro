@@ -53,7 +53,6 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 
 		let clicks = 0;
 		let shakeTimer = 0;
-		let openTimer = 0;
 
 		function shake() {
 			ball.classList.remove('is-shake');
@@ -67,12 +66,7 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 
 		function activate() {
 			if (ball.classList.contains('has-bubble')) {
-				ball.classList.remove('is-open');
-				void ball.offsetWidth;
-				ball.classList.add('is-open');
-				openTimer = window.setTimeout(() => {
-					ball.classList.remove('is-open');
-				}, 650);
+				ball.classList.toggle('is-open');
 				return;
 			}
 			if (clicks >= 3) return;
@@ -81,8 +75,7 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 			if (clicks >= 3) {
 				shakeTimer = window.setTimeout(() => {
 					ball.classList.add('is-open');
-					openTimer = window.setTimeout(() => {
-						ball.classList.remove('is-open');
+					window.setTimeout(() => {
 						ball.classList.add('has-bubble');
 						writeCaught(true);
 						window.dispatchEvent(new CustomEvent('humon:caught'));
@@ -204,7 +197,7 @@ const barColors = ['cyan', 'yellow', 'magenta', 'red', 'green', 'blue', 'white']
 			transform 0.25s ease;
 	}
 
-	.tg-ball.has-bubble .tg-bubble {
+	.tg-ball.is-open .tg-bubble {
 		opacity: 1;
 		transform: translateX(-50%) translateY(0);
 	}
