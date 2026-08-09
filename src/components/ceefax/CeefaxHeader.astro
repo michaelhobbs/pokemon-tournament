@@ -29,8 +29,24 @@ const {
   <div class="ceefax-titlerow">
     <div class="ceefax-title-wrap">
       <h1 class="ceefax-title">{title}</h1>
-      <span class="ceefax-humon" id="ceefax-humon" transition:persist aria-hidden="true">
+      <span
+        class="ceefax-humon"
+        id="ceefax-humon"
+        transition:persist
+        role="button"
+        tabindex="0"
+        aria-label="HUMON"
+      >
         <PixelArt sprite={HUMON} size="100%" decorative />
+        <span class="ceefax-humon-bubble ceefax-humon-msg" role="status">
+          I USED TO BE TRAINER.<br />NOW I'M A MON.<br />I STILL HAVE MY TEAM
+          THOUGH.<br />POKECEPTION!
+        </span>
+        <span class="ceefax-humon-bubble ceefax-humon-msg2" role="status">
+          THERE IS A LEGEND OF A HIDDEN PAGE SOMEWHERE BUT I HAVE&nbsp;<span
+            class="humon-page">000</span
+          >&nbsp;IDEA WHERE IT IS…
+        </span>
       </span>
     </div>
     <span
@@ -45,6 +61,10 @@ const {
 </header>
 
 <style>
+  .ceefax-header {
+    z-index: 1;
+  }
+
   .ceefax-topbar {
     display: flex;
     align-items: stretch;
@@ -85,17 +105,83 @@ const {
   }
 
   .ceefax-humon {
+    position: relative;
     display: inline-block;
     width: 2.1rem;
     flex-shrink: 0;
+    visibility: hidden;
     opacity: 0;
+    cursor: pointer;
     filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.4));
-    transition: opacity 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
   }
 
   .ceefax-humon.has-humon {
+    visibility: visible;
     opacity: 1;
     animation: ceefax-humon-bob 2.8s ease-in-out infinite;
+  }
+
+  .ceefax-humon-bubble {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 10px);
+    transform: translateX(-50%) translateY(-6px);
+    background: var(--ceefax-yellow);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    margin: 0;
+    padding: 0.35rem 0.8rem;
+    border: 2px solid var(--ceefax-black);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
+    width: max-content;
+    max-width: min(260px, 70vw);
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+    transition:
+      opacity 0.2s ease,
+      transform 0.25s ease;
+  }
+
+  .ceefax-humon.is-talking .ceefax-humon-msg,
+  .ceefax-humon.is-talking-two .ceefax-humon-msg2 {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .ceefax-humon.is-talking-two .ceefax-humon-msg {
+    opacity: 0;
+  }
+
+  .ceefax-humon-bubble::before,
+  .ceefax-humon-bubble::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+  }
+
+  .ceefax-humon-bubble::before {
+    top: -11px;
+    border-bottom: 9px solid var(--ceefax-black);
+  }
+
+  .ceefax-humon-bubble::after {
+    top: -7px;
+    border-bottom: 7px solid var(--ceefax-yellow);
+  }
+
+  .ceefax-humon-bubble .humon-page {
+    background: var(--ceefax-magenta);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    padding: 0 0.2em;
   }
 
   @keyframes ceefax-humon-bob {
@@ -154,4 +240,20 @@ const {
   };
   window.addEventListener('humon:caught', syncHumon);
   syncHumon();
+
+  if (humon) {
+    let msgIndex = 1;
+    const talk = () => {
+      msgIndex = 1 - msgIndex;
+      humon.classList.add('is-talking');
+      humon.classList.toggle('is-talking-two', msgIndex === 1);
+    };
+    humon.addEventListener('click', talk);
+    humon.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        talk();
+      }
+    });
+  }
 </script>
