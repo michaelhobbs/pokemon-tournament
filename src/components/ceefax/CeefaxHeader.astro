@@ -242,11 +242,15 @@ const {
   syncHumon();
 
   if (humon) {
-    let msgIndex = 1;
+    let msgIndex = 0;
     const talk = () => {
-      msgIndex = 1 - msgIndex;
-      humon.classList.add('is-talking');
-      humon.classList.toggle('is-talking-two', msgIndex === 1);
+      msgIndex = (msgIndex + 1) % 3;
+      if (msgIndex === 0) {
+        humon.classList.remove('is-talking', 'is-talking-two');
+      } else {
+        humon.classList.add('is-talking');
+        humon.classList.toggle('is-talking-two', msgIndex === 2);
+      }
     };
     humon.addEventListener('click', talk);
     humon.addEventListener('keydown', (event) => {
