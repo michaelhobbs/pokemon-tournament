@@ -29,6 +29,12 @@ export const HIDDEN_PAGE: PageLink = {
 	href: `${base}000`,
 	hidden: true,
 };
+export const NOT_FOUND_PAGE: PageLink = {
+	number: '404',
+	label: 'PAGE NOT FOUND',
+	href: `${base}404`,
+	hidden: true,
+};
 
 export const PAGES: PageLink[] = [
 	HOME_PAGE,
@@ -63,6 +69,7 @@ export const AWARD_PAGES: PageLink[] = AWARDS.map((award) => ({
 /** Every navigable page in arrow-key order: main pages, then trainers, games, weeks, then help. */
 export const ALL_PAGES: PageLink[] = [
 	HIDDEN_PAGE,
+	NOT_FOUND_PAGE,
 	HOME_PAGE,
 	RULES_PAGE,
 	STANDINGS_PAGE,

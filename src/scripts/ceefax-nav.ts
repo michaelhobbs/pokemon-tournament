@@ -6,6 +6,8 @@ import {
 export interface NavEntry {
   number: string;
   href: string;
+  /** Hidden pages are reachable by number but skipped by arrow-key navigation. */
+  hidden?: boolean;
 }
 
 interface NavData {
@@ -117,17 +119,18 @@ const hasModifier = (event: KeyboardEvent): boolean =>
 const step = (direction: 1 | -1): void => {
   const state = currentState();
   if (!state) return;
-  const index = state.pages.findIndex((page) => page.number === state.current);
+  const pages = state.pages.filter((page) => !page.hidden);
+  if (pages.length === 0) return;
+  const index = pages.findIndex((page) => page.number === state.current);
   if (index === -1) {
     navigate(
       direction === 1
-        ? state.pages[0].href
-        : state.pages[state.pages.length - 1].href,
+        ? pages[0].href
+        : pages[pages.length - 1].href,
     );
     return;
   }
-  const next =
-    state.pages[(index + direction + state.pages.length) % state.pages.length];
+  const next = pages[(index + direction + pages.length) % pages.length];
   navigate(next.href);
 };
 

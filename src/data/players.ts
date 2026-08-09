@@ -1,5 +1,5 @@
 export interface Player {
-	/** Ceefax-style index number, 1–10 */
+	/** Ceefax-style index number, 1–11 */
 	number: number;
 	/** Trainer name */
 	name: string;
@@ -39,7 +39,7 @@ export const PLAYERS: Player[] = [
 		hometown: 'Ballonlea',
 	},
 	{
-		number: 4,
+		number: 5,
 		name: 'Yogi',
 		epithet: 'PRANKSTER',
 		signature: 'Whimsicott',
@@ -47,7 +47,7 @@ export const PLAYERS: Player[] = [
 		hometown: 'Ilex Forest',
 	},
 	{
-		number: 5,
+		number: 6,
 		name: 'Jack',
 		epithet: 'ACE TRAINER',
 		signature: 'Togekiss',
@@ -55,7 +55,7 @@ export const PLAYERS: Player[] = [
 		hometown: 'Ever Grande City',
 	},
 	{
-		number: 6,
+		number: 7,
 		name: 'Michael',
 		epithet: 'CRIMSON PINCER',
 		signature: 'Scizor',
@@ -63,7 +63,7 @@ export const PLAYERS: Player[] = [
 		hometown: 'Iron Island',
 	},
 	{
-		number: 7,
+		number: 8,
 		name: 'Alex',
 		epithet: 'RAINMAKER',
 		signature: 'Ferrothorn',
@@ -71,7 +71,7 @@ export const PLAYERS: Player[] = [
 		hometown: 'Fortree City',
 	},
 	{
-		number: 8,
+		number: 9,
 		name: 'Conor',
 		epithet: 'FROST PHANTOM',
 		signature: 'Raichu',
@@ -79,7 +79,7 @@ export const PLAYERS: Player[] = [
 		hometown: 'Snowpoint City',
 	},
 	{
-		number: 9,
+		number: 10,
 		name: 'Ben',
 		epithet: 'STORM FRONT',
 		signature: 'Alolan Muk',
@@ -87,7 +87,7 @@ export const PLAYERS: Player[] = [
 		hometown: 'Icirrus City',
 	},
 	{
-		number: 10,
+		number: 11,
 		name: 'Hannah',
 		epithet: 'TIDE QUEEN',
 		signature: 'Pelipper',

@@ -1,7 +1,7 @@
 export interface Match {
-	/** Player number (1–10) of the first competitor. */
+	/** Player number (1–11) of the first competitor. */
 	p1: number;
-	/** Player number (1–10) of the second competitor. */
+	/** Player number (1–11) of the second competitor. */
 	p2: number;
 	/** Battles won by player 1. All three games are played; battle count doubles as a tiebreaker. */
 	wins1?: number;
@@ -23,44 +23,44 @@ export const WEEKS: Week[] = [
 		number: 1,
 		date: 'W/C 06/04',
 		matches: [
-			{ p1: 1, p2: 9, wins1: 2, wins2: 1 },
-			{ p1: 7, p2: 6, wins1: 2, wins2: 1 },
-			{ p1: 8, p2: 4, wins1: 1, wins2: 2 },
-			{ p1: 2, p2: 10, wins1: 2, wins2: 1 },
-			{ p1: 5, p2: 3, wins1: 3, wins2: 0 },
+			{ p1: 1, p2: 10, wins1: 2, wins2: 1 },
+			{ p1: 8, p2: 7, wins1: 2, wins2: 1 },
+			{ p1: 9, p2: 5, wins1: 1, wins2: 2 },
+			{ p1: 2, p2: 11, wins1: 2, wins2: 1 },
+			{ p1: 6, p2: 3, wins1: 3, wins2: 0 },
 		],
 	},
 	{
 		number: 2,
 		date: 'W/C 13/04',
 		matches: [
-			{ p1: 6, p2: 1, wins1: 0, wins2: 3 },
-			{ p1: 4, p2: 9, wins1: 2, wins2: 1 },
-			{ p1: 10, p2: 7, wins1: 1, wins2: 2 },
-			{ p1: 3, p2: 8, wins1: 0, wins2: 3 },
-			{ p1: 5, p2: 2, wins1: 2, wins2: 1 },
+			{ p1: 7, p2: 1, wins1: 0, wins2: 3 },
+			{ p1: 5, p2: 10, wins1: 2, wins2: 1 },
+			{ p1: 11, p2: 8, wins1: 1, wins2: 2 },
+			{ p1: 3, p2: 9, wins1: 0, wins2: 3 },
+			{ p1: 6, p2: 2, wins1: 2, wins2: 1 },
 		],
 	},
 	{
 		number: 3,
 		date: 'W/C 20/04',
 		matches: [
-			{ p1: 1, p2: 4, wins1: 0, wins2: 3 },
-			{ p1: 6, p2: 10, wins1: 1, wins2: 2 },
-			{ p1: 9, p2: 3, wins1: 1, wins2: 2 },
-			{ p1: 7, p2: 5, wins1: 0, wins2: 3 },
-			{ p1: 8, p2: 2, wins1: 3, wins2: 0 },
+			{ p1: 1, p2: 5, wins1: 0, wins2: 3 },
+			{ p1: 7, p2: 11, wins1: 1, wins2: 2 },
+			{ p1: 10, p2: 3, wins1: 1, wins2: 2 },
+			{ p1: 8, p2: 6, wins1: 0, wins2: 3 },
+			{ p1: 9, p2: 2, wins1: 3, wins2: 0 },
 		],
 	},
 	{
 		number: 4,
 		date: 'W/C 27/04',
 		matches: [
-			{ p1: 10, p2: 1, wins1: 0, wins2: 3 },
-			{ p1: 3, p2: 4, wins1: 0, wins2: 3 },
-			{ p1: 5, p2: 6, wins1: 2, wins2: 1 },
-			{ p1: 2, p2: 9, wins1: 3, wins2: 0 },
-			{ p1: 8, p2: 7, wins1: 1, wins2: 2 },
+			{ p1: 11, p2: 1, wins1: 0, wins2: 3 },
+			{ p1: 3, p2: 5, wins1: 0, wins2: 3 },
+			{ p1: 6, p2: 7, wins1: 2, wins2: 1 },
+			{ p1: 2, p2: 10, wins1: 3, wins2: 0 },
+			{ p1: 9, p2: 8, wins1: 1, wins2: 2 },
 		],
 	},
 	{
@@ -68,21 +68,21 @@ export const WEEKS: Week[] = [
 		date: 'W/C 11/05',
 		matches: [
 			{ p1: 1, p2: 3, wins1: 0, wins2: 3 },
-			{ p1: 10, p2: 5, wins1: 0, wins2: 3 },
-			{ p1: 4, p2: 2, wins1: 3, wins2: 0 },
-			{ p1: 6, p2: 8, wins1: 0, wins2: 3 },
-			{ p1: 9, p2: 7, wins1: 0, wins2: 3 },
+			{ p1: 11, p2: 6, wins1: 0, wins2: 3 },
+			{ p1: 5, p2: 2, wins1: 3, wins2: 0 },
+			{ p1: 7, p2: 9, wins1: 0, wins2: 3 },
+			{ p1: 10, p2: 8, wins1: 0, wins2: 3 },
 		],
 	},
 	{
 		number: 6,
 		date: 'W/C 18/05',
 		matches: [
-			{ p1: 5, p2: 1, wins1: 2, wins2: 1 },
+			{ p1: 6, p2: 1, wins1: 2, wins2: 1 },
 			{ p1: 2, p2: 3, wins1: 1, wins2: 2 },
-			{ p1: 8, p2: 10, wins1: 3, wins2: 0 },
-			{ p1: 7, p2: 4, wins1: 0, wins2: 3 },
-			{ p1: 9, p2: 6, wins1: 2, wins2: 1 },
+			{ p1: 9, p2: 11, wins1: 3, wins2: 0 },
+			{ p1: 8, p2: 5, wins1: 0, wins2: 3 },
+			{ p1: 10, p2: 7, wins1: 2, wins2: 1 },
 		],
 	},
 	{
@@ -90,32 +90,32 @@ export const WEEKS: Week[] = [
 		date: 'W/C 25/05',
 		matches: [
 			{ p1: 1, p2: 2, wins1: 3, wins2: 0 },
-			{ p1: 5, p2: 8, wins1: 2, wins2: 1 },
-			{ p1: 3, p2: 7, wins1: 1, wins2: 2 },
-			{ p1: 10, p2: 9, wins1: 1, wins2: 2 },
-			{ p1: 4, p2: 6, wins1: 3, wins2: 0 },
+			{ p1: 6, p2: 9, wins1: 2, wins2: 1 },
+			{ p1: 3, p2: 8, wins1: 1, wins2: 2 },
+			{ p1: 11, p2: 10, wins1: 1, wins2: 2 },
+			{ p1: 5, p2: 7, wins1: 3, wins2: 0 },
 		],
 	},
 	{
 		number: 8,
 		date: 'W/C 01/06',
 		matches: [
-			{ p1: 8, p2: 1, wins1: 2, wins2: 1 },
-			{ p1: 7, p2: 2, wins1: 2, wins2: 1 },
-			{ p1: 9, p2: 5, wins1: 1, wins2: 2 },
-			{ p1: 6, p2: 3, wins1: 0, wins2: 3 },
-			{ p1: 4, p2: 10, wins1: 3, wins2: 0 },
+			{ p1: 9, p2: 1, wins1: 2, wins2: 1 },
+			{ p1: 8, p2: 2, wins1: 2, wins2: 1 },
+			{ p1: 10, p2: 6, wins1: 1, wins2: 2 },
+			{ p1: 7, p2: 3, wins1: 0, wins2: 3 },
+			{ p1: 5, p2: 11, wins1: 3, wins2: 0 },
 		],
 	},
 	{
 		number: 9,
 		date: 'W/C 08/06',
 		matches: [
-			{ p1: 1, p2: 7, wins1: 2, wins2: 1 },
-			{ p1: 8, p2: 9, wins1: 1, wins2: 2 },
-			{ p1: 2, p2: 6, wins1: 1, wins2: 2 },
-			{ p1: 5, p2: 4, wins1: 1, wins2: 2 },
-			{ p1: 3, p2: 10, wins1: 3, wins2: 0 },
+			{ p1: 1, p2: 8, wins1: 2, wins2: 1 },
+			{ p1: 9, p2: 10, wins1: 1, wins2: 2 },
+			{ p1: 2, p2: 7, wins1: 1, wins2: 2 },
+			{ p1: 6, p2: 5, wins1: 1, wins2: 2 },
+			{ p1: 3, p2: 11, wins1: 3, wins2: 0 },
 		],
 	},
 ];

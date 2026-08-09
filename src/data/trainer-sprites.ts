@@ -119,13 +119,13 @@ const SPRITE_SPECS: Record<number, SpriteSpec> = {
 	1: { map: BASE_HAT, hair: 'var(--ceefax-black)', outfit: 'var(--ceefax-magenta)' },
 	2: { map: BASE_LONG, hair: 'var(--ceefax-cyan)', outfit: 'var(--ceefax-white)' },
 	3: { map: BASE_HAIR, hair: 'var(--ceefax-magenta)', outfit: 'var(--ceefax-yellow)' },
-	4: { map: BASE_HAT, hair: 'var(--ceefax-yellow)', outfit: 'var(--ceefax-green)' },
-	5: { map: BASE_BEARD, hair: 'var(--ceefax-blue)', outfit: 'var(--ceefax-red)' },
-	6: { map: BASE_HAIR, hair: 'var(--ceefax-magenta)', outfit: 'var(--ceefax-red)' },
-	7: { map: BASE_HAIR, hair: 'var(--ceefax-blue)', outfit: 'var(--ceefax-green)' },
-	8: { map: BASE_HAIR, hair: 'var(--ceefax-cyan)', outfit: 'var(--ceefax-magenta)' },
-	9: { map: BASE_LONG, hair: 'var(--ceefax-cyan)', outfit: 'var(--ceefax-red)' },
-	10: { map: BASE_FEMALE, hair: 'var(--ceefax-magenta)', outfit: 'var(--ceefax-blue)' },
+	5: { map: BASE_HAT, hair: 'var(--ceefax-yellow)', outfit: 'var(--ceefax-green)' },
+	6: { map: BASE_BEARD, hair: 'var(--ceefax-blue)', outfit: 'var(--ceefax-red)' },
+	7: { map: BASE_HAIR, hair: 'var(--ceefax-magenta)', outfit: 'var(--ceefax-red)' },
+	8: { map: BASE_HAIR, hair: 'var(--ceefax-blue)', outfit: 'var(--ceefax-green)' },
+	9: { map: BASE_HAIR, hair: 'var(--ceefax-cyan)', outfit: 'var(--ceefax-magenta)' },
+	10: { map: BASE_LONG, hair: 'var(--ceefax-cyan)', outfit: 'var(--ceefax-red)' },
+	11: { map: BASE_FEMALE, hair: 'var(--ceefax-magenta)', outfit: 'var(--ceefax-blue)' },
 };
 
 export const TRAINER_SPRITES: Record<number, TrainerSprite> = Object.fromEntries(

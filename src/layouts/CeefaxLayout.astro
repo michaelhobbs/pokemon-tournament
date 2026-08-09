@@ -15,7 +15,11 @@ interface Props {
 const { title, pageNumber = '001', subtitle = 'POKEMON TOURNAMENT', nav = PAGES } = Astro.props;
 const docTitle = `${title} | ${subtitle}`;
 const navData = {
-	pages: ALL_PAGES.map((page) => ({ number: page.number, href: page.href })),
+	pages: ALL_PAGES.map((page) => ({
+		number: page.number,
+		href: page.href,
+		hidden: page.hidden,
+	})),
 	current: pageNumber,
 	help: HELP_PAGE.href,
 };
