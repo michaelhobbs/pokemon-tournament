@@ -1,6 +1,8 @@
 ---
 import PixelArt from './PixelArt.astro';
 import { HUMON } from '../../data/humon';
+import { QUESTION_MARK } from '../../data/question-mark';
+import { HELP_PAGE } from '../../data/navigation';
 
 interface Props {
   title: string;
@@ -51,14 +53,24 @@ const {
         </span>
       </span>
     </div>
-    <span
-      class="ceefax-pagebox"
-      id="ceefax-pagebox"
-      role="button"
-      tabindex="0"
-      title="Click to enter a page number"
-      aria-label="Enter a page number">{pageNumber}</span
-    >
+    <div class="ceefax-pagebox-group">
+      <a
+        class="ceefax-help"
+        href={HELP_PAGE.href}
+        aria-label="Help"
+        title="HELP (H)"
+      >
+        <PixelArt sprite={QUESTION_MARK} size="100%" decorative />
+      </a>
+      <span
+        class="ceefax-pagebox"
+        id="ceefax-pagebox"
+        role="button"
+        tabindex="0"
+        title="Click to enter a page number"
+        aria-label="Enter a page number">{pageNumber}</span
+      >
+    </div>
   </div>
 </header>
 
@@ -209,6 +221,28 @@ const {
     .ceefax-humon.has-humon {
       animation: none;
     }
+  }
+
+  .ceefax-pagebox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  .ceefax-help {
+    display: inline-block;
+    width: 2rem;
+    line-height: 0;
+  }
+
+  .ceefax-help:hover {
+    filter: drop-shadow(0 0 4px var(--ceefax-yellow));
+  }
+
+  .ceefax-help:focus-visible {
+    outline: 2px solid var(--ceefax-yellow);
+    outline-offset: 3px;
   }
 
   .ceefax-pagebox {

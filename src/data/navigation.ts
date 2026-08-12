@@ -22,7 +22,7 @@ export const GAMES_PAGE: PageLink = { number: '500', label: 'GAMES', href: `${ba
 export const TROPHY_PAGE: PageLink = { number: '600', label: 'TROPHY', href: `${base}trophy` };
 export const AWARDS_PAGE: PageLink = { number: '700', label: 'AWARDS', href: `${base}awards` };
 export const HOMETOWNS_PAGE: PageLink = { number: '800', label: 'HOMETOWNS', href: `${base}map` };
-export const HELP_PAGE: PageLink = { number: '900', label: 'HELP', href: `${base}help` };
+export const HELP_PAGE: PageLink = { number: '990', label: 'HELP', href: `${base}help` };
 export const HIDDEN_PAGE: PageLink = {
 	number: '000',
 	label: 'SECRET',
@@ -51,7 +51,6 @@ export const PAGES: PageLink[] = [
 	TROPHY_PAGE,
 	AWARDS_PAGE,
 	HOMETOWNS_PAGE,
-	HELP_PAGE,
 ];
 
 export const TRAINER_PAGES: PageLink[] = PLAYERS.map((player) => ({
@@ -72,7 +71,7 @@ export const AWARD_PAGES: PageLink[] = AWARDS.map((award) => ({
 	href: `${base}awards/${award.number}`,
 }));
 
-/** Every navigable page in arrow-key order: main pages, then trainers, games, weeks, then help. */
+/** Every navigable page in arrow-key order: main pages, then trainers, games, weeks, then help (990). */
 export const ALL_PAGES: PageLink[] = [
 	HIDDEN_PAGE,
 	NOT_FOUND_PAGE,
