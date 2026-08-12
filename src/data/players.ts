@@ -43,7 +43,7 @@ export const PLAYERS: Player[] = [
 		name: 'Yogi',
 		epithet: 'PRANKSTER',
 		signature: 'Whimsicott',
-		team: ['Whimsicott', 'Garchomp', 'Hisuian Zoroark', 'Charizard', 'Clefairy', 'Bisharp'],
+		team: ['Whimsicott', 'Garchomp', 'Hisuian Zoroark', 'Charizard', 'Electabuzz', 'Empoleon'],
 		hometown: 'Ilex Forest',
 	},
 	{
@@ -51,7 +51,7 @@ export const PLAYERS: Player[] = [
 		name: 'Jack',
 		epithet: 'ACE TRAINER',
 		signature: 'Togekiss',
-		team: ['Togekiss', 'Dragonite', 'Metagross', 'Hitmontop', 'Blastoise', 'Krookodile'],
+		team: ['Togekiss', 'Dragonite', 'Metagross', 'Hitmontop', 'Blastoise', 'Gengar'],
 		hometown: 'Ever Grande City',
 	},
 	{
