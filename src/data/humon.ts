@@ -1,6 +1,6 @@
 import type { PixelArt } from './trophy';
 
-/** Session-scoped key for whether the visitor has caught a HUMON. */
+/** Persisted key for whether the visitor has caught a HUMON. */
 export const HUMON_STORAGE_KEY = 'pkm:humon-caught';
 
 export const HUMON: PixelArt = {
@@ -32,7 +32,7 @@ export const HUMON: PixelArt = {
 
 export function readCaught(): boolean {
 	try {
-		return sessionStorage.getItem(HUMON_STORAGE_KEY) === 'true';
+		return localStorage.getItem(HUMON_STORAGE_KEY) === 'true';
 	} catch {
 		return false;
 	}
@@ -41,9 +41,9 @@ export function readCaught(): boolean {
 export function writeCaught(caught: boolean): void {
 	try {
 		if (caught) {
-			sessionStorage.setItem(HUMON_STORAGE_KEY, 'true');
+			localStorage.setItem(HUMON_STORAGE_KEY, 'true');
 		} else {
-			sessionStorage.removeItem(HUMON_STORAGE_KEY);
+			localStorage.removeItem(HUMON_STORAGE_KEY);
 		}
 	} catch {
 		// storage unavailable — keep in-memory state only

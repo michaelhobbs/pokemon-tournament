@@ -277,7 +277,7 @@ const {
   const syncHumon = () => {
     let caught = false;
     try {
-      caught = sessionStorage.getItem(STORAGE_KEY) === 'true';
+      caught = localStorage.getItem(STORAGE_KEY) === 'true';
     } catch {
       caught = false;
     }
