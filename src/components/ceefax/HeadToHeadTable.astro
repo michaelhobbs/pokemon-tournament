@@ -1,0 +1,117 @@
+---
+import type { Player } from '../../data/players';
+
+interface Props {
+	players: Player[];
+	headToHead: Map<string, 'W' | 'L'>;
+}
+
+const { players, headToHead } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+/** Outcome of `row` vs `col` from `row`'s perspective: 'W', 'L', or null if unplayed/same. */
+const outcomeFor = (row: number, col: number): 'W' | 'L' | null => {
+	if (row === col) return null;
+	const ab = headToHead.get(`${row}:${col}`);
+	if (ab !== undefined) return ab;
+	const ba = headToHead.get(`${col}:${row}`);
+	if (ba !== undefined) return ba === 'W' ? 'L' : 'W';
+	return null;
+};
+---
+
+<p class="h2h-note">CELL = ROW TRAINER vs COLUMN TRAINER — W / L</p>
+<table class="head-to-head">
+	<thead>
+		<tr>
+			<th scope="col"></th>
+			{players.map((player) => (
+				<th scope="col" class="h2h-th">
+					<a href={`${base}trainers/${player.number}`}>{player.name.slice(0, 3).toUpperCase()}</a>
+				</th>
+			))}
+		</tr>
+	</thead>
+	<tbody>
+		{players.map((row) => (
+			<tr>
+				<th scope="row" class="h2h-th">
+					<a href={`${base}trainers/${row.number}`}>{row.name.slice(0, 3).toUpperCase()}</a>
+				</th>
+				{players.map((col) => {
+					const outcome = outcomeFor(row.number, col.number);
+					return (
+						<td
+							class={
+								outcome === null
+									? 'h2h-empty'
+									: outcome === 'W'
+										? 'h2h-win'
+										: 'h2h-loss'
+							}
+						>
+							{outcome ?? '·'}
+						</td>
+					);
+				})}
+			</tr>
+		))}
+	</tbody>
+</table>
+
+<style>
+	.h2h-note {
+		margin: 0 0 0.5rem;
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+	}
+
+	.head-to-head {
+		width: auto;
+		border-collapse: collapse;
+		text-align: center;
+	}
+
+	.head-to-head th,
+	.head-to-head td {
+		border: 1px solid var(--ceefax-green);
+		padding: 0.2rem 0.35rem;
+		text-align: center;
+	}
+
+	.head-to-head th {
+		background: var(--ceefax-green);
+		color: var(--ceefax-black);
+		font-weight: 700;
+	}
+
+	.head-to-head th.h2h-th:first-child {
+		background: var(--ceefax-cyan);
+		color: var(--ceefax-black);
+	}
+
+	.head-to-head th a,
+	.head-to-head td a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.head-to-head th a:hover {
+		color: var(--ceefax-black);
+		text-decoration: underline;
+	}
+
+	.head-to-head .h2h-win {
+		color: var(--ceefax-green);
+		font-weight: 700;
+	}
+
+	.head-to-head .h2h-loss {
+		color: var(--ceefax-red);
+		font-weight: 700;
+	}
+
+	.head-to-head .h2h-empty {
+		color: var(--ceefax-white);
+	}
+</style>

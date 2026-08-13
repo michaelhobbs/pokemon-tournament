@@ -118,7 +118,62 @@ export const WEEKS: Week[] = [
 			{ p1: 3, p2: 11, wins1: 3, wins2: 0 },
 		],
 	},
+	{
+		number: 10,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 11,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 12,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 13,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 14,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 15,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 16,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 17,
+		date: 'TBA',
+		matches: [],
+	},
+	{
+		number: 18,
+		date: 'TBA',
+		matches: [],
+	},
 ];
+
+export const FIRST_HALF_LAST_WEEK = 9;
+
+export const FIRST_HALF_WEEKS: Week[] = WEEKS.filter(
+	(week) => week.number <= FIRST_HALF_LAST_WEEK,
+);
+
+export const SECOND_HALF_WEEKS: Week[] = WEEKS.filter(
+	(week) => week.number > FIRST_HALF_LAST_WEEK,
+);
 
 export function weekFor(number: number): Week | undefined {
 	return WEEKS.find((week) => week.number === number);

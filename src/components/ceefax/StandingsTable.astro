@@ -1,0 +1,87 @@
+---
+import type { Week } from '../../data/matches';
+import { PLAYERS } from '../../data/players';
+
+interface Props {
+	weeks: Week[];
+}
+
+const { weeks } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const stats = new Map<number, { wins: number; battles: number }>();
+for (const player of PLAYERS) stats.set(player.number, { wins: 0, battles: 0 });
+for (const week of weeks) {
+	for (const match of week.matches) {
+		const a = stats.get(match.p1);
+		const b = stats.get(match.p2);
+		if (!a || !b) continue;
+		a.battles += match.wins1 ?? 0;
+		b.battles += match.wins2 ?? 0;
+		if ((match.wins1 ?? 0) > (match.wins2 ?? 0)) a.wins += 1;
+		else if ((match.wins2 ?? 0) > (match.wins1 ?? 0)) b.wins += 1;
+	}
+}
+
+const rows = PLAYERS.map((player) => ({ player, ...stats.get(player.number)! })).sort(
+	(a, b) => b.wins - a.wins || b.battles - a.battles,
+);
+---
+
+<table class="standings">
+	<thead>
+		<tr>
+			<th scope="col">POS</th>
+			<th scope="col">TRAINER</th>
+			<th scope="col">W</th>
+			<th scope="col">B</th>
+			<th scope="col">PTS</th>
+		</tr>
+	</thead>
+	<tbody>
+		{rows.map(({ player, wins, battles }, index) => (
+			<tr>
+				<td>{index + 1}</td>
+				<td>
+					<a href={`${base}trainers/${player.number}`}>{player.name}</a>
+				</td>
+				<td>{wins}</td>
+				<td>{battles}</td>
+				<td>{wins * 3}</td>
+			</tr>
+		))}
+	</tbody>
+</table>
+
+<style>
+	.standings {
+		width: 100%;
+		min-width: max-content;
+		border-collapse: collapse;
+	}
+
+	.standings th,
+	.standings td {
+		border: 1px solid var(--ceefax-cyan);
+		padding: 0.25rem 0.5rem;
+		text-align: left;
+	}
+
+	.standings th {
+		background: var(--ceefax-cyan);
+		color: var(--ceefax-black);
+		font-weight: 700;
+	}
+
+	.standings td {
+		color: var(--ceefax-white);
+	}
+
+	.standings td:first-child {
+		color: var(--ceefax-yellow);
+	}
+
+	.standings td a {
+		color: var(--ceefax-cyan);
+	}
+</style>

@@ -24,9 +24,13 @@ const base = import.meta.env.BASE_URL;
 
 <CeefaxLayout title={`GAMES — WEEK ${week.number}`} pageNumber={pageNumber}>
 	<CeefaxHeading text={`WEEK ${week.number}`} color="cyan" />
-	<CeefaxBlock title="FIXTURES" number={week.number} color="yellow">
+	<div class="week-fixtures">
+		<CeefaxBlock title="FIXTURES" number={week.number} color="yellow">
 		<p class="week-date">{week.date}</p>
-		<ol class="match-list">
+		{week.matches.length === 0 ? (
+			<p class="week-tba">FIXTURES TBA</p>
+		) : (
+			<ol class="match-list">
 			{week.matches.map((match) => {
 				const p1 = findPlayer(match.p1);
 				const p2 = findPlayer(match.p2);
@@ -46,8 +50,10 @@ const base = import.meta.env.BASE_URL;
 					</li>
 				);
 			})}
-		</ol>
-	</CeefaxBlock>
+			</ol>
+		)}
+		</CeefaxBlock>
+	</div>
 	<nav class="week-nav" aria-label="Week pages">
 		{prev ? (
 			<a href={`${base}games/${prev.number}`}>WEEK {prev.number}</a>
@@ -64,9 +70,31 @@ const base = import.meta.env.BASE_URL;
 </CeefaxLayout>
 
 <style>
+	.week-fixtures {
+		grid-column: 2;
+		justify-self: center;
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.week-fixtures :global(.ceefax-block) {
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.week-fixtures :global(.ceefax-block-body) {
+		overflow-x: auto;
+	}
+
 	.week-date {
 		margin: 0 0 0.5rem;
 		color: var(--ceefax-magenta);
+		font-weight: 700;
+	}
+
+	.week-tba {
+		margin: 0;
+		color: var(--ceefax-yellow);
 		font-weight: 700;
 	}
 

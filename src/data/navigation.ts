@@ -16,7 +16,18 @@ const base = import.meta.env.BASE_URL;
 export const HOME_PAGE: PageLink = { number: '100', label: 'HOME', href: base };
 export const RULES_PAGE: PageLink = { number: '200', label: 'RULES', href: `${base}rules` };
 export const STANDINGS_PAGE: PageLink = { number: '300', label: 'STANDINGS', href: `${base}standings` };
-export const HEAD_TO_HEAD_PAGE: PageLink = { number: '301', label: 'HEAD TO HEAD', href: `${base}standings/head-to-head` };
+export const HEAD_TO_HEAD_PAGE: PageLink = { number: '301', label: 'HEAD TO HEAD - 1ST HALF', href: `${base}standings/head-to-head` };
+export const HEAD_TO_HEAD_2ND_PAGE: PageLink = { number: '302', label: 'HEAD TO HEAD - 2ND HALF', href: `${base}standings/head-to-head-2nd` };
+export const INITIAL_DRAFT_PAGE: PageLink = { number: '310', label: 'INITIAL DRAFT', href: `${base}standings/draft` };
+export const MIDSEASON_DRAFT_PAGE: PageLink = { number: '311', label: 'MID-SEASON DRAFT', href: `${base}standings/draft-mid` };
+
+/** Child pages of the standings group, in ascending page-number order. */
+export const STANDINGS_CHILD_PAGES: PageLink[] = [
+	HEAD_TO_HEAD_PAGE,
+	HEAD_TO_HEAD_2ND_PAGE,
+	INITIAL_DRAFT_PAGE,
+	MIDSEASON_DRAFT_PAGE,
+];
 export const TRAINERS_PAGE: PageLink = { number: '400', label: 'TRAINERS', href: `${base}trainers` };
 export const GAMES_PAGE: PageLink = { number: '500', label: 'GAMES', href: `${base}games` };
 export const TROPHY_PAGE: PageLink = { number: '600', label: 'TROPHY', href: `${base}trophy` };
@@ -80,6 +91,9 @@ export const ALL_PAGES: PageLink[] = [
 	RULES_PAGE,
 	STANDINGS_PAGE,
 	HEAD_TO_HEAD_PAGE,
+	HEAD_TO_HEAD_2ND_PAGE,
+	INITIAL_DRAFT_PAGE,
+	MIDSEASON_DRAFT_PAGE,
 	TRAINERS_PAGE,
 	...TRAINER_PAGES,
 	GAMES_PAGE,

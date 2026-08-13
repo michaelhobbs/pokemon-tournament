@@ -1,0 +1,81 @@
+---
+import type { Player } from '../../data/players';
+
+interface Props {
+	players: Player[];
+	placeholder?: boolean;
+}
+
+const { players, placeholder = false } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const PICK_COUNT = 6;
+---
+
+<div class="draft-table">
+	<table>
+		<thead>
+			<tr>
+				<th scope="col">TRAINER</th>
+				{Array.from({ length: PICK_COUNT }, (_, i) => (
+					<th scope="col">PICK {i + 1}</th>
+				))}
+			</tr>
+		</thead>
+		<tbody>
+			{players.map((player) => (
+				<tr>
+					<td>
+						<a href={`${base}trainers/${player.number}`}>{player.name}</a>
+					</td>
+					{placeholder
+						? Array.from({ length: PICK_COUNT }, () => (
+								<td class="draft-tbd">TBD</td>
+							))
+						: player.team.map((pokemon) => <td>{pokemon}</td>)}
+				</tr>
+			))}
+		</tbody>
+	</table>
+</div>
+
+<style>
+	.draft-table {
+		overflow-x: auto;
+	}
+
+	.draft-table table {
+		width: 100%;
+		min-width: max-content;
+		border-collapse: collapse;
+	}
+
+	.draft-table th,
+	.draft-table td {
+		border: 1px solid var(--ceefax-cyan);
+		padding: 0.25rem 0.5rem;
+		text-align: left;
+	}
+
+	.draft-table th {
+		background: var(--ceefax-cyan);
+		color: var(--ceefax-black);
+		font-weight: 700;
+	}
+
+	.draft-table td {
+		color: var(--ceefax-white);
+	}
+
+	.draft-table td:first-child {
+		color: var(--ceefax-yellow);
+	}
+
+	.draft-table td:first-child a {
+		color: var(--ceefax-cyan);
+	}
+
+	.draft-table .draft-tbd {
+		color: var(--ceefax-magenta);
+		font-weight: 700;
+	}
+</style>

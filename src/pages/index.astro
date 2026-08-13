@@ -4,39 +4,68 @@ import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
 import TournamentGraphic from '../components/ceefax/TournamentGraphic.astro';
 import PageDirectory from '../components/ceefax/PageDirectory.astro';
 import { PAGES } from '../data/navigation';
+
+const base = import.meta.env.BASE_URL;
 ---
 
 <CeefaxLayout title="TOURNAMENT" pageNumber="100">
-	<div class="home-hero">
-		<TournamentGraphic />
-	</div>
-	<CeefaxBlock title="STATUS" number="1" color="green">
-		<p>MID-SEASON SUB DRAFT</p>
-	</CeefaxBlock>
-	<CeefaxBlock title="NAVIGATION" number="2" color="yellow">
-		<p>TYPE A PAGE NUMBER (E.G. 100) TO JUMP</p>
-		<p>USE ARROW KEYS TO MOVE BETWEEN PAGES</p>
-		<p>PRESS H FOR NAVIGATION HELP</p>
-		<p>
-			TAP THE PAGE BOX TOP-RIGHT ON MOBILE<span class="home-pagebox" aria-hidden="true">100</span>
-		</p>
-	</CeefaxBlock>
-	<PageDirectory pages={PAGES} />
+  <div class="home-hero">
+    <TournamentGraphic />
+  </div>
+  <CeefaxBlock title="STATUS" number="1" color="green">
+    <p>2ND ROUND ROBIN - WEEK 1</p>
+    <p>
+      <a class="home-status-link" href={`${base}standings/draft-mid`}
+        ><span class="home-status-arrow" aria-hidden="true">▶</span> VIEW MID-SEASON DRAFT</a
+      >
+    </p>
+  </CeefaxBlock>
+  <CeefaxBlock title="NAVIGATION" number="2" color="yellow">
+    <p>TYPE A PAGE NUMBER (E.G. 100) TO JUMP</p>
+    <p>USE ARROW KEYS TO MOVE BETWEEN PAGES</p>
+    <p>PRESS H FOR NAVIGATION HELP</p>
+    <p>
+      TAP THE PAGE BOX TOP-RIGHT ON MOBILE<span
+        class="home-pagebox"
+        aria-hidden="true">100</span
+      >
+    </p>
+  </CeefaxBlock>
+  <PageDirectory pages={PAGES} />
 </CeefaxLayout>
 
 <style>
-	.home-hero {
-		grid-column: 1 / -1;
-	}
+  .home-hero {
+    grid-column: 1 / -1;
+  }
 
-	.home-pagebox {
-		display: inline-block;
-		background: var(--ceefax-magenta);
-		color: var(--ceefax-black);
-		font-weight: 700;
-		padding: 0.1rem 0.4rem;
-		margin-left: 0.5rem;
-		width: 3ch;
-		box-sizing: content-box;
-	}
+  .home-pagebox {
+    display: inline-block;
+    background: var(--ceefax-magenta);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    margin-left: 0.5rem;
+    width: 3ch;
+    box-sizing: content-box;
+  }
+
+  .home-status-link {
+    color: var(--ceefax-magenta);
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .home-status-arrow {
+    color: var(--ceefax-magenta);
+    font-size: 0.8em;
+  }
+
+  .home-status-link:hover {
+    color: var(--ceefax-cyan);
+  }
+
+  .home-status-link:hover .home-status-arrow {
+    color: var(--ceefax-cyan);
+  }
 </style>

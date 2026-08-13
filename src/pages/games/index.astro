@@ -2,14 +2,27 @@
 import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import { WEEKS } from '../../data/matches';
+import { FIRST_HALF_WEEKS, SECOND_HALF_WEEKS } from '../../data/matches';
 ---
 
 <CeefaxLayout title="GAMES" pageNumber="500">
 	<CeefaxHeading text="GAMES" color="cyan" />
-	<CeefaxBlock title="FIXTURES" number="500" color="yellow">
+	<CeefaxBlock title="FIXTURES - 1ST HALF" number="500" color="yellow">
 		<ul class="week-list">
-			{WEEKS.map((week) => (
+			{FIRST_HALF_WEEKS.map((week) => (
+				<li>
+					<a class="week-link" href={`${import.meta.env.BASE_URL}games/${week.number}`}>
+						<span class="week-number">{500 + week.number}</span>
+						<span>WEEK {week.number}</span>
+						<span class="week-date">{week.date}</span>
+					</a>
+				</li>
+			))}
+		</ul>
+	</CeefaxBlock>
+	<CeefaxBlock title="FIXTURES - 2ND HALF" number="500" color="magenta">
+		<ul class="week-list">
+			{SECOND_HALF_WEEKS.map((week) => (
 				<li>
 					<a class="week-link" href={`${import.meta.env.BASE_URL}games/${week.number}`}>
 						<span class="week-number">{500 + week.number}</span>
