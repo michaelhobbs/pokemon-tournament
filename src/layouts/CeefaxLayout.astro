@@ -35,6 +35,13 @@ const navJson = JSON.stringify(navData);
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{docTitle}</title>
+		{import.meta.env.PROD && (
+			<script
+				defer
+				src="https://cloud.umami.is/script.js"
+				data-website-id="b21889bd-d0a3-4047-b9e1-b85540933184"
+			></script>
+		)}
 		<ClientRouter />
 	</head>
 	<body data-ceefax-pages={navJson}>
