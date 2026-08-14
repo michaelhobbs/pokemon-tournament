@@ -1,0 +1,124 @@
+---
+import type { TeamAnalysis } from '../../data/pokemon';
+
+interface Props {
+	analysis: TeamAnalysis;
+}
+
+const { analysis } = Astro.props;
+---
+
+<div class="team-analysis">
+	<section class="analysis-group">
+		<h3 class="analysis-label analysis-weak">WEAK TO</h3>
+		{analysis.weaknesses.length > 0 ? (
+			<ul class="analysis-list">
+				{analysis.weaknesses.map((weakness) => (
+					<li>
+						<span class="analysis-type">{weakness.type}</span>
+						<span class="analysis-count">×{weakness.count}</span>
+						{weakness.quad && <span class="analysis-quad">4×</span>}
+					</li>
+				))}
+			</ul>
+		) : (
+			<p class="analysis-empty">NONE</p>
+		)}
+	</section>
+	<section class="analysis-group">
+		<h3 class="analysis-label analysis-resist">RESISTS</h3>
+		{analysis.resistances.length > 0 ? (
+			<ul class="analysis-list">
+				{analysis.resistances.map((resistance) => (
+					<li>
+						<span class="analysis-type">{resistance.type}</span>
+						<span class="analysis-count">×{resistance.count}</span>
+					</li>
+				))}
+			</ul>
+		) : (
+			<p class="analysis-empty">NONE</p>
+		)}
+	</section>
+</div>
+<p class="analysis-note">×N = POKÉMON AFFECTED — 4× = DOUBLE WEAKNESS</p>
+
+<style>
+	.team-analysis {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+	}
+
+	@media (max-width: 30rem) {
+		.team-analysis {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.analysis-label {
+		margin: 0 0 0.4rem;
+		font-size: 0.9rem;
+		letter-spacing: 0.1em;
+	}
+
+	.analysis-weak {
+		color: var(--ceefax-red);
+	}
+
+	.analysis-resist {
+		color: var(--ceefax-green);
+	}
+
+	.analysis-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+		gap: 0.25rem 0.5rem;
+	}
+
+	.analysis-list li {
+		display: flex;
+		align-items: baseline;
+		gap: 0.3rem;
+	}
+
+	.analysis-type {
+		font-weight: 700;
+		color: var(--ceefax-white);
+	}
+
+	.analysis-weak .analysis-type {
+		color: var(--ceefax-red);
+	}
+
+	.analysis-resist .analysis-type {
+		color: var(--ceefax-green);
+	}
+
+	.analysis-count {
+		color: var(--ceefax-white);
+		font-size: 0.8rem;
+	}
+
+	.analysis-quad {
+		background: var(--ceefax-red);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		padding: 0 0.25rem;
+		font-size: 0.7rem;
+	}
+
+	.analysis-empty {
+		margin: 0;
+		color: var(--ceefax-white);
+	}
+
+	.analysis-note {
+		margin: 0.75rem 0 0;
+		color: var(--ceefax-cyan);
+		font-size: 0.8rem;
+	}
+</style>

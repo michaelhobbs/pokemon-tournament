@@ -18,3 +18,15 @@ export const MIDSEASON_SWAPS: Record<number, MidseasonSwap[]> = {
 	9: [{ removed: 'Abomasnow', replacement: 'Gyarados' }],
 	10: [{ removed: 'Weavile', replacement: 'Breloom' }],
 };
+
+export function swapsFor(playerNumber: number): MidseasonSwap[] {
+	return MIDSEASON_SWAPS[playerNumber] ?? [];
+}
+
+/** Initial-draft team with each removed Pokémon replaced by its draft pick. */
+export function applySwaps(team: string[], swaps: MidseasonSwap[]): string[] {
+	return team.map((pokemon) => {
+		const swap = swaps.find((s) => s.removed === pokemon);
+		return swap ? swap.replacement : pokemon;
+	});
+}

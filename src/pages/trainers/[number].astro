@@ -3,10 +3,14 @@ import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import TrainerSprite from '../../components/ceefax/TrainerSprite.astro';
+import TeamList from '../../components/ceefax/TeamList.astro';
+import TeamAnalysisBlock from '../../components/ceefax/TeamAnalysisBlock.astro';
+import ResultsTable from '../../components/ceefax/ResultsTable.astro';
 import { PLAYERS, findPlayer } from '../../data/players';
-import { WEEKS } from '../../data/matches';
-import { POKEMON_TYPES, analyzeTeam } from '../../data/pokemon';
+import { FIRST_HALF_WEEKS, SECOND_HALF_WEEKS, type Week } from '../../data/matches';
+import { analyzeTeam } from '../../data/pokemon';
 import { spriteFor } from '../../data/pokemon-sprites';
+import { swapsFor, applySwaps } from '../../data/midseason';
 
 export function getStaticPaths() {
 	return PLAYERS.map((player) => ({
@@ -18,33 +22,42 @@ const { number } = Astro.params;
 const player = findPlayer(Number(number));
 if (!player) throw new Error(`Unknown player: ${number}`);
 
-const results = WEEKS.flatMap((week) =>
-	week.matches
-		.filter((match) => match.p1 === player.number || match.p2 === player.number)
-		.map((match) => {
-			const isHome = match.p1 === player.number;
-			const opponent = findPlayer(isHome ? match.p2 : match.p1);
-			if (!opponent) throw new Error(`Unknown player in week ${week.number}`);
-			const mine = isHome ? match.wins1 : match.wins2;
-			const theirs = isHome ? match.wins2 : match.wins1;
-			const played = mine !== undefined && theirs !== undefined;
-			return {
-				week: week.number,
-				opponent,
-				mine: mine ?? 0,
-				theirs: theirs ?? 0,
-				played,
-				won: played ? mine! > theirs! : false,
-			};
-		}),
-);
+const buildResults = (weeks: Week[]) =>
+	weeks.flatMap((week) =>
+		week.matches
+			.filter((match) => match.p1 === player.number || match.p2 === player.number)
+			.map((match) => {
+				const isHome = match.p1 === player.number;
+				const opponent = findPlayer(isHome ? match.p2 : match.p1);
+				if (!opponent) throw new Error(`Unknown player in week ${week.number}`);
+				const mine = isHome ? match.wins1 : match.wins2;
+				const theirs = isHome ? match.wins2 : match.wins1;
+				const played = mine !== undefined && theirs !== undefined;
+				return {
+					week: week.number,
+					opponent,
+					mine: mine ?? 0,
+					theirs: theirs ?? 0,
+					played,
+					won: played ? mine! > theirs! : false,
+				};
+			}),
+	);
+
+const firstHalfResults = buildResults(FIRST_HALF_WEEKS);
+const secondHalfResults = buildResults(SECOND_HALF_WEEKS);
+
+const swaps = swapsFor(player.number);
+const hasSwaps = swaps.length > 0;
+const secondTeam = applySwaps(player.team, swaps);
+const firstHalfAnalysis = analyzeTeam(player.team);
+const secondHalfAnalysis = analyzeTeam(secondTeam);
 
 const pageNumber = String(400 + player.number);
 const playerIndex = PLAYERS.findIndex((p) => p.number === player.number);
 const prev = PLAYERS[playerIndex - 1];
 const next = PLAYERS[playerIndex + 1];
 const base = import.meta.env.BASE_URL;
-const teamStats = analyzeTeam(player.team);
 ---
 
 <CeefaxLayout title={`${player.name} ${player.epithet}`} pageNumber={pageNumber}>
@@ -54,99 +67,79 @@ const teamStats = analyzeTeam(player.team);
 		<p>HOMETOWN: {player.hometown}</p>
 		<p>SIGNATURE: {player.signature}</p>
 	</CeefaxBlock>
+	<CeefaxHeading text={hasSwaps ? '1ST HALF' : '1ST & 2ND HALF'} color="cyan" />
 	<CeefaxBlock title="TEAM" number={player.number} color="yellow">
-		<ol class="trainer-team">
-			{player.team.map((pokemon) => {
-				const sprite = spriteFor(pokemon);
-				return (
-					<li>
-						{sprite && (
-							<img
-								class="team-sprite"
-								src={sprite}
-								alt={pokemon}
-								width="40"
-								height="40"
-								loading="lazy"
-							/>
-						)}
-						<span class="team-name">{pokemon}</span>
-						{POKEMON_TYPES[pokemon] && (
-							<span class="type-chip">{POKEMON_TYPES[pokemon].join('/')}</span>
-						)}
-					</li>
-				);
-			})}
-		</ol>
+		<TeamList team={player.team} />
 	</CeefaxBlock>
 	<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
-		<div class="team-analysis">
-			<section class="analysis-group">
-				<h3 class="analysis-label analysis-weak">WEAK TO</h3>
-				{teamStats.weaknesses.length > 0 ? (
-					<ul class="analysis-list">
-						{teamStats.weaknesses.map((weakness) => (
-							<li>
-								<span class="analysis-type">{weakness.type}</span>
-								<span class="analysis-count">×{weakness.count}</span>
-								{weakness.quad && <span class="analysis-quad">4×</span>}
-							</li>
-						))}
-					</ul>
-				) : (
-					<p class="analysis-empty">NONE</p>
-				)}
-			</section>
-			<section class="analysis-group">
-				<h3 class="analysis-label analysis-resist">RESISTS</h3>
-				{teamStats.resistances.length > 0 ? (
-					<ul class="analysis-list">
-						{teamStats.resistances.map((resistance) => (
-							<li>
-								<span class="analysis-type">{resistance.type}</span>
-								<span class="analysis-count">×{resistance.count}</span>
-							</li>
-						))}
-					</ul>
-				) : (
-					<p class="analysis-empty">NONE</p>
-				)}
-			</section>
-		</div>
-		<p class="analysis-note">×N = POKÉMON AFFECTED — 4× = DOUBLE WEAKNESS</p>
+		<TeamAnalysisBlock analysis={firstHalfAnalysis} />
 	</CeefaxBlock>
 	<CeefaxBlock title="RESULTS" number={player.number} color="green">
-		<table class="trainer-results">
-			<thead>
-				<tr>
-					<th scope="col">WEEK</th>
-					<th scope="col">OPPONENT</th>
-					<th scope="col">SCORE</th>
-					<th scope="col">RESULT</th>
-				</tr>
-			</thead>
-			<tbody>
-				{results.map((result) => (
-					<tr class={result.won ? 'result-win' : result.played ? 'result-loss' : ''}>
-						<td>
-							<a href={`${base}games/${result.week}`}>{result.week}</a>
-						</td>
-						<td>
-							<a href={`${base}trainers/${result.opponent.number}`}>{result.opponent.name}</a>
-						</td>
-						<td>
-							{result.played ? (
-								`${result.mine} - ${result.theirs}`
-							) : (
-								'VS'
-							)}
-						</td>
-						<td>{result.played ? (result.won ? 'W' : 'L') : '—'}</td>
-					</tr>
-				))}
-			</tbody>
-		</table>
+		<ResultsTable results={firstHalfResults} />
 	</CeefaxBlock>
+	{!hasSwaps && (
+		<CeefaxBlock title="2ND HALF RESULTS" number={player.number} color="green">
+			<ResultsTable results={secondHalfResults} />
+		</CeefaxBlock>
+	)}
+	<CeefaxHeading text="SUBSTITUTES" color="magenta" />
+	<CeefaxBlock title="MID-SEASON DRAFT" number={player.number} color="magenta">
+		{hasSwaps ? (
+			<ul class="swap-list">
+				{swaps.map((swap) => {
+					const removedSprite = spriteFor(swap.removed);
+					const replacementSprite = spriteFor(swap.replacement);
+					return (
+						<li class="swap-row">
+							<div class="swap-poke">
+								{removedSprite && (
+									<img
+										class="swap-sprite"
+										src={removedSprite}
+										alt={swap.removed}
+										width="48"
+										height="48"
+										loading="lazy"
+									/>
+								)}
+								<span class="swap-name">{swap.removed}</span>
+							</div>
+							<span class="swap-arrow" aria-hidden="true">→</span>
+							<div class="swap-poke">
+								{replacementSprite && (
+									<img
+										class="swap-sprite"
+										src={replacementSprite}
+										alt={swap.replacement}
+										width="48"
+										height="48"
+										loading="lazy"
+									/>
+								)}
+								<span class="swap-name">{swap.replacement}</span>
+							</div>
+						</li>
+					);
+				})}
+			</ul>
+		) : (
+			<p class="no-swaps">NO SUBSTITUTES DRAFTED</p>
+		)}
+	</CeefaxBlock>
+	{hasSwaps && (
+		<>
+			<CeefaxHeading text="2ND HALF" color="yellow" />
+			<CeefaxBlock title="TEAM" number={player.number} color="yellow">
+				<TeamList team={secondTeam} />
+			</CeefaxBlock>
+			<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
+				<TeamAnalysisBlock analysis={secondHalfAnalysis} />
+			</CeefaxBlock>
+			<CeefaxBlock title="RESULTS" number={player.number} color="green">
+				<ResultsTable results={secondHalfResults} />
+			</CeefaxBlock>
+		</>
+	)}
 	<nav class="trainer-nav" aria-label="Trainer pages">
 		{prev ? (
 			<a href={`${base}trainers/${prev.number}`}>{prev.name}</a>
@@ -163,161 +156,52 @@ const teamStats = analyzeTeam(player.team);
 </CeefaxLayout>
 
 <style>
-	.trainer-team {
-		margin: 0;
-		display: grid;
-		gap: 0.25rem;
-	}
-
-	.trainer-team li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.team-sprite {
-		width: 40px;
-		height: 40px;
-		object-fit: contain;
-		background: var(--ceefax-black);
-		border: 1px solid var(--ceefax-black);
-		image-rendering: pixelated;
-		flex-shrink: 0;
-	}
-
-	.team-name {
-		color: var(--ceefax-white);
-	}
-
-	.type-chip {
-		background: var(--ceefax-black);
-		color: var(--ceefax-white);
-		border: 1px solid var(--ceefax-yellow);
-		padding: 0 0.3rem;
-		font-size: 0.75rem;
-		margin-left: 0.4rem;
-	}
-
-	.team-analysis {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-	}
-
-	@media (max-width: 30rem) {
-		.team-analysis {
-			grid-template-columns: 1fr;
-		}
-	}
-
-	.analysis-label {
-		margin: 0 0 0.4rem;
-		font-size: 0.9rem;
-		letter-spacing: 0.1em;
-	}
-
-	.analysis-weak {
-		color: var(--ceefax-red);
-	}
-
-	.analysis-resist {
-		color: var(--ceefax-green);
-	}
-
-	.analysis-list {
+	.swap-list {
 		list-style: none;
 		margin: 0;
 		padding: 0;
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
-		gap: 0.25rem 0.5rem;
+		gap: 0.75rem;
 	}
 
-	.analysis-list li {
+	.swap-row {
 		display: flex;
-		align-items: baseline;
-		gap: 0.3rem;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
 	}
 
-	.analysis-type {
-		font-weight: 700;
-		color: var(--ceefax-white);
+	.swap-poke {
+		display: grid;
+		justify-items: center;
+		gap: 0.2rem;
+		min-width: 64px;
 	}
 
-	.analysis-weak .analysis-type {
-		color: var(--ceefax-red);
+	.swap-sprite {
+		width: 48px;
+		height: 48px;
+		object-fit: contain;
+		background: var(--ceefax-black);
+		border: 1px solid var(--ceefax-black);
+		image-rendering: pixelated;
 	}
 
-	.analysis-resist .analysis-type {
-		color: var(--ceefax-green);
-	}
-
-	.analysis-count {
+	.swap-name {
 		color: var(--ceefax-white);
 		font-size: 0.8rem;
+		text-align: center;
 	}
 
-	.analysis-quad {
-		background: var(--ceefax-red);
-		color: var(--ceefax-black);
-		font-weight: 700;
-		padding: 0 0.25rem;
-		font-size: 0.7rem;
-	}
-
-	.analysis-empty {
-		margin: 0;
-		color: var(--ceefax-white);
-	}
-
-	.analysis-note {
-		margin: 0.75rem 0 0;
-		color: var(--ceefax-cyan);
-		font-size: 0.8rem;
-	}
-
-	.trainer-results {
-		width: 100%;
-		border-collapse: collapse;
-	}
-
-	.trainer-results th,
-	.trainer-results td {
-		border: 1px solid var(--ceefax-green);
-		padding: 0.25rem 0.5rem;
-		text-align: left;
-	}
-
-	.trainer-results th {
-		background: var(--ceefax-green);
-		color: var(--ceefax-black);
-		font-weight: 700;
-	}
-
-	.trainer-results td {
-		color: var(--ceefax-white);
-	}
-
-	.trainer-results td:first-child {
+	.swap-arrow {
 		color: var(--ceefax-yellow);
-	}
-
-	.trainer-results a {
-		color: var(--ceefax-white);
-		text-decoration: none;
-	}
-
-	.trainer-results a:hover {
-		color: var(--ceefax-cyan);
-	}
-
-	.trainer-results .result-win td:last-child {
-		color: var(--ceefax-green);
+		font-size: 1.5rem;
 		font-weight: 700;
 	}
 
-	.trainer-results .result-loss td:last-child {
-		color: var(--ceefax-red);
+	.no-swaps {
+		margin: 0;
+		color: var(--ceefax-yellow);
 		font-weight: 700;
 	}
 

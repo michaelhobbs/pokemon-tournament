@@ -139,6 +139,13 @@ export const POKEMON_TYPES: Record<string, TypeName[]> = {
 	'Magnezone': ['Electric', 'Steel'],
 	'Lucario': ['Fighting', 'Steel'],
 	'Swampert': ['Water', 'Ground'],
+	'Porygon2': ['Normal'],
+	'Arcanine': ['Fire'],
+	'Kangaskhan': ['Normal'],
+	'Gardevoir': ['Psychic', 'Fairy'],
+	'Sableye': ['Dark', 'Ghost'],
+	'Gyarados': ['Water', 'Flying'],
+	'Breloom': ['Grass', 'Fighting'],
 };
 
 /** Damage multiplier of an attacking type against a set of defending types. */

@@ -1,0 +1,107 @@
+---
+import type { Player } from '../../data/players';
+
+export interface TrainerResult {
+	week: number;
+	opponent: Player;
+	mine: number;
+	theirs: number;
+	played: boolean;
+	won: boolean;
+}
+
+interface Props {
+	results: TrainerResult[];
+}
+
+const { results } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+{results.length === 0 ? (
+	<p class="results-empty">FIXTURES TBA</p>
+) : (
+	<table class="trainer-results">
+		<thead>
+			<tr>
+				<th scope="col">WEEK</th>
+				<th scope="col">OPPONENT</th>
+				<th scope="col">SCORE</th>
+				<th scope="col">RESULT</th>
+			</tr>
+		</thead>
+		<tbody>
+			{results.map((result) => (
+				<tr class={result.won ? 'result-win' : result.played ? 'result-loss' : ''}>
+					<td>
+						<a href={`${base}games/${result.week}`}>{result.week}</a>
+					</td>
+					<td>
+						<a href={`${base}trainers/${result.opponent.number}`}>{result.opponent.name}</a>
+					</td>
+					<td>
+						{result.played ? (
+							`${result.mine} - ${result.theirs}`
+						) : (
+							'VS'
+						)}
+					</td>
+					<td>{result.played ? (result.won ? 'W' : 'L') : '—'}</td>
+				</tr>
+			))}
+		</tbody>
+	</table>
+)}
+
+<style>
+	.trainer-results {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.trainer-results th,
+	.trainer-results td {
+		border: 1px solid var(--ceefax-green);
+		padding: 0.25rem 0.5rem;
+		text-align: left;
+	}
+
+	.trainer-results th {
+		background: var(--ceefax-green);
+		color: var(--ceefax-black);
+		font-weight: 700;
+	}
+
+	.trainer-results td {
+		color: var(--ceefax-white);
+	}
+
+	.trainer-results td:first-child {
+		color: var(--ceefax-yellow);
+	}
+
+	.trainer-results a {
+		color: var(--ceefax-white);
+		text-decoration: none;
+	}
+
+	.trainer-results a:hover {
+		color: var(--ceefax-cyan);
+	}
+
+	.trainer-results .result-win td:last-child {
+		color: var(--ceefax-green);
+		font-weight: 700;
+	}
+
+	.trainer-results .result-loss td:last-child {
+		color: var(--ceefax-red);
+		font-weight: 700;
+	}
+
+	.results-empty {
+		margin: 0;
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+	}
+</style>
