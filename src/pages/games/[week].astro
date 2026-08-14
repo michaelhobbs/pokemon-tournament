@@ -25,7 +25,7 @@ const base = import.meta.env.BASE_URL;
 <CeefaxLayout title={`GAMES — WEEK ${week.number}`} pageNumber={pageNumber}>
 	<CeefaxHeading text={`WEEK ${week.number}`} color="cyan" />
 	<div class="week-fixtures">
-		<CeefaxBlock title="FIXTURES" number={week.number} color="yellow">
+	<CeefaxBlock title="FIXTURES" number={week.number} color="yellow">
 		<p class="week-date">{week.date}</p>
 		{week.matches.length === 0 ? (
 			<p class="week-tba">FIXTURES TBA</p>
@@ -70,22 +70,6 @@ const base = import.meta.env.BASE_URL;
 </CeefaxLayout>
 
 <style>
-	.week-fixtures {
-		grid-column: 2;
-		justify-self: center;
-		width: fit-content;
-		max-width: 100%;
-	}
-
-	.week-fixtures :global(.ceefax-block) {
-		width: fit-content;
-		max-width: 100%;
-	}
-
-	.week-fixtures :global(.ceefax-block-body) {
-		overflow-x: auto;
-	}
-
 	.week-date {
 		margin: 0 0 0.5rem;
 		color: var(--ceefax-magenta);
@@ -143,6 +127,18 @@ const base = import.meta.env.BASE_URL;
 
 	.match-vs {
 		color: var(--ceefax-magenta);
+	}
+
+	.week-fixtures {
+		grid-column: 1 / -1;
+		width: 100%;
+	}
+
+	@media (min-width: 48rem) {
+		.week-fixtures {
+			justify-self: center;
+			max-width: 34rem;
+		}
 	}
 
 	.week-nav {
