@@ -1,43 +1,45 @@
-# Astro Starter Kit: Minimal
+# Pokémon Tournament (PKM)
 
-```sh
-npm create astro@latest -- --template minimal
-```
+A Ceefax/teletext-style website tracking a Pokémon tournament, built with **Astro** (static site generator) and **TypeScript**.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-## 🚀 Project Structure
+| Command           | Action                                          |
+| :---------------- | :---------------------------------------------- |
+| `npm install`     | Installs dependencies                           |
+| `npm run dev`     | Starts the local dev server at `localhost:4321` |
+| `npm run build`   | Builds the production site to `./dist/`         |
+| `npm run preview` | Previews the production build locally           |
 
-Inside of your Astro project, you'll see the following folders and files:
+## UI architecture
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+The site uses a Ceefax/teletext aesthetic throughout.
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+- Global theme (fonts, Ceefax colour variables, base reset) lives in `src/styles/ceefax.css`.
+- Every page renders through `src/layouts/CeefaxLayout.astro`, which provides the header bar, nav row, content grid, ticker footer, and CRT scanline overlay.
+- Keyboard navigation (`src/scripts/ceefax-nav.ts`): number keys enter a 3-digit page code, arrows step through pages, `h`/`?` open `/help`. The header page-number box is clickable and swaps to a numeric input on mobile.
+- Page navigation uses Astro view transitions (`<ClientRouter />`); the header, nav row, footer, and CRT overlay persist across navigations while content swaps instantly.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Pages
 
-Any static assets, like images, can be placed in the `public/` directory.
+Page numbers are managed in `src/data/navigation.ts`:
 
-## 🧞 Commands
+## Data
 
-All commands are run from the root of the project, from a terminal:
+- `src/data/players.ts` — the 10 trainers and their initial six-Pokémon teams.
+- `src/data/matches.ts` — 9 fixture weeks (`FIRST_HALF_LAST_WEEK = 9` splits first/second half).
+- `src/data/midseason.ts` — mid-season draft swaps (removed → replacement, max 2 per trainer) and helpers `swapsFor` / `applySwaps`.
+- `src/data/pokemon.ts` — type chart, per-Pokémon types, and `analyzeTeam` for team weakness/resistance analysis.
+- `src/data/pokemon-sprites.ts` — Pokémon sprites hot-linked from `img.pokemondb.net` (lowest available generation per Pokémon).
+- `src/data/navigation.ts` — site-wide page list and arrow-key navigation order.
+- `src/data/trainer-sprites.ts`, `src/data/trophy.ts`, `src/data/awards.ts`, `src/data/hometown-map.ts`, `src/data/humon.ts` — pixel-art assets for trainers, trophy, awards, map, and the catchable HUMON mascot.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Tracking
 
-## 👀 Want to learn more?
+Umami analytics is loaded in the layout `<head>` during production builds only (omitted in dev).
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## Conventions
+
+- Astro SSG with TypeScript (`strict`); prefer `.astro` + `.ts` over `.js`.
+- Reusable UI pieces live in `src/components/ceefax/` (`CeefaxBlock`, `CeefaxHeading`, `PixelArt`, `DraftTable`, `TeamList`, `ResultsTable`, etc.).
+- `src/content/` is reserved for content collections once configured (Zod schemas in `src/content.config.ts`).
