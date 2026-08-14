@@ -6,6 +6,7 @@ import TrainerSprite from '../../components/ceefax/TrainerSprite.astro';
 import { PLAYERS, findPlayer } from '../../data/players';
 import { WEEKS } from '../../data/matches';
 import { POKEMON_TYPES, analyzeTeam } from '../../data/pokemon';
+import { spriteFor } from '../../data/pokemon-sprites';
 
 export function getStaticPaths() {
 	return PLAYERS.map((player) => ({
@@ -55,14 +56,27 @@ const teamStats = analyzeTeam(player.team);
 	</CeefaxBlock>
 	<CeefaxBlock title="TEAM" number={player.number} color="yellow">
 		<ol class="trainer-team">
-			{player.team.map((pokemon) => (
-				<li>
-					{pokemon}
-					{POKEMON_TYPES[pokemon] && (
-						<span class="type-chip">{POKEMON_TYPES[pokemon].join('/')}</span>
-					)}
-				</li>
-			))}
+			{player.team.map((pokemon) => {
+				const sprite = spriteFor(pokemon);
+				return (
+					<li>
+						{sprite && (
+							<img
+								class="team-sprite"
+								src={sprite}
+								alt={pokemon}
+								width="40"
+								height="40"
+								loading="lazy"
+							/>
+						)}
+						<span class="team-name">{pokemon}</span>
+						{POKEMON_TYPES[pokemon] && (
+							<span class="type-chip">{POKEMON_TYPES[pokemon].join('/')}</span>
+						)}
+					</li>
+				);
+			})}
 		</ol>
 	</CeefaxBlock>
 	<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
@@ -157,14 +171,22 @@ const teamStats = analyzeTeam(player.team);
 
 	.trainer-team li {
 		display: flex;
-		align-items: baseline;
+		align-items: center;
 		gap: 0.5rem;
 	}
 
-	.trainer-team li::before {
-		content: '▶';
-		color: var(--ceefax-magenta);
-		font-size: 0.7rem;
+	.team-sprite {
+		width: 40px;
+		height: 40px;
+		object-fit: contain;
+		background: var(--ceefax-black);
+		border: 1px solid var(--ceefax-black);
+		image-rendering: pixelated;
+		flex-shrink: 0;
+	}
+
+	.team-name {
+		color: var(--ceefax-white);
 	}
 
 	.type-chip {
