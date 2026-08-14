@@ -1,0 +1,141 @@
+---
+import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
+import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
+import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
+import MonsNav from '../../components/ceefax/MonsNav.astro';
+import { PLAYERS } from '../../data/players';
+import { swapsFor, applySwaps } from '../../data/midseason';
+import { POKEMON_STATS, STAT_COLUMNS, type PokemonStats } from '../../data/pokemon-stats';
+
+interface MonsRow {
+	pokemon: string;
+	trainer: string;
+	stats: PokemonStats;
+}
+
+const rows: MonsRow[] = PLAYERS.flatMap((player) =>
+	applySwaps(player.team, swapsFor(player.number)).map((pokemon) => ({
+		pokemon,
+		trainer: player.name,
+		stats: POKEMON_STATS[pokemon],
+	})),
+).sort((a, b) => a.pokemon.localeCompare(b.pokemon));
+---
+
+<CeefaxLayout title="ALL POKEMON - 2ND HALF" pageNumber="901">
+	<CeefaxHeading text="ALL POKEMON - 2ND HALF" color="cyan" />
+	<div class="mons-section">
+		<CeefaxBlock title="TOURNAMENT POKEMON — MAX STATS (LEVEL 100)" number="901" color="cyan">
+			<p class="mons-hint">CLICK A HEADER TO SORT</p>
+			<div class="mons-table">
+				<table data-mons-sortable>
+					<thead>
+						<tr>
+							<th scope="col" class="mons-sortable" data-sort-key="name" aria-sort="ascending" data-direction="asc">MONS</th>
+							{STAT_COLUMNS.map((col) => (
+								<th scope="col" class="mons-sortable" data-sort-key={col.key}>{col.label}</th>
+							))}
+							<th scope="col" class="mons-sortable" data-sort-key="trainer">TRAINER</th>
+						</tr>
+					</thead>
+					<tbody>
+						{rows.map((row) => (
+							<tr>
+								<td class="mons-name">{row.pokemon}</td>
+								{STAT_COLUMNS.map((col) => (
+									<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
+								))}
+								<td>{row.trainer}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</CeefaxBlock>
+	</div>
+	<MonsNav current="901" />
+</CeefaxLayout>
+
+<script>
+	import { initMonsSort } from '../../scripts/mons-sort';
+	initMonsSort();
+</script>
+
+<style>
+	.mons-section {
+		grid-column: 1 / -1;
+	}
+
+	.mons-section :global(.ceefax-block-body) {
+		padding: 0;
+	}
+
+	.mons-hint {
+		margin: 0;
+		padding: 0.2rem 0.6rem;
+		font-size: 0.8rem;
+		letter-spacing: 0.06em;
+		color: var(--ceefax-yellow);
+		background: var(--ceefax-black);
+		border-bottom: 2px solid var(--ceefax-cyan);
+	}
+
+	.mons-table {
+		overflow-x: auto;
+	}
+
+	.mons-table table {
+		width: 100%;
+		min-width: 42rem;
+		border-collapse: collapse;
+	}
+
+	.mons-table th,
+	.mons-table td {
+		border: 1px solid var(--ceefax-cyan);
+		padding: 0.2rem 0.5rem;
+		text-align: right;
+	}
+
+	.mons-table th {
+		background: var(--ceefax-cyan);
+		color: var(--ceefax-black);
+		font-weight: 700;
+	}
+
+	.mons-table .mons-name,
+	.mons-table th:first-child {
+		text-align: left;
+	}
+
+	.mons-table th:last-child,
+	.mons-table td:last-child {
+		text-align: left;
+	}
+
+	.mons-table td {
+		color: var(--ceefax-white);
+	}
+
+	.mons-table .mons-name {
+		color: var(--ceefax-yellow);
+		white-space: nowrap;
+	}
+
+	.mons-table th.mons-sortable {
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.mons-table th.mons-sortable:hover {
+		background: var(--ceefax-white);
+	}
+
+	.mons-table th.mons-sortable[data-direction='asc']::after {
+		content: ' \25B2';
+	}
+
+	.mons-table th.mons-sortable[data-direction='desc']::after {
+		content: ' \25BC';
+	}
+</style>

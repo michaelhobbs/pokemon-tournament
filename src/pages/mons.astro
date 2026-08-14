@@ -1,0 +1,13 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+import PageDirectory from '../components/ceefax/PageDirectory.astro';
+import { MONS_DIRECTORY_PAGES } from '../data/navigation';
+
+const pages = MONS_DIRECTORY_PAGES.filter((page) => page.number !== '900');
+---
+
+<CeefaxLayout title="POKEDEX" pageNumber="900">
+	<CeefaxHeading text="POKEDEX" color="cyan" />
+	<PageDirectory title="POKEDEX PAGES" number="900" color="cyan" pages={pages} />
+</CeefaxLayout>

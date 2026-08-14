@@ -1,0 +1,230 @@
+---
+import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
+import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
+import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
+import MonsNav from '../../components/ceefax/MonsNav.astro';
+import { findPlayer } from '../../data/players';
+import { swapsFor, applySwaps } from '../../data/midseason';
+import {
+	POKEMON_STATS,
+	STAT_COLUMNS,
+	type PokemonStats,
+} from '../../data/pokemon-stats';
+import {
+	TRAINER_MATCHUPS,
+	matchupColours,
+	type TrainerColour,
+	type TrainerMatchup,
+} from '../../data/matchups';
+
+export function getStaticPaths() {
+	return TRAINER_MATCHUPS.map((matchup) => ({
+		params: { number: String(matchup.number) },
+		props: { matchup },
+	}));
+}
+
+const { matchup } = Astro.props as { matchup: TrainerMatchup };
+const player1 = findPlayer(matchup.player1Number);
+const player2 = findPlayer(matchup.player2Number);
+if (!player1 || !player2) throw new Error(`Unknown matchup: ${matchup.number}`);
+
+const [colour1, colour2] = matchupColours(player1.number, player2.number);
+
+interface MonsRow {
+	pokemon: string;
+	colour: TrainerColour;
+	stats: PokemonStats;
+}
+
+const rows: MonsRow[] = [
+	...applySwaps(player1.team, swapsFor(player1.number)).map((pokemon) => ({
+		pokemon,
+		colour: colour1,
+		stats: POKEMON_STATS[pokemon],
+	})),
+	...applySwaps(player2.team, swapsFor(player2.number)).map((pokemon) => ({
+		pokemon,
+		colour: colour2,
+		stats: POKEMON_STATS[pokemon],
+	})),
+];
+
+const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
+---
+
+<CeefaxLayout title={title} pageNumber={String(matchup.number)}>
+	<CeefaxHeading text={title} color="cyan" />
+	<div class="matchup-wrap">
+		<CeefaxBlock title={title} number={matchup.number} color="cyan">
+			<div class="matchup-legend">
+				<span class="matchup-legend-item" data-colour={colour1}>{player1.name}</span>
+				<span class="matchup-legend-item" data-colour={colour2}>{player2.name}</span>
+			</div>
+			<div class="matchup-table">
+				<table data-mons-sortable>
+					<thead>
+						<tr>
+							<th scope="col" class="mons-sortable" data-sort-key="name">MONS</th>
+							{STAT_COLUMNS.map((col) => (
+								<th scope="col" class="mons-sortable" data-sort-key={col.key}>{col.label}</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{rows.map((row) => (
+							<tr data-colour={row.colour}>
+								<td class="matchup-name">{row.pokemon}</td>
+								{STAT_COLUMNS.map((col) => (
+									<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</CeefaxBlock>
+	</div>
+	<MonsNav current={String(matchup.number)} />
+</CeefaxLayout>
+
+<script>
+	import { initMonsSort } from '../../scripts/mons-sort';
+	initMonsSort();
+</script>
+
+<style>
+	.matchup-wrap {
+		grid-column: 1 / -1;
+	}
+
+	.matchup-wrap :global(.ceefax-block-body) {
+		padding: 0;
+	}
+
+	.matchup-legend {
+		display: flex;
+		gap: 0.75rem;
+		padding: 0.4rem 0.6rem;
+		background: var(--ceefax-black);
+		border-bottom: 2px solid var(--ceefax-cyan);
+	}
+
+	.matchup-legend-item {
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--ceefax-black);
+		padding: 0.1rem 0.6rem;
+	}
+
+	.matchup-legend-item[data-colour='cyan'] {
+		background: var(--ceefax-cyan);
+	}
+
+	.matchup-legend-item[data-colour='yellow'] {
+		background: var(--ceefax-yellow);
+	}
+
+	.matchup-legend-item[data-colour='magenta'] {
+		background: var(--ceefax-magenta);
+	}
+
+	.matchup-legend-item[data-colour='red'] {
+		background: var(--ceefax-red);
+	}
+
+	.matchup-legend-item[data-colour='green'] {
+		background: var(--ceefax-green);
+	}
+
+	.matchup-legend-item[data-colour='blue'] {
+		background: var(--ceefax-blue);
+	}
+
+	.matchup-legend-item[data-colour='white'] {
+		background: var(--ceefax-white);
+	}
+
+	.matchup-table {
+		overflow-x: auto;
+	}
+
+	.matchup-table table {
+		width: 100%;
+		min-width: 42rem;
+		border-collapse: collapse;
+	}
+
+	.matchup-table th,
+	.matchup-table td {
+		border: 1px solid var(--ceefax-black);
+		padding: 0.2rem 0.5rem;
+		text-align: right;
+	}
+
+	.matchup-table th {
+		background: var(--ceefax-black);
+		color: var(--ceefax-white);
+		font-weight: 700;
+	}
+
+	.matchup-table th.mons-sortable {
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.matchup-table th.mons-sortable:hover {
+		background: var(--ceefax-white);
+		color: var(--ceefax-black);
+	}
+
+	.matchup-table th.mons-sortable[data-direction='asc']::after {
+		content: ' \25B2';
+	}
+
+	.matchup-table th.mons-sortable[data-direction='desc']::after {
+		content: ' \25BC';
+	}
+
+	.matchup-table .matchup-name,
+	.matchup-table th:first-child {
+		text-align: left;
+	}
+
+	.matchup-table td {
+		color: var(--ceefax-black);
+	}
+
+	.matchup-table .matchup-name {
+		font-weight: 700;
+		white-space: nowrap;
+	}
+
+	.matchup-table tr[data-colour='cyan'] {
+		background: var(--ceefax-cyan);
+	}
+
+	.matchup-table tr[data-colour='yellow'] {
+		background: var(--ceefax-yellow);
+	}
+
+	.matchup-table tr[data-colour='magenta'] {
+		background: var(--ceefax-magenta);
+	}
+
+	.matchup-table tr[data-colour='red'] {
+		background: var(--ceefax-red);
+	}
+
+	.matchup-table tr[data-colour='green'] {
+		background: var(--ceefax-green);
+	}
+
+	.matchup-table tr[data-colour='blue'] {
+		background: var(--ceefax-blue);
+	}
+
+	.matchup-table tr[data-colour='white'] {
+		background: var(--ceefax-white);
+	}
+</style>

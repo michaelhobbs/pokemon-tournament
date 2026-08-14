@@ -1,6 +1,7 @@
 import { PLAYERS } from './players';
 import { WEEKS } from './matches';
 import { AWARDS, awardDisplayName } from './awards';
+import { TRAINER_MATCHUPS } from './matchups';
 
 export interface PageLink {
 	/** Ceefax page number shown in nav, e.g. "100" */
@@ -33,6 +34,8 @@ export const GAMES_PAGE: PageLink = { number: '500', label: 'GAMES', href: `${ba
 export const TROPHY_PAGE: PageLink = { number: '600', label: 'TROPHY', href: `${base}trophy` };
 export const AWARDS_PAGE: PageLink = { number: '700', label: 'AWARDS', href: `${base}awards` };
 export const HOMETOWNS_PAGE: PageLink = { number: '800', label: 'HOMETOWNS', href: `${base}map` };
+export const MONS_DIRECTORY_PAGE: PageLink = { number: '900', label: 'POKEDEX', href: `${base}mons` };
+export const MONS_PAGE: PageLink = { number: '901', label: 'ALL POKEMON - 2ND HALF', href: `${base}mons/stats` };
 export const HELP_PAGE: PageLink = { number: '990', label: 'HELP', href: `${base}help` };
 export const HIDDEN_PAGE: PageLink = {
 	number: '000',
@@ -62,6 +65,7 @@ export const PAGES: PageLink[] = [
 	TROPHY_PAGE,
 	AWARDS_PAGE,
 	HOMETOWNS_PAGE,
+	MONS_DIRECTORY_PAGE,
 ];
 
 export const TRAINER_PAGES: PageLink[] = PLAYERS.map((player) => ({
@@ -81,6 +85,23 @@ export const AWARD_PAGES: PageLink[] = AWARDS.map((award) => ({
 	label: awardDisplayName(award),
 	href: `${base}awards/${award.number}`,
 }));
+
+export const MONS_MATCHUP_PAGES: PageLink[] = TRAINER_MATCHUPS.map((matchup) => ({
+	number: String(matchup.number),
+	label: `${findPlayerLabel(matchup.player1Number)} vs ${findPlayerLabel(matchup.player2Number)}`,
+	href: `${base}mons/${matchup.number}`,
+}));
+
+/** All pages in the 900s, as listed on the POKEDEX page. */
+export const MONS_DIRECTORY_PAGES: PageLink[] = [
+	MONS_DIRECTORY_PAGE,
+	MONS_PAGE,
+	...MONS_MATCHUP_PAGES,
+];
+
+function findPlayerLabel(playerNumber: number): string {
+	return PLAYERS.find((player) => player.number === playerNumber)?.name ?? String(playerNumber);
+}
 
 /** Every navigable page in arrow-key order: main pages, then trainers, games, weeks, then help (990). */
 export const ALL_PAGES: PageLink[] = [
@@ -102,6 +123,9 @@ export const ALL_PAGES: PageLink[] = [
 	AWARDS_PAGE,
 	...AWARD_PAGES,
 	HOMETOWNS_PAGE,
+	MONS_DIRECTORY_PAGE,
+	MONS_PAGE,
+	...MONS_MATCHUP_PAGES,
 	HELP_PAGE,
 ];
 
