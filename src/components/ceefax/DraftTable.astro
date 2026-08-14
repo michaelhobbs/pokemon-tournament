@@ -1,12 +1,14 @@
 ---
 import type { Player } from '../../data/players';
+import type { MidseasonSwap } from '../../data/midseason';
 
 interface Props {
 	players: Player[];
 	placeholder?: boolean;
+	swaps?: Record<number, MidseasonSwap[]>;
 }
 
-const { players, placeholder = false } = Astro.props;
+const { players, placeholder = false, swaps } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const PICK_COUNT = 6;
 ---
@@ -22,18 +24,40 @@ const PICK_COUNT = 6;
 			</tr>
 		</thead>
 		<tbody>
-			{players.map((player) => (
-				<tr>
-					<td>
-						<a href={`${base}trainers/${player.number}`}>{player.name}</a>
-					</td>
-					{placeholder
-						? Array.from({ length: PICK_COUNT }, () => (
-								<td class="draft-tbd">TBD</td>
-							))
-						: player.team.map((pokemon) => <td>{pokemon}</td>)}
-				</tr>
-			))}
+			{players.map((player) => {
+				const playerSwaps = swaps?.[player.number] ?? [];
+				return (
+					<>
+						<tr>
+							<td class="draft-trainer" rowspan={swaps ? 2 : undefined}>
+								<a href={`${base}trainers/${player.number}`}>{player.name}</a>
+							</td>
+							{placeholder
+								? Array.from({ length: PICK_COUNT }, () => (
+										<td class="draft-tbd">TBD</td>
+									))
+								: player.team.map((pokemon) => {
+									const swap = playerSwaps.find((s) => s.removed === pokemon);
+									return swap ? (
+										<td class="draft-removed">{pokemon}</td>
+									) : (
+										<td rowspan={swaps ? 2 : undefined}>{pokemon}</td>
+									);
+								})}
+						</tr>
+						{swaps && (
+							<tr>
+								{player.team.map((pokemon) => {
+									const swap = playerSwaps.find((s) => s.removed === pokemon);
+									return swap ? (
+										<td class="draft-replacement">{swap.replacement}</td>
+									) : null;
+								})}
+							</tr>
+						)}
+					</>
+				);
+			})}
 		</tbody>
 	</table>
 </div>
@@ -76,6 +100,18 @@ const PICK_COUNT = 6;
 
 	.draft-table .draft-tbd {
 		color: var(--ceefax-magenta);
+		font-weight: 700;
+	}
+
+	.draft-table td.draft-removed {
+		background: var(--ceefax-red);
+		color: var(--ceefax-black);
+		font-weight: 700;
+	}
+
+	.draft-table td.draft-replacement {
+		background: var(--ceefax-green);
+		color: var(--ceefax-black);
 		font-weight: 700;
 	}
 </style>

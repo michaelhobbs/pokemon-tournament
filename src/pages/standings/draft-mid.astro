@@ -5,6 +5,7 @@ import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import DraftTable from '../../components/ceefax/DraftTable.astro';
 import SectionNav from '../../components/ceefax/SectionNav.astro';
 import { PLAYERS } from '../../data/players';
+import { MIDSEASON_SWAPS } from '../../data/midseason';
 import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from '../../data/navigation';
 ---
 
@@ -12,8 +13,7 @@ import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from '../../data/navigation';
 	<CeefaxHeading text="MID-SEASON DRAFT" color="magenta" />
 	<div class="draft-section">
 		<CeefaxBlock title="MID-SEASON DRAFT RESULTS" number="311" color="magenta">
-			<p class="draft-pending">PENDING — SWAP UP TO 2 POKEMON</p>
-			<DraftTable players={PLAYERS} placeholder />
+			<DraftTable players={PLAYERS} swaps={MIDSEASON_SWAPS} />
 		</CeefaxBlock>
 	</div>
 	<SectionNav children={STANDINGS_CHILD_PAGES} current="311" main={STANDINGS_PAGE} />
@@ -26,12 +26,5 @@ import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from '../../data/navigation';
 
 	.draft-section :global(.ceefax-block-body) {
 		padding: 0;
-	}
-
-	.draft-pending {
-		margin: 0;
-		padding: 0.75rem 0.75rem 0.5rem;
-		color: var(--ceefax-yellow);
-		font-weight: 700;
 	}
 </style>
