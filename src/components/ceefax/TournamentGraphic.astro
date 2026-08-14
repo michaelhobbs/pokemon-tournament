@@ -86,6 +86,10 @@ const barColors = [
 <script>
   import { readCaught, writeCaught } from '../../data/humon';
 
+  interface UmamiWindow extends Window {
+    umami?: { track: (event: string) => void };
+  }
+
   document.addEventListener('astro:page-load', initBall);
   initBall();
 
@@ -123,6 +127,7 @@ const barColors = [
           window.setTimeout(() => {
             ball.classList.add('has-bubble');
             writeCaught(true);
+            (window as UmamiWindow).umami?.track('caught_humon');
             window.dispatchEvent(new CustomEvent('humon:caught'));
           }, 650);
         }, 360);
