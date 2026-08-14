@@ -10,6 +10,7 @@ import {
 	STAT_COLUMNS,
 	type PokemonStats,
 } from '../../data/pokemon-stats';
+import { spriteFor } from '../../data/pokemon-sprites';
 import {
 	TRAINER_MATCHUPS,
 	matchupColours,
@@ -72,14 +73,29 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 						</tr>
 					</thead>
 					<tbody>
-						{rows.map((row) => (
-							<tr data-colour={row.colour}>
-								<td class="matchup-name">{row.pokemon}</td>
-								{STAT_COLUMNS.map((col) => (
-									<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
-								))}
-							</tr>
-						))}
+						{rows.map((row) => {
+							const sprite = spriteFor(row.pokemon);
+							return (
+								<tr data-colour={row.colour}>
+									<td class="matchup-name">
+										{sprite && (
+											<img
+												class="table-sprite"
+												src={sprite}
+												alt={row.pokemon}
+												width="40"
+												height="40"
+												loading="lazy"
+											/>
+										)}
+										<span>{row.pokemon}</span>
+									</td>
+									{STAT_COLUMNS.map((col) => (
+										<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
+									))}
+								</tr>
+							);
+						})}
 					</tbody>
 				</table>
 			</div>
@@ -196,8 +212,21 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 	}
 
 	.matchup-table .matchup-name {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
 		font-weight: 700;
 		white-space: nowrap;
+	}
+
+	.matchup-table .table-sprite {
+		width: 40px;
+		height: 40px;
+		object-fit: contain;
+		background: var(--ceefax-black);
+		border: 1px solid var(--ceefax-black);
+		image-rendering: pixelated;
+		flex-shrink: 0;
 	}
 
 	.matchup-table tr[data-colour='cyan'] {

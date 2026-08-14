@@ -6,6 +6,7 @@ import MonsNav from '../../components/ceefax/MonsNav.astro';
 import { PLAYERS } from '../../data/players';
 import { swapsFor, applySwaps } from '../../data/midseason';
 import { POKEMON_STATS, STAT_COLUMNS, type PokemonStats } from '../../data/pokemon-stats';
+import { spriteFor } from '../../data/pokemon-sprites';
 
 interface MonsRow {
 	pokemon: string;
@@ -39,15 +40,30 @@ const rows: MonsRow[] = PLAYERS.flatMap((player) =>
 						</tr>
 					</thead>
 					<tbody>
-						{rows.map((row) => (
-							<tr>
-								<td class="mons-name">{row.pokemon}</td>
-								{STAT_COLUMNS.map((col) => (
-									<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
-								))}
-								<td>{row.trainer}</td>
-							</tr>
-						))}
+						{rows.map((row) => {
+							const sprite = spriteFor(row.pokemon);
+							return (
+								<tr>
+									<td class="mons-name">
+										{sprite && (
+											<img
+												class="table-sprite"
+												src={sprite}
+												alt={row.pokemon}
+												width="40"
+												height="40"
+												loading="lazy"
+											/>
+										)}
+										<span>{row.pokemon}</span>
+									</td>
+									{STAT_COLUMNS.map((col) => (
+										<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
+									))}
+									<td>{row.trainer}</td>
+								</tr>
+							);
+						})}
 					</tbody>
 				</table>
 			</div>
@@ -118,8 +134,21 @@ const rows: MonsRow[] = PLAYERS.flatMap((player) =>
 	}
 
 	.mons-table .mons-name {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
 		color: var(--ceefax-yellow);
 		white-space: nowrap;
+	}
+
+	.mons-table .table-sprite {
+		width: 40px;
+		height: 40px;
+		object-fit: contain;
+		background: var(--ceefax-black);
+		border: 1px solid var(--ceefax-black);
+		image-rendering: pixelated;
+		flex-shrink: 0;
 	}
 
 	.mons-table th.mons-sortable {
