@@ -19,6 +19,8 @@ interface NavData {
 const DEBOUNCE_MS = 2000;
 const CODE_LENGTH = 3;
 const UNKNOWN_MS = 1500;
+const TICKER_DURATION_MS = 30000;
+const TICKER_EPOCH = Date.now();
 
 interface NavWindow extends Window {
   ceefaxNavState?: NavData;
@@ -124,11 +126,7 @@ const step = (direction: 1 | -1): void => {
   if (pages.length === 0) return;
   const index = pages.findIndex((page) => page.number === state.current);
   if (index === -1) {
-    navigate(
-      direction === 1
-        ? pages[0].href
-        : pages[pages.length - 1].href,
-    );
+    navigate(direction === 1 ? pages[0].href : pages[pages.length - 1].href);
     return;
   }
   const next = pages[(index + direction + pages.length) % pages.length];
@@ -196,6 +194,14 @@ const syncScrollPadding = (): void => {
   }
 };
 
+const syncTicker = (): void => {
+  const elapsed = (Date.now() - TICKER_EPOCH) % TICKER_DURATION_MS;
+  const delay = -(elapsed / 1000);
+  for (const track of document.querySelectorAll<HTMLElement>('.ceefax-ticker-track')) {
+    track.style.animationDelay = `${delay}s`;
+  }
+};
+
 const onPageLoad = (): void => {
   deactivatePageBox();
   const raw = document.body.dataset.ceefaxPages;
@@ -210,7 +216,10 @@ const onPageLoad = (): void => {
   window.scrollTo(0, 0);
   syncScrollPadding();
   scrollToHash();
+  syncTicker();
   syncDisplay(data);
+  const footerPage = document.getElementById('ceefax-footer-page');
+  if (footerPage) footerPage.textContent = `PAGE ${data.current}`;
 };
 
 const PAGE_CODE_INPUT_ID = 'ceefax-page-code-input';
