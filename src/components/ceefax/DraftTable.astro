@@ -1,6 +1,8 @@
 ---
 import type { Player } from '../../data/players';
 import type { MidseasonSwap } from '../../data/midseason';
+import { applySwaps } from '../../data/midseason';
+import { pokemonAnchor } from '../../data/pokemon';
 
 interface Props {
 	players: Player[];
@@ -11,6 +13,9 @@ interface Props {
 const { players, placeholder = false, swaps } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const PICK_COUNT = 6;
+
+const pokemonLink = (playerNumber: number, name: string): string =>
+	`${base}trainers/${playerNumber}#${pokemonAnchor(name)}`;
 ---
 
 <div class="draft-table">
@@ -26,6 +31,13 @@ const PICK_COUNT = 6;
 		<tbody>
 			{players.map((player) => {
 				const playerSwaps = swaps?.[player.number] ?? [];
+				const dossier = new Set(applySwaps(player.team, playerSwaps));
+				const link = (name: string) =>
+					dossier.has(name) ? (
+						<a class="draft-link" href={pokemonLink(player.number, name)}>{name}</a>
+					) : (
+						name
+					);
 				return (
 					<>
 						<tr>
@@ -39,9 +51,9 @@ const PICK_COUNT = 6;
 								: player.team.map((pokemon) => {
 									const swap = playerSwaps.find((s) => s.removed === pokemon);
 									return swap ? (
-										<td class="draft-removed">{pokemon}</td>
+										<td class="draft-removed">{link(pokemon)}</td>
 									) : (
-										<td rowspan={swaps ? 2 : undefined}>{pokemon}</td>
+										<td rowspan={swaps ? 2 : undefined}>{link(pokemon)}</td>
 									);
 								})}
 						</tr>
@@ -50,7 +62,7 @@ const PICK_COUNT = 6;
 								{player.team.map((pokemon) => {
 									const swap = playerSwaps.find((s) => s.removed === pokemon);
 									return swap ? (
-										<td class="draft-replacement">{swap.replacement}</td>
+										<td class="draft-replacement">{link(swap.replacement)}</td>
 									) : null;
 								})}
 							</tr>
@@ -96,6 +108,16 @@ const PICK_COUNT = 6;
 
 	.draft-table td:first-child a {
 		color: var(--ceefax-cyan);
+	}
+
+	.draft-table .draft-link {
+		color: var(--ceefax-white);
+		text-decoration: none;
+	}
+
+	.draft-table .draft-link:hover {
+		color: var(--ceefax-cyan);
+		text-decoration: underline;
 	}
 
 	.draft-table .draft-tbd {
