@@ -24,6 +24,7 @@ interface NavWindow extends Window {
   ceefaxNavState?: NavData;
   ceefaxNavInstalled?: boolean;
   ceefaxNavPageLoadAttached?: boolean;
+  ceefaxNavResizeAttached?: boolean;
 }
 
 const navigate = (href: string): void => {
@@ -188,6 +189,13 @@ const scrollToHash = (): void => {
   requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
 };
 
+const syncScrollPadding = (): void => {
+  const head = document.querySelector<HTMLElement>('.ceefax-head');
+  if (head) {
+    document.documentElement.style.scrollPaddingTop = `${head.offsetHeight}px`;
+  }
+};
+
 const onPageLoad = (): void => {
   deactivatePageBox();
   const raw = document.body.dataset.ceefaxPages;
@@ -199,8 +207,8 @@ const onPageLoad = (): void => {
     help: parsed.help ?? '/help',
   };
   navWindow.ceefaxNavState = data;
-  const scroller = document.querySelector<HTMLElement>('.ceefax-scroll');
-  if (scroller) scroller.scrollTop = 0;
+  window.scrollTo(0, 0);
+  syncScrollPadding();
   scrollToHash();
   syncDisplay(data);
 };
@@ -337,5 +345,11 @@ export function initCeefaxNavigation(data: NavData): void {
     document.addEventListener('astro:page-load', onPageLoad);
   }
 
+  if (!navWindow.ceefaxNavResizeAttached) {
+    navWindow.ceefaxNavResizeAttached = true;
+    window.addEventListener('resize', syncScrollPadding);
+  }
+
+  syncScrollPadding();
   syncDisplay(data);
 }

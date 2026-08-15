@@ -19,6 +19,7 @@
 
 html {
   background: var(--ceefax-black);
+  scroll-padding-top: 9rem;
 }
 
 body {

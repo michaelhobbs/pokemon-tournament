@@ -46,16 +46,18 @@ const navJson = JSON.stringify(navData);
 	</head>
 	<body data-ceefax-pages={navJson}>
 		<div class="ceefax">
-			<CeefaxHeader title={title} pageNumber={pageNumber} subtitle={subtitle} />
-			{
-				nav.length > 0 && (
-					<nav class="ceefax-nav" aria-label="Ceefax index" transition:animate="none">
-						{nav.map((item) => (
-							<a href={item.href}>{item.number} {item.label}</a>
-						))}
-					</nav>
-				)
-			}
+			<div class="ceefax-head" transition:animate="none">
+				<CeefaxHeader title={title} pageNumber={pageNumber} subtitle={subtitle} />
+				{
+					nav.length > 0 && (
+						<nav class="ceefax-nav" aria-label="Ceefax index" transition:animate="none">
+							{nav.map((item) => (
+								<a href={item.href}>{item.number} {item.label}</a>
+							))}
+						</nav>
+					)
+				}
+			</div>
 			<main class="ceefax-scroll" transition:animate="none">
 				<div class="ceefax-body">
 					<slot />
@@ -88,10 +90,16 @@ const navJson = JSON.stringify(navData);
 	.ceefax {
 		display: flex;
 		flex-direction: column;
-		height: 100vh;
-		height: 100dvh;
-		max-height: 100dvh;
-		overflow: hidden;
+		min-height: 100vh;
+		min-height: 100dvh;
+	}
+
+	.ceefax-head {
+		position: sticky;
+		top: 0;
+		z-index: 6;
+		flex-shrink: 0;
+		background: var(--ceefax-black);
 	}
 
 	:global(.ceefax-header),
@@ -119,9 +127,13 @@ const navJson = JSON.stringify(navData);
 
 	.ceefax-scroll {
 		flex: 1 1 0;
-		min-height: 0;
-		overflow-y: auto;
 		width: 100%;
+	}
+
+	:global(.ceefax-footer) {
+		position: sticky;
+		bottom: 0;
+		z-index: 6;
 	}
 
 	.ceefax-body {
