@@ -1,0 +1,53 @@
+---
+import PixelArt from './PixelArt.astro';
+import { FONT_5X7 } from '../../data/pixel-font';
+import type { PixelArt as PixelArtType } from '../../data/trophy';
+
+interface Props {
+	text: string;
+	color?: string;
+	/** CSS size of a single pixel; the rendered width = cols × this value. */
+	pixel?: string;
+	label?: string;
+	decorative?: boolean;
+}
+
+const {
+	text,
+	color = 'var(--ceefax-yellow)',
+	pixel = '0.35rem',
+	label = text,
+	decorative = false,
+} = Astro.props;
+
+const GLYPH_W = 5;
+const GLYPH_H = 7;
+
+const lineGlyphs = text
+	.toUpperCase()
+	.split('\n')
+	.map((line) => [...line].map((ch) => FONT_5X7[ch] ?? FONT_5X7[' ']));
+
+const renderLine = (glyphs: string[][]): string[] =>
+	Array.from({ length: GLYPH_H }, (_, row) =>
+		glyphs.map((glyph, index) => (index > 0 ? '.' : '') + glyph[row]).join(''),
+	);
+
+const rendered = lineGlyphs.map(renderLine);
+const cols = Math.max(...rendered.map((rows) => rows[0].length));
+
+const map: string[] = [];
+rendered.forEach((rows, index) => {
+	if (index > 0) map.push('.'.repeat(cols));
+	map.push(...rows.map((row) => row + '.'.repeat(cols - row.length)));
+});
+
+const sprite: PixelArtType = { map, palette: { '#': color } };
+---
+
+<PixelArt
+	sprite={sprite}
+	size={`calc(${pixel} * ${cols})`}
+	label={label}
+	decorative={decorative}
+/>
