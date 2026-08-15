@@ -3,6 +3,7 @@ import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import MonsNav from '../../components/ceefax/MonsNav.astro';
+import SplitViolinChart from '../../components/ceefax/SplitViolinChart.astro';
 import { findPlayer } from '../../data/players';
 import { swapsFor, applySwaps } from '../../data/midseason';
 import {
@@ -50,6 +51,9 @@ const rows: MonsRow[] = [
 		stats: POKEMON_STATS[pokemon],
 	})),
 ];
+
+const team1Stats = rows.slice(0, 6).map((row) => row.stats);
+const team2Stats = rows.slice(6).map((row) => row.stats);
 
 const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 ---
@@ -99,6 +103,18 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 					</tbody>
 				</table>
 			</div>
+		</CeefaxBlock>
+	</div>
+	<div class="matchup-wrap">
+		<CeefaxBlock title="STATS COMPARISON — SPLIT VIOLINS (MAX, LEVEL 100)" number={matchup.number} color="yellow">
+			<SplitViolinChart
+				team1={team1Stats}
+				team2={team2Stats}
+				colour1={colour1}
+				colour2={colour2}
+				name1={player1.name}
+				name2={player2.name}
+			/>
 		</CeefaxBlock>
 	</div>
 	<MonsNav current={String(matchup.number)} />

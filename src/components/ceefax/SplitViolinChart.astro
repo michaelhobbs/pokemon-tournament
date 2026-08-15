@@ -1,0 +1,199 @@
+---
+import type { PokemonStats } from '../../data/pokemon-stats';
+
+interface Props {
+	team1: PokemonStats[];
+	team2: PokemonStats[];
+	colour1: string;
+	colour2: string;
+	name1: string;
+	name2: string;
+}
+
+const { team1, team2, colour1, colour2, name1, name2 } = Astro.props;
+
+const STAT_KEYS = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed'] as const;
+const STAT_LABELS: Record<(typeof STAT_KEYS)[number], string> = {
+	HP: 'HP',
+	Attack: 'ATK',
+	Defense: 'DEF',
+	'Sp. Atk': 'SP.ATK',
+	'Sp. Def': 'SP.DEF',
+	Speed: 'SPE',
+};
+
+const W = 760;
+const H = 400;
+const margin = { top: 26, right: 30, bottom: 42, left: 48 };
+const plotW = W - margin.left - margin.right;
+const plotH = H - margin.top - margin.bottom;
+const bandW = plotW / STAT_KEYS.length;
+const half = bandW * 0.4;
+const SAMPLES = 48;
+
+function gaussian(x: number): number {
+	return Math.exp((-x * x) / 2) / Math.sqrt(2 * Math.PI);
+}
+
+function bandwidth(values: number[]): number {
+	const n = values.length;
+	const mean = values.reduce((a, b) => a + b, 0) / n;
+	const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / n;
+	const sigma = Math.sqrt(variance);
+	const h = 1.06 * sigma * Math.pow(n, -1 / 5);
+	return h > 1e-6 ? h : Math.max(1, 100 * 0.06);
+}
+
+function niceStep(raw: number): number {
+	if (raw <= 0) return 1;
+	const p = Math.pow(10, Math.floor(Math.log10(raw)));
+	const n = raw / p;
+	const m = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10;
+	return m * p;
+}
+
+function seededRandom(seed: number): () => number {
+	let a = seed >>> 0;
+	return () => {
+		a |= 0;
+		a = (a + 0x6d2b79f5) | 0;
+		let t = Math.imul(a ^ (a >>> 15), 1 | a);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+const TAIL_SIGMAS = 3;
+
+// Domain top: the highest data value plus the kernel tail, rounded up to a nice step.
+let maxTop = Math.max(
+	1,
+	...[team1, team2].flatMap((team) => team.flatMap((p) => STAT_KEYS.map((key) => p[key].max))),
+);
+for (const team of [team1, team2]) {
+	for (const key of STAT_KEYS) {
+		const values = team.map((p) => p[key].max);
+		maxTop = Math.max(maxTop, Math.max(...values) + TAIL_SIGMAS * bandwidth(values));
+	}
+}
+const step = niceStep(maxTop / 5);
+const yMax = Math.ceil(maxTop / step) * step;
+const ticks = Array.from({ length: yMax / step + 1 }, (_, i) => i * step);
+
+const yPx = (v: number) => margin.top + plotH - (v / yMax) * plotH;
+
+function halfPath(values: number[], side: 'left' | 'right', cx: number): string {
+	const h = bandwidth(values);
+	const pts: { v: number; d: number }[] = [];
+	for (let i = 0; i <= SAMPLES; i++) {
+		const v = (i / SAMPLES) * yMax;
+		const d = values.reduce((sum, x) => sum + gaussian((v - x) / h), 0) / (values.length * h);
+		pts.push({ v, d });
+	}
+	const maxD = Math.max(...pts.map((p) => p.d));
+	const xOf = (w: number) => (side === 'left' ? cx - (w / maxD) * half : cx + (w / maxD) * half);
+	const top = pts[0];
+	const bottom = pts[pts.length - 1];
+	let d = `M ${xOf(top.d)} ${yPx(top.v)}`;
+	for (const p of pts) d += ` L ${xOf(p.d)} ${yPx(p.v)}`;
+	d += ` L ${cx} ${yPx(bottom.v)} L ${cx} ${yPx(top.v)} Z`;
+	return d;
+}
+
+const JITTER_INSET = 0.05;
+const JITTER_SPAN = 0.9;
+
+const violins = STAT_KEYS.map((key, index) => {
+	const cx = margin.left + bandW * (index + 0.5);
+	const rand = seededRandom(index * 7919 + 1);
+	const dot = (team: PokemonStats[], side: 1 | -1) =>
+		team.map((p) => ({
+			x: cx + side * (JITTER_INSET + JITTER_SPAN * rand()) * half,
+			y: yPx(p[key].max),
+		}));
+	return {
+		label: STAT_LABELS[key],
+		cx,
+		path1: halfPath(team1.map((p) => p[key].max), 'left', cx),
+		path2: halfPath(team2.map((p) => p[key].max), 'right', cx),
+		dots1: dot(team1, -1),
+		dots2: dot(team2, 1),
+	};
+});
+---
+
+<div class="violin-chart">
+	<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Split violin chart of maximum stats, {name1} vs {name2}">
+		{ticks.map((value) => (
+			<g>
+				<line x1={margin.left} x2={W - margin.right} y1={yPx(value)} y2={yPx(value)} class="violin-grid" />
+				<text x={margin.left - 8} y={yPx(value) + 3} class="violin-tick" text-anchor="end">
+					{Math.round(value)}
+				</text>
+			</g>
+		))}
+		<line x1={margin.left} x2={margin.left} y1={margin.top} y2={H - margin.bottom} class="violin-axis" />
+		<line x1={margin.left} x2={W - margin.right} y1={H - margin.bottom} y2={H - margin.bottom} class="violin-axis" />
+		{violins.map((violin) => (
+			<g>
+				<line x1={violin.cx} x2={violin.cx} y1={margin.top} y2={H - margin.bottom} class="violin-center" />
+				<path d={violin.path1} fill={colour1} stroke="var(--ceefax-black)" stroke-width="1" />
+				<path d={violin.path2} fill={colour2} stroke="var(--ceefax-black)" stroke-width="1" />
+				{violin.dots1.map((dot) => (
+					<circle cx={dot.x} cy={dot.y} r="3" fill={colour1} stroke="var(--ceefax-black)" stroke-width="1" />
+				))}
+				{violin.dots2.map((dot) => (
+					<circle cx={dot.x} cy={dot.y} r="3" fill={colour2} stroke="var(--ceefax-black)" stroke-width="1" />
+				))}
+				<text x={violin.cx} y={H - margin.bottom + 18} class="violin-label" text-anchor="middle">
+					{violin.label}
+				</text>
+			</g>
+		))}
+		<g class="violin-legend">
+			<rect x={W - margin.right - 190} y={margin.top - 14} width="12" height="12" fill={colour1} stroke="var(--ceefax-black)" />
+			<text x={W - margin.right - 172} y={margin.top - 4} class="violin-legend-text">{name1}</text>
+			<rect x={W - margin.right - 190} y={margin.top + 4} width="12" height="12" fill={colour2} stroke="var(--ceefax-black)" />
+			<text x={W - margin.right - 172} y={margin.top + 14} class="violin-legend-text">{name2}</text>
+		</g>
+	</svg>
+</div>
+
+<style>
+	.violin-chart svg {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.violin-grid {
+		stroke: var(--ceefax-cyan);
+		stroke-width: 1;
+		opacity: 0.35;
+	}
+
+	.violin-axis {
+		stroke: var(--ceefax-cyan);
+		stroke-width: 2;
+	}
+
+	.violin-center {
+		stroke: var(--ceefax-white);
+		stroke-width: 1;
+		stroke-dasharray: 3 3;
+		opacity: 0.5;
+	}
+
+	.violin-tick,
+	.violin-label,
+	.violin-legend-text {
+		fill: var(--ceefax-white);
+		font-size: 11px;
+		font-family: inherit;
+	}
+
+	.violin-label {
+		fill: var(--ceefax-yellow);
+		font-weight: 700;
+	}
+</style>
