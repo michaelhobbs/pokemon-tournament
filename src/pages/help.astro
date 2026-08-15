@@ -2,6 +2,7 @@
 import CeefaxLayout from '../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
+import NavigationHotkeys from '../components/ceefax/NavigationHotkeys.astro';
 import PageDirectory from '../components/ceefax/PageDirectory.astro';
 import { VISIBLE_PAGES } from '../data/navigation';
 ---
@@ -9,41 +10,7 @@ import { VISIBLE_PAGES } from '../data/navigation';
 <CeefaxLayout title="HELP" pageNumber="990">
 	<CeefaxHeading text="HELP" color="cyan" />
 	<CeefaxBlock title="NAVIGATION HOTKEYS" number="1" color="yellow">
-		<ul class="hotkeys">
-			<li><b>0-9</b> TYPE A PAGE NUMBER (E.G. 100) TO JUMP</li>
-			<li><b>&rarr; / &uarr;</b> NEXT PAGE</li>
-			<li><b>&larr; / &darr;</b> PREVIOUS PAGE</li>
-			<li><b>H / ?</b> RETURN TO THIS HELP PAGE</li>
-			<li><b>ESC</b> RETURN TO HOME</li>
-			<li>
-				<b>TAP</b> THE PAGE BOX TOP-RIGHT ON MOBILE<span class="hotkey-pagebox" aria-hidden="true">100</span>
-			</li>
-		</ul>
+		<NavigationHotkeys />
 	</CeefaxBlock>
 	<PageDirectory title="PAGE DIRECTORY" number="2" color="cyan" pages={VISIBLE_PAGES} />
 </CeefaxLayout>
-
-<style>
-	.hotkeys {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 0.4rem;
-	}
-
-	.hotkeys b {
-		color: var(--ceefax-yellow);
-	}
-
-	.hotkey-pagebox {
-		display: inline-block;
-		background: var(--ceefax-magenta);
-		color: var(--ceefax-black);
-		font-weight: 700;
-		padding: 0.1rem 0.4rem;
-		margin-left: 0.5rem;
-		width: 3ch;
-		box-sizing: content-box;
-	}
-</style>
