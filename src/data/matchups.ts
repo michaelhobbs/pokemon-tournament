@@ -16,6 +16,8 @@ function colourFor(playerNumber: number): TrainerColour {
 	return PALETTE[((index % PALETTE.length) + PALETTE.length) % PALETTE.length];
 }
 
+export { colourFor };
+
 /** Distinct row colours for the two trainers on a matchup page. */
 export function matchupColours(
 	player1Number: number,

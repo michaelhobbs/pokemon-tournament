@@ -152,6 +152,31 @@ export const POKEMON_TYPES: Record<string, TypeName[]> = {
 export const multiplier = (attack: TypeName, defending: TypeName[]): number =>
 	defending.reduce((product, type) => product * (CHART[attack][type] ?? 1), 1);
 
+/** Defensive matchup: which attacking types this Pokémon resists (0.5x or less) and is weak to (2x or more). */
+export function defensiveMatchups(types: TypeName[]): { resists: TypeName[]; weakTo: TypeName[] } {
+	const resists: TypeName[] = [];
+	const weakTo: TypeName[] = [];
+	for (const attack of TYPES) {
+		const m = multiplier(attack, types);
+		if (m >= 2) weakTo.push(attack);
+		else if (m <= 0.5) resists.push(attack);
+	}
+	return { resists, weakTo };
+}
+
+/** Offensive matchup: which types this Pokémon hits for 2x+ (strong vs) and can barely hurt (0.5x or less for all its attacking types). */
+export function offensiveMatchups(types: TypeName[]): { strongVs: TypeName[]; weakVs: TypeName[] } {
+	const strongVs: TypeName[] = [];
+	const weakVs: TypeName[] = [];
+	for (const target of TYPES) {
+		let best = 1;
+		for (const atk of types) best = Math.max(best, CHART[atk][target] ?? 1);
+		if (best >= 2) strongVs.push(target);
+		else if (best <= 0.5) weakVs.push(target);
+	}
+	return { strongVs, weakVs };
+}
+
 export interface TeamWeakness {
 	/** Attacking type that hits at least one team member super effectively. */
 	type: TypeName;

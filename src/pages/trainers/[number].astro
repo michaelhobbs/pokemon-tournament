@@ -7,6 +7,8 @@ import TeamList from '../../components/ceefax/TeamList.astro';
 import TeamAnalysisBlock from '../../components/ceefax/TeamAnalysisBlock.astro';
 import ResultsTable from '../../components/ceefax/ResultsTable.astro';
 import GroupedBarChart from '../../components/ceefax/GroupedBarChart.astro';
+import PokemonDossier from '../../components/ceefax/PokemonDossier.astro';
+import { colourFor } from '../../data/matchups';
 import { PLAYERS, findPlayer } from '../../data/players';
 import { FIRST_HALF_WEEKS, SECOND_HALF_WEEKS, type Week } from '../../data/matches';
 import { analyzeTeam } from '../../data/pokemon';
@@ -146,6 +148,12 @@ const base = import.meta.env.BASE_URL;
 			<GroupedBarChart team={secondTeam} />
 		</CeefaxBlock>
 	</div>
+	<div class="trainer-dossiers">
+		<CeefaxHeading text="POKEDEX ENTRIES" color="green" />
+		{secondTeam.map((pokemon) => (
+			<PokemonDossier name={pokemon} colour={colourFor(player.number)} number={player.number} />
+		))}
+	</div>
 	<nav class="trainer-nav" aria-label="Trainer pages">
 		{prev ? (
 			<a href={`${base}trainers/${prev.number}`}>{prev.name}</a>
@@ -213,6 +221,12 @@ const base = import.meta.env.BASE_URL;
 
 	.trainer-chart {
 		grid-column: 1 / -1;
+	}
+
+	.trainer-dossiers {
+		grid-column: 1 / -1;
+		display: grid;
+		gap: 1rem;
 	}
 
 	.trainer-nav {

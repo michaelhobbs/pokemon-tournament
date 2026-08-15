@@ -1,0 +1,268 @@
+---
+import CeefaxBlock from './CeefaxBlock.astro';
+import { POKEMON_STATS, STAT_COLUMNS } from '../../data/pokemon-stats';
+import { POKEMON_TYPES, defensiveMatchups, offensiveMatchups } from '../../data/pokemon';
+import { POKEMON_DETAILS } from '../../data/pokemon-details';
+import { spriteFor } from '../../data/pokemon-sprites';
+import type { TrainerColour } from '../../data/matchups';
+
+interface Props {
+	name: string;
+	colour: TrainerColour;
+	number: number;
+}
+
+const { name, colour, number } = Astro.props;
+const types = POKEMON_TYPES[name] ?? [];
+const stats = POKEMON_STATS[name];
+const { resists, weakTo } = defensiveMatchups(types);
+const { strongVs, weakVs } = offensiveMatchups(types);
+const details = POKEMON_DETAILS[name];
+const builds = details?.builds ?? [];
+const sprite = spriteFor(name);
+---
+
+<CeefaxBlock title={name.toUpperCase()} number={number} color={colour}>
+	<div class="dossier">
+		<div class="dossier-head">
+			{sprite && (
+				<img class="dossier-sprite" src={sprite} alt={name} width="56" height="56" loading="lazy" />
+			)}
+			<div class="dossier-meta">
+				<div class="type-row">
+					{types.map((type) => (
+						<span class="type-chip">{type}</span>
+					))}
+				</div>
+				{details && (
+					<p class="dossier-links">
+						<a href={details.pokedexUrl} target="_blank" rel="noopener noreferrer">POKEDEX</a>
+						{details.movesetUrl && (
+							<a href={details.movesetUrl} target="_blank" rel="noopener noreferrer">MOVESET THREAD</a>
+						)}
+					</p>
+				)}
+			</div>
+		</div>
+
+		<table class="stat-table">
+			<thead>
+				<tr>
+					{STAT_COLUMNS.map(({ label }) => (
+						<th>{label}</th>
+					))}
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					{STAT_COLUMNS.map(({ key }) => (
+						<td>{stats?.[key].max ?? 0}</td>
+					))}
+				</tr>
+			</tbody>
+		</table>
+
+		<dl class="matchup-grid">
+			<dt>RESISTS</dt>
+			<dd>{resists.length ? resists.join(', ') : '—'}</dd>
+			<dt>WEAK TO</dt>
+			<dd>{weakTo.length ? weakTo.join(', ') : '—'}</dd>
+			<dt>STRONG VS</dt>
+			<dd>{strongVs.length ? strongVs.join(', ') : '—'}</dd>
+			<dt>WEAK VS</dt>
+			<dd>{weakVs.length ? weakVs.join(', ') : '—'}</dd>
+		</dl>
+
+		{builds.length > 0 ? (
+			<div class="builds">
+				{builds.map((build, index) => (
+					<div class="build">
+						<p class="build-head">
+							<span class="build-title">MOVESET {index + 1}</span>
+							<span class="build-votes">{build.votes} VOTES</span>
+						</p>
+						{(build.ability || build.item || build.nature || build.evs || build.iv) && (
+							<dl class="build-rows">
+								{build.ability && <dt>ABILITY</dt>}
+								{build.ability && <dd>{build.ability}</dd>}
+								{build.item && <dt>ITEM</dt>}
+								{build.item && <dd>{build.item}</dd>}
+								{build.nature && <dt>NATURE</dt>}
+								{build.nature && <dd>{build.nature}</dd>}
+								{build.evs && <dt>EVS</dt>}
+								{build.evs && <dd>{build.evs}</dd>}
+								{build.iv && <dt>IV</dt>}
+								{build.iv && <dd>{build.iv}</dd>}
+							</dl>
+						)}
+						<p class="build-moves">
+							{build.moves.map((move) => (
+								<span class="move-chip">{move}</span>
+							))}
+						</p>
+						{build.summary && <p class="build-summary">{build.summary}</p>}
+					</div>
+				))}
+			</div>
+		) : (
+			<p class="no-sets">NO USER-SUBMITTED MOVESETS FOUND</p>
+		)}
+	</div>
+</CeefaxBlock>
+
+<style>
+	.dossier-head {
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	.dossier-sprite {
+		width: 56px;
+		height: 56px;
+		object-fit: contain;
+		background: var(--ceefax-black);
+		border: 1px solid var(--ceefax-black);
+		image-rendering: pixelated;
+		flex-shrink: 0;
+	}
+
+	.type-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+
+	.type-chip {
+		background: var(--ceefax-black);
+		color: var(--ceefax-white);
+		border: 1px solid var(--ceefax-yellow);
+		padding: 0 0.3rem;
+		font-size: 0.75rem;
+	}
+
+	.dossier-links {
+		margin: 0.4rem 0 0;
+		display: flex;
+		gap: 1rem;
+		font-size: 0.8rem;
+	}
+
+	.dossier-links a {
+		color: var(--ceefax-yellow);
+		text-decoration: none;
+	}
+
+	.dossier-links a:hover {
+		color: var(--ceefax-cyan);
+	}
+
+	.stat-table {
+		width: 100%;
+		margin-top: 0.75rem;
+		border-collapse: collapse;
+	}
+
+	.stat-table th,
+	.stat-table td {
+		border: 1px solid var(--ceefax-cyan);
+		text-align: center;
+		padding: 0.2rem 0.3rem;
+		font-size: 0.8rem;
+	}
+
+	.stat-table th {
+		color: var(--ceefax-yellow);
+		font-size: 0.7rem;
+		background: var(--ceefax-black);
+	}
+
+	.matchup-grid {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: 0.2rem 0.75rem;
+		margin: 0.75rem 0 0;
+		font-size: 0.8rem;
+	}
+
+	.matchup-grid dt {
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+	}
+
+	.matchup-grid dd {
+		margin: 0;
+	}
+
+	.builds {
+		display: grid;
+		gap: 0.6rem;
+		margin-top: 0.75rem;
+	}
+
+	.build {
+		border-top: 1px solid var(--ceefax-white);
+		padding-top: 0.5rem;
+	}
+
+	.build-head {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		margin: 0;
+	}
+
+	.build-title {
+		color: var(--ceefax-cyan);
+		font-weight: 700;
+	}
+
+	.build-votes {
+		color: var(--ceefax-white);
+		font-size: 0.7rem;
+	}
+
+	.build-rows {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: 0.15rem 0.75rem;
+		margin: 0.4rem 0 0;
+		font-size: 0.8rem;
+	}
+
+	.build-rows dt {
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+	}
+
+	.build-rows dd {
+		margin: 0;
+	}
+
+	.build-moves {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin: 0.5rem 0 0;
+	}
+
+	.move-chip {
+		background: var(--ceefax-black);
+		color: var(--ceefax-white);
+		border: 1px solid var(--ceefax-cyan);
+		padding: 0.1rem 0.35rem;
+		font-size: 0.75rem;
+	}
+
+	.build-summary {
+		margin: 0.5rem 0 0;
+		font-size: 0.8rem;
+		color: var(--ceefax-white);
+	}
+
+	.no-sets {
+		margin: 0.75rem 0 0;
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+	}
+</style>
