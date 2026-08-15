@@ -25,7 +25,7 @@ html {
 body {
   margin: 0;
   font-family: var(--ceefax-font);
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.4;
   color: var(--ceefax-white);
   background: var(--ceefax-black);
