@@ -22,6 +22,13 @@ import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
   </CeefaxBlock>
   <CeefaxBlock title="BATTLE RULES" number="3" color="yellow">
     <ul>
+      <li>FORMAT: DOUBLES CUSTOM GAME</li>
+      <li>
+        VENUE:{' '}
+        <a class="rule-link" href="https://play.pokemonshowdown.com/"
+          >POKEMON SHOWDOWN</a
+        >
+      </li>
       <li>PICK 4 FROM A POOL OF 6</li>
       <li>CONFIGURATION FIXED PER SET OF 3 BATTLES</li>
     </ul>
@@ -44,6 +51,15 @@ import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
 </CeefaxLayout>
 
 <style>
+  .rule-link {
+    text-decoration: underline;
+    color: var(--ceefax-cyan);
+  }
+
+  .rule-link:hover {
+    color: var(--ceefax-white);
+  }
+
   .schedule-active {
     color: var(--ceefax-green);
     font-weight: 700;
