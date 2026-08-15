@@ -1,0 +1,165 @@
+---
+import type { TeraAnalysis } from '../../data/tera';
+import type { TrainerColour } from '../../data/matchups';
+
+interface Props {
+	name1: string;
+	name2: string;
+	colour1: TrainerColour;
+	colour2: TrainerColour;
+	analysis1: TeraAnalysis;
+	analysis2: TeraAnalysis;
+}
+
+const { name1, name2, colour1, colour2, analysis1, analysis2 } = Astro.props;
+
+const sides = [
+	{ name: name1, colour: colour1, analysis: analysis1 },
+	{ name: name2, colour: colour2, analysis: analysis2 },
+];
+---
+
+<div class="tera-analysis">
+	{sides.map(({ name, colour, analysis }) => (
+		<section class="tera-side">
+			<h3 class="tera-name" data-colour={colour}>{name}</h3>
+			<div class="tera-group">
+				<h4 class="tera-label">DEFENSIVE TERA</h4>
+				<ol class="tera-list">
+					{analysis.defensive.map((s) => (
+						<li>
+							<span class="tera-type">TERA {s.teraType}</span> ON {s.pokemon}
+							{s.fixed.length > 0 && (
+								<span class="tera-fixed">
+									FIXES {s.fixed.map((f) => `${f.type} (${f.oppCount} OPP)`).join(', ')}
+								</span>
+							)}
+							{s.introduced.length > 0 && (
+								<span class="tera-added">
+									ADDS {s.introduced.map((f) => `${f.type} (${f.oppCount} OPP)`).join(', ')}
+								</span>
+							)}
+						</li>
+					))}
+				</ol>
+			</div>
+			<div class="tera-group">
+				<h4 class="tera-label">OFFENSIVE TERA</h4>
+				<ol class="tera-list">
+					{analysis.offensive.map((s) => (
+						<li>
+							<span class="tera-type">TERA {s.teraType}</span>
+							{s.pokemon !== 'ANY' ? ` ON ${s.pokemon}` : ' (ON ANY)'}
+							<span class="tera-hits">
+								HITS {s.hits.length}{s.hits.length > 0 ? `: ${s.hits.join(', ')}` : ''}
+							</span>
+						</li>
+					))}
+				</ol>
+			</div>
+		</section>
+	))}
+</div>
+<p class="tera-note">ONE TERA PER TRAINER PER BATTLE — SIMULATED 6V6</p>
+
+<style>
+	.tera-analysis {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+	}
+
+	@media (max-width: 40rem) {
+		.tera-analysis {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.tera-side {
+		border: 1px solid var(--ceefax-cyan);
+		background: var(--ceefax-black);
+		padding: 0.5rem;
+	}
+
+	.tera-name {
+		margin: 0;
+		padding: 0.1rem 0.5rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--ceefax-black);
+	}
+
+	.tera-name[data-colour='cyan'] {
+		background: var(--ceefax-cyan);
+	}
+
+	.tera-name[data-colour='yellow'] {
+		background: var(--ceefax-yellow);
+	}
+
+	.tera-name[data-colour='magenta'] {
+		background: var(--ceefax-magenta);
+	}
+
+	.tera-name[data-colour='red'] {
+		background: var(--ceefax-red);
+	}
+
+	.tera-name[data-colour='green'] {
+		background: var(--ceefax-green);
+	}
+
+	.tera-name[data-colour='blue'] {
+		background: var(--ceefax-blue);
+	}
+
+	.tera-name[data-colour='white'] {
+		background: var(--ceefax-white);
+	}
+
+	.tera-label {
+		margin: 0.6rem 0 0.3rem;
+		color: var(--ceefax-yellow);
+		font-weight: 700;
+		letter-spacing: 0.06em;
+	}
+
+	.tera-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.tera-list li {
+		line-height: 1.5;
+	}
+
+	.tera-type {
+		background: var(--ceefax-magenta);
+		color: var(--ceefax-black);
+		font-weight: 700;
+		padding: 0 0.3rem;
+	}
+
+	.tera-fixed {
+		display: block;
+		color: var(--ceefax-green);
+	}
+
+	.tera-added {
+		display: block;
+		color: var(--ceefax-red);
+	}
+
+	.tera-hits {
+		display: block;
+		color: var(--ceefax-cyan);
+	}
+
+	.tera-note {
+		margin: 0.6rem 0 0;
+		color: var(--ceefax-white);
+	}
+</style>

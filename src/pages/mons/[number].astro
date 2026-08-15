@@ -4,8 +4,10 @@ import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import MonsNav from '../../components/ceefax/MonsNav.astro';
 import SplitViolinChart from '../../components/ceefax/SplitViolinChart.astro';
+import TeraAnalysisBlock from '../../components/ceefax/TeraAnalysisBlock.astro';
 import { findPlayer } from '../../data/players';
 import { swapsFor, applySwaps } from '../../data/midseason';
+import { analyzeTera } from '../../data/tera';
 import {
 	POKEMON_STATS,
 	STAT_COLUMNS,
@@ -43,14 +45,17 @@ interface MonsRow {
 
 const base = import.meta.env.BASE_URL;
 
+const team1 = applySwaps(player1.team, swapsFor(player1.number));
+const team2 = applySwaps(player2.team, swapsFor(player2.number));
+
 const rows: MonsRow[] = [
-	...applySwaps(player1.team, swapsFor(player1.number)).map((pokemon) => ({
+	...team1.map((pokemon) => ({
 		pokemon,
 		colour: colour1,
 		trainerNumber: player1.number,
 		stats: POKEMON_STATS[pokemon],
 	})),
-	...applySwaps(player2.team, swapsFor(player2.number)).map((pokemon) => ({
+	...team2.map((pokemon) => ({
 		pokemon,
 		colour: colour2,
 		trainerNumber: player2.number,
@@ -60,6 +65,9 @@ const rows: MonsRow[] = [
 
 const team1Stats = rows.slice(0, 6).map((row) => row.stats);
 const team2Stats = rows.slice(6).map((row) => row.stats);
+
+const analysis1 = analyzeTera(team1, team2);
+const analysis2 = analyzeTera(team2, team1);
 
 const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 ---
@@ -128,6 +136,18 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 			/>
 		</CeefaxBlock>
 	</div>
+	<div class="tera-wrap">
+		<CeefaxBlock title="TERA ANALYSIS" number={matchup.number} color="magenta">
+			<TeraAnalysisBlock
+				name1={player1.name}
+				name2={player2.name}
+				colour1={colour1}
+				colour2={colour2}
+				analysis1={analysis1}
+				analysis2={analysis2}
+			/>
+		</CeefaxBlock>
+	</div>
 	<MonsNav current={String(matchup.number)} />
 </CeefaxLayout>
 
@@ -138,6 +158,10 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 
 <style>
 	.matchup-wrap {
+		grid-column: 1 / -1;
+	}
+
+	.tera-wrap {
 		grid-column: 1 / -1;
 	}
 
