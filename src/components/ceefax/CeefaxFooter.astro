@@ -17,6 +17,11 @@ const {
 const dateLabel = new Date()
 	.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
 	.toUpperCase();
+
+const tickerSegments = (entry: string): Array<{ text: string; digit?: boolean }> =>
+	entry.split(/([123])/).map((part) =>
+		/^[123]$/.test(part) ? { text: part, digit: true } : { text: part },
+	);
 ---
 
 <footer class="ceefax-footer" transition:animate="none">
@@ -24,12 +29,28 @@ const dateLabel = new Date()
 		<div class="ceefax-ticker-track">
 			<span class="ceefax-ticker-copy">
 				{ticker.map((entry) => (
-					<span class="ceefax-ticker-item">{entry}</span>
+					<span class="ceefax-ticker-item">
+						{tickerSegments(entry).map((segment) =>
+							segment.digit ? (
+								<span class="ceefax-ticker-digit">{segment.text}</span>
+							) : (
+								segment.text
+							),
+						)}
+					</span>
 				))}
 			</span>
 			<span class="ceefax-ticker-copy">
 				{ticker.map((entry) => (
-					<span class="ceefax-ticker-item">{entry}</span>
+					<span class="ceefax-ticker-item">
+						{tickerSegments(entry).map((segment) =>
+							segment.digit ? (
+								<span class="ceefax-ticker-digit">{segment.text}</span>
+							) : (
+								segment.text
+							),
+						)}
+					</span>
 				))}
 			</span>
 		</div>
@@ -64,6 +85,11 @@ const dateLabel = new Date()
 
 	.ceefax-ticker-item {
 		padding-right: 3rem;
+	}
+
+	.ceefax-ticker-digit {
+		color: var(--ceefax-magenta);
+		font-weight: 700;
 	}
 
 	.ceefax-ticker-item::after {
