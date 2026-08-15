@@ -171,15 +171,20 @@ export function defensiveMatchups(types: TypeName[]): { resists: TypeName[]; wea
 	return { resists, weakTo };
 }
 
-/** Offensive matchup: which types this Pokémon hits for 2x+ (strong vs) and can barely hurt (0.5x or less for all its attacking types). */
+/** Offensive matchup: which types this Pokémon hits for 2x+ (strong vs) and which resist even its worst STAB (weak vs). */
 export function offensiveMatchups(types: TypeName[]): { strongVs: TypeName[]; weakVs: TypeName[] } {
 	const strongVs: TypeName[] = [];
 	const weakVs: TypeName[] = [];
 	for (const target of TYPES) {
 		let best = 1;
-		for (const atk of types) best = Math.max(best, CHART[atk][target] ?? 1);
+		let worst = 1;
+		for (const atk of types) {
+			const m = CHART[atk][target] ?? 1;
+			best = Math.max(best, m);
+			worst = Math.min(worst, m);
+		}
 		if (best >= 2) strongVs.push(target);
-		else if (best <= 0.5) weakVs.push(target);
+		else if (worst <= 0.5) weakVs.push(target);
 	}
 	return { strongVs, weakVs };
 }
