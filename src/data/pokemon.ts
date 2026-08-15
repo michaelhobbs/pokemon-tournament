@@ -148,6 +148,13 @@ export const POKEMON_TYPES: Record<string, TypeName[]> = {
 	'Breloom': ['Grass', 'Fighting'],
 };
 
+/** Stable URL fragment for a Pokémon's dossier section on its trainer's page. */
+export const pokemonAnchor = (name: string): string =>
+	name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/(^-|-$)/g, '');
+
 /** Damage multiplier of an attacking type against a set of defending types. */
 export const multiplier = (attack: TypeName, defending: TypeName[]): number =>
 	defending.reduce((product, type) => product * (CHART[attack][type] ?? 1), 1);

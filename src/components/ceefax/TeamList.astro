@@ -1,17 +1,22 @@
 ---
-import { POKEMON_TYPES } from '../../data/pokemon';
+import { POKEMON_TYPES, pokemonAnchor } from '../../data/pokemon';
 import { spriteFor } from '../../data/pokemon-sprites';
 
 interface Props {
 	team: string[];
+	/** Pokémon names that have a dossier section on this page; names outside it stay plain. */
+	dossier?: string[];
 }
 
-const { team } = Astro.props;
+const { team, dossier } = Astro.props;
+const anchorFor = (name: string) =>
+	dossier === undefined || dossier.includes(name) ? `#${pokemonAnchor(name)}` : undefined;
 ---
 
 <ol class="trainer-team">
 	{team.map((pokemon) => {
 		const sprite = spriteFor(pokemon);
+		const anchor = anchorFor(pokemon);
 		return (
 			<li>
 				{sprite && (
@@ -24,7 +29,11 @@ const { team } = Astro.props;
 						loading="lazy"
 					/>
 				)}
-				<span class="team-name">{pokemon}</span>
+				{anchor ? (
+					<a class="team-link" href={anchor}>{pokemon}</a>
+				) : (
+					<span class="team-name">{pokemon}</span>
+				)}
 				{POKEMON_TYPES[pokemon] && (
 					<span class="type-chip">{POKEMON_TYPES[pokemon].join('/')}</span>
 				)}
@@ -58,6 +67,16 @@ const { team } = Astro.props;
 
 	.team-name {
 		color: var(--ceefax-white);
+	}
+
+	.team-link {
+		color: var(--ceefax-yellow);
+		text-decoration: none;
+	}
+
+	.team-link:hover {
+		color: var(--ceefax-cyan);
+		text-decoration: underline;
 	}
 
 	.type-chip {

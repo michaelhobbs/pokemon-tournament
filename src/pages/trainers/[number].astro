@@ -72,7 +72,7 @@ const base = import.meta.env.BASE_URL;
 	</CeefaxBlock>
 	<CeefaxHeading text={hasSwaps ? '1ST HALF' : '1ST & 2ND HALF'} color="cyan" />
 	<CeefaxBlock title="TEAM" number={player.number} color="yellow">
-		<TeamList team={player.team} />
+		<TeamList team={player.team} dossier={secondTeam} />
 	</CeefaxBlock>
 	<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
 		<TeamAnalysisBlock analysis={firstHalfAnalysis} />
@@ -133,7 +133,7 @@ const base = import.meta.env.BASE_URL;
 		<>
 			<CeefaxHeading text="2ND HALF" color="yellow" />
 			<CeefaxBlock title="TEAM" number={player.number} color="yellow">
-				<TeamList team={secondTeam} />
+				<TeamList team={secondTeam} dossier={secondTeam} />
 			</CeefaxBlock>
 			<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
 				<TeamAnalysisBlock analysis={secondHalfAnalysis} />

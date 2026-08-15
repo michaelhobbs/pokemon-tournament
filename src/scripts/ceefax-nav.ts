@@ -180,6 +180,14 @@ const onKeydown = (event: KeyboardEvent): void => {
   syncDisplay(state);
 };
 
+const scrollToHash = (): void => {
+  const hash = window.location.hash;
+  if (!hash) return;
+  const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+  if (!target) return;
+  requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+};
+
 const onPageLoad = (): void => {
   deactivatePageBox();
   const raw = document.body.dataset.ceefaxPages;
@@ -193,6 +201,7 @@ const onPageLoad = (): void => {
   navWindow.ceefaxNavState = data;
   const scroller = document.querySelector<HTMLElement>('.ceefax-scroll');
   if (scroller) scroller.scrollTop = 0;
+  scrollToHash();
   syncDisplay(data);
 };
 

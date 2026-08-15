@@ -12,6 +12,7 @@ import {
 	type PokemonStats,
 } from '../../data/pokemon-stats';
 import { spriteFor } from '../../data/pokemon-sprites';
+import { pokemonAnchor } from '../../data/pokemon';
 import {
 	TRAINER_MATCHUPS,
 	matchupColours,
@@ -36,18 +37,23 @@ const [colour1, colour2] = matchupColours(player1.number, player2.number);
 interface MonsRow {
 	pokemon: string;
 	colour: TrainerColour;
+	trainerNumber: number;
 	stats: PokemonStats;
 }
+
+const base = import.meta.env.BASE_URL;
 
 const rows: MonsRow[] = [
 	...applySwaps(player1.team, swapsFor(player1.number)).map((pokemon) => ({
 		pokemon,
 		colour: colour1,
+		trainerNumber: player1.number,
 		stats: POKEMON_STATS[pokemon],
 	})),
 	...applySwaps(player2.team, swapsFor(player2.number)).map((pokemon) => ({
 		pokemon,
 		colour: colour2,
+		trainerNumber: player2.number,
 		stats: POKEMON_STATS[pokemon],
 	})),
 ];
@@ -92,7 +98,12 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 												loading="lazy"
 											/>
 										)}
-										<span>{row.pokemon}</span>
+										<a
+											class="matchup-link"
+											href={`${base}trainers/${row.trainerNumber}#${pokemonAnchor(row.pokemon)}`}
+										>
+											{row.pokemon}
+										</a>
 									</td>
 									{STAT_COLUMNS.map((col) => (
 										<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
@@ -243,6 +254,15 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 		border: 1px solid var(--ceefax-black);
 		image-rendering: pixelated;
 		flex-shrink: 0;
+	}
+
+	.matchup-table .matchup-link {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.matchup-table .matchup-link:hover {
+		text-decoration: underline;
 	}
 
 	.matchup-table tr[data-colour='cyan'] {

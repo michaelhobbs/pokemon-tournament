@@ -5,12 +5,13 @@ interface Props {
 	title: string;
 	color?: CeefaxColor;
 	number?: string | number;
+	id?: string;
 }
 
-const { title, color = 'cyan', number } = Astro.props;
+const { title, color = 'cyan', number, id } = Astro.props;
 ---
 
-<section class="ceefax-block" data-color={color}>
+<section class="ceefax-block" data-color={color} id={id}>
 	<h2 class="ceefax-block-title">
 		{number !== undefined && <span class="ceefax-block-number">{number}</span>}
 		{title}
@@ -47,6 +48,10 @@ const { title, color = 'cyan', number } = Astro.props;
 
 	.ceefax-block[data-color='white'] {
 		--block-color: var(--ceefax-white);
+	}
+
+	.ceefax-block {
+		scroll-margin-top: 0.5rem;
 	}
 
 	.ceefax-block-title {

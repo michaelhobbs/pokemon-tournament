@@ -1,7 +1,7 @@
 ---
 import CeefaxBlock from './CeefaxBlock.astro';
 import { POKEMON_STATS, STAT_COLUMNS } from '../../data/pokemon-stats';
-import { POKEMON_TYPES, defensiveMatchups, offensiveMatchups } from '../../data/pokemon';
+import { POKEMON_TYPES, defensiveMatchups, offensiveMatchups, pokemonAnchor } from '../../data/pokemon';
 import { POKEMON_DETAILS } from '../../data/pokemon-details';
 import { spriteFor } from '../../data/pokemon-sprites';
 import type { TrainerColour } from '../../data/matchups';
@@ -22,7 +22,7 @@ const builds = details?.builds ?? [];
 const sprite = spriteFor(name);
 ---
 
-<CeefaxBlock title={name.toUpperCase()} number={number} color={colour}>
+<CeefaxBlock title={name.toUpperCase()} number={number} color={colour} id={pokemonAnchor(name)}>
 	<div class="dossier">
 		<div class="dossier-head">
 			{sprite && (
