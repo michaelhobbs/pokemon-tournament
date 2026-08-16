@@ -4,10 +4,12 @@ import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
 import PixelArt from '../components/ceefax/PixelArt.astro';
 import SecretAwardBanner from '../components/ceefax/SecretAwardBanner.astro';
+import SecretQuote from '../components/ceefax/SecretQuote.astro';
 import { JOAk_SPRITE, JOAk_JOKES } from '../data/professor-joak';
 ---
 
 <CeefaxLayout title="PROFESSOR JOAK" pageNumber="123">
+	<SecretQuote />
 	<div class="joak-block">
 		<PixelArt sprite={JOAk_SPRITE} size="8rem" label="Professor Joak sprite" />
 		<CeefaxHeading text="PROFESSOR JOAK" color="cyan" />

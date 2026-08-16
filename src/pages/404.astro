@@ -3,9 +3,11 @@ import CeefaxLayout from '../layouts/CeefaxLayout.astro';
 import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
 import SecretAwardBanner from '../components/ceefax/SecretAwardBanner.astro';
+import SecretQuote from '../components/ceefax/SecretQuote.astro';
 ---
 
 <CeefaxLayout title="PAGE NOT FOUND" pageNumber="404">
+	<SecretQuote />
 	<CeefaxHeading text="404 — PAGE NOT FOUND" color="red" />
 	<CeefaxBlock title="ERROR" number="404" color="red">
 		<p>THE PAGE YOU ARE LOOKING FOR DOES NOT EXIST.</p>
