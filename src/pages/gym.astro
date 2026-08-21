@@ -1,0 +1,20 @@
+---
+import CeefaxLayout from '../layouts/CeefaxLayout.astro';
+import { GYM_PAGE } from '../data/navigation';
+---
+
+<CeefaxLayout title="GYM CHALLENGE" pageNumber={GYM_PAGE.number}>
+	<div id="gym-app" aria-live="polite"></div>
+</CeefaxLayout>
+
+<style>
+	/* Page-scoped: the layout's global CSS stays constrained on every other page. */
+	:global(.ceefax-body) {
+		max-width: none;
+	}
+</style>
+
+<script>
+	import { initGym } from '../scripts/gym';
+	initGym();
+</script>

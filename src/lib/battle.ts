@@ -16,7 +16,7 @@ export function speciesToKey(species: string): string {
 	return SPECIES_TO_KEY[species] ?? species;
 }
 
-function buildTeam(species: string[]): string {
+export function buildTeam(species: string[], level = 100): string {
 	const sets = species.map((name) => {
 		const set = POKEMON_SETS[name];
 		if (!set) {
@@ -29,7 +29,7 @@ function buildTeam(species: string[]): string {
 				gender: '',
 				evs: { hp: 252, atk: 252, def: 0, spa: 0, spd: 4, spe: 0 },
 				ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
-				level: 50,
+				level,
 				moves: ['Tackle', 'Tackle', 'Tackle', 'Tackle'],
 			};
 		}
@@ -42,7 +42,7 @@ function buildTeam(species: string[]): string {
 			gender: '',
 			evs: set.evs,
 			ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 } as const,
-			level: 50,
+			level,
 			moves: set.moves,
 		};
 	});
