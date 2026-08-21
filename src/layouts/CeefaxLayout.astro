@@ -1,5 +1,6 @@
 ---
 import '../styles/ceefax.css';
+import '../styles/manager.css';
 import { ClientRouter } from 'astro:transitions';
 import CeefaxHeader from '../components/ceefax/CeefaxHeader.astro';
 import CeefaxFooter from '../components/ceefax/CeefaxFooter.astro';
@@ -82,6 +83,10 @@ const navJson = JSON.stringify(navData);
 				current: navData.current ?? '',
 				help: navData.help ?? '/help',
 			});
+		</script>
+		<script>
+			import { initManager } from '../scripts/manager';
+			initManager();
 		</script>
 	</body>
 </html>
