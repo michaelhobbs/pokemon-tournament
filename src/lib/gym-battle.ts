@@ -387,6 +387,8 @@ export class GymBattle {
 	private weather: string | null = null;
 	private terrain: string | null = null;
 	private weatherStart: number | null = null;
+	/** One Terastallization per battle per team - set once one of ours goes through. */
+	private teamTeraUsed = false;
 	private terrainStart: number | null = null;
 	private sideConditions: Record<'p1' | 'p2', Set<string>> = { p1: new Set(), p2: new Set() };
 	private sideStarts: Record<'p1' | 'p2', Map<string, number>> = { p1: new Map(), p2: new Map() };
@@ -776,6 +778,7 @@ export class GymBattle {
 			case '-terastallize': {
 				const mon = this.byIdent(parts[2] ?? '');
 				const type = cleanEffect(parts[3] ?? '');
+				if ((parts[2] ?? '').startsWith('p1')) this.teamTeraUsed = true;
 				if (mon) {
 					if (type) mon.types = [type];
 					this.pushLog(`${mon.name} TERASTALLIZED${type ? ` into ${type}` : ''}!`);
@@ -1061,8 +1064,12 @@ export class GymBattle {
 					moves,
 					trapped: Boolean(active.trapped),
 					// Gen 9 requests carry the Tera type itself ("Water"); anything
-					// else means Terastallization is unavailable.
-					canTerastallize: typeof active.canTerastallize === 'string' && active.canTerastallize ? active.canTerastallize : null,
+					// else means Terastallization is unavailable. Once the team's
+					// single use is spent, hide it everywhere.
+					canTerastallize:
+						!this.teamTeraUsed && typeof active.canTerastallize === 'string' && active.canTerastallize
+							? active.canTerastallize
+							: null,
 				});
 			});
 			this.onPrompt({ kind: 'move', actives });

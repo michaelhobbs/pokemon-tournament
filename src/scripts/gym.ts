@@ -915,8 +915,11 @@ function handle(action: string, el: HTMLElement): void {
 			break;
 		}
 		case 'tera-toggle': {
+			// Only one Terastallization per battle: arming one slot disarms the
+			// other so a single turn can never send two Tera choices.
 			const slotIndex = Number(el.dataset.slot);
-			teraFlags[slotIndex] = !teraFlags[slotIndex];
+			const turningOn = !teraFlags[slotIndex];
+			teraFlags = teraFlags.map((_, idx) => idx === slotIndex && turningOn);
 			render();
 			break;
 		}
