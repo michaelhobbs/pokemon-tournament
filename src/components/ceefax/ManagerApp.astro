@@ -1,0 +1,9 @@
+---
+interface Props {
+	feature: 'hub' | 'roster' | 'travel' | 'training' | 'gyms' | 'unlocks' | 'debug';
+}
+
+const { feature } = Astro.props;
+---
+
+<div class="mgr-app" data-manager-feature={feature} aria-live="polite"></div>

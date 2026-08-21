@@ -34,6 +34,12 @@ export const GAMES_PAGE: PageLink = { number: '500', label: 'GAMES', href: `${ba
 export const TROPHY_PAGE: PageLink = { number: '600', label: 'TROPHY', href: `${base}trophy` };
 export const AWARDS_PAGE: PageLink = { number: '700', label: 'AWARDS', href: `${base}awards` };
 export const HOMETOWNS_PAGE: PageLink = { number: '800', label: 'HOMETOWNS', href: `${base}map` };
+export const MANAGER_PAGE: PageLink = { number: '810', label: 'MANAGER', href: `${base}manager` };
+export const ROSTER_PAGE: PageLink = { number: '811', label: 'ROSTER', href: `${base}manager/roster` };
+export const TRAVEL_PAGE: PageLink = { number: '812', label: 'TRAVEL', href: `${base}manager/travel` };
+export const TRAINING_PAGE: PageLink = { number: '813', label: 'TRAINING', href: `${base}manager/training` };
+export const GYMS_PAGE: PageLink = { number: '814', label: 'GYMS', href: `${base}manager/gyms` };
+export const UNLOCKS_PAGE: PageLink = { number: '815', label: 'UNLOCKS', href: `${base}manager/unlocks` };
 export const MONS_DIRECTORY_PAGE: PageLink = { number: '900', label: 'POKEDEX', href: `${base}mons` };
 export const MONS_PAGE: PageLink = { number: '901', label: 'ALL POKEMON - 2ND HALF', href: `${base}mons/stats` };
 export const HELP_PAGE: PageLink = { number: '990', label: 'HELP', href: `${base}help` };
@@ -55,6 +61,27 @@ export const JOAk_PAGE: PageLink = {
 	href: `${base}123`,
 	hidden: true,
 };
+export const DEVILMON_PAGE: PageLink = {
+	number: '666',
+	label: 'DEVILMON',
+	href: `${base}666`,
+	hidden: true,
+};
+export const COPMON_PAGE: PageLink = {
+	number: '911',
+	label: 'COPMON',
+	href: `${base}911`,
+	hidden: true,
+};
+
+/** Child pages of the manager group, in ascending page-number order. */
+export const MANAGER_CHILD_PAGES: PageLink[] = [
+	ROSTER_PAGE,
+	TRAVEL_PAGE,
+	TRAINING_PAGE,
+	GYMS_PAGE,
+	UNLOCKS_PAGE,
+];
 
 export const PAGES: PageLink[] = [
 	HOME_PAGE,
@@ -65,6 +92,7 @@ export const PAGES: PageLink[] = [
 	TROPHY_PAGE,
 	AWARDS_PAGE,
 	HOMETOWNS_PAGE,
+	MANAGER_PAGE,
 	MONS_DIRECTORY_PAGE,
 ];
 
@@ -108,6 +136,8 @@ export const ALL_PAGES: PageLink[] = [
 	HIDDEN_PAGE,
 	NOT_FOUND_PAGE,
 	JOAk_PAGE,
+	DEVILMON_PAGE,
+	COPMON_PAGE,
 	HOME_PAGE,
 	RULES_PAGE,
 	STANDINGS_PAGE,
@@ -123,6 +153,8 @@ export const ALL_PAGES: PageLink[] = [
 	AWARDS_PAGE,
 	...AWARD_PAGES,
 	HOMETOWNS_PAGE,
+	MANAGER_PAGE,
+	...MANAGER_CHILD_PAGES,
 	MONS_DIRECTORY_PAGE,
 	MONS_PAGE,
 	...MONS_MATCHUP_PAGES,
