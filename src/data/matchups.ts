@@ -47,3 +47,12 @@ export const TRAINER_MATCHUPS: TrainerMatchup[] = (() => {
 		player2Number,
 	}));
 })();
+
+/** Finds the trainer-vs-trainer comparison page for two players, regardless of order. */
+export function matchupFor(a: number, b: number): TrainerMatchup | undefined {
+	return TRAINER_MATCHUPS.find(
+		(matchup) =>
+			(matchup.player1Number === a && matchup.player2Number === b) ||
+			(matchup.player1Number === b && matchup.player2Number === a),
+	);
+}

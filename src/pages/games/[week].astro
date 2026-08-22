@@ -4,6 +4,7 @@ import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
 import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import { WEEKS, weekFor } from '../../data/matches';
 import { findPlayer } from '../../data/players';
+import { matchupFor } from '../../data/matchups';
 
 export function getStaticPaths() {
 	return WEEKS.map((week) => ({
@@ -35,17 +36,25 @@ const base = import.meta.env.BASE_URL;
 				const p1 = findPlayer(match.p1);
 				const p2 = findPlayer(match.p2);
 				if (!p1 || !p2) throw new Error(`Unknown player in week ${week.number}`);
+				const matchup = matchupFor(p1.number, p2.number);
 				const hasResult = match.wins1 !== undefined && match.wins2 !== undefined;
 				return (
 					<li class="match">
 						<a class="match-name" href={`${base}trainers/${p1.number}`}>{p1.name}</a>
-						{hasResult ? (
-							<span class="match-score">
-								{match.wins1} - {match.wins2}
-							</span>
-						) : (
-							<span class="match-score match-vs">VS</span>
-						)}
+						<span class="match-mid">
+							{hasResult ? (
+								<span class="match-score">
+									{match.wins1} - {match.wins2}
+								</span>
+							) : (
+								<span class="match-score match-vs">VS</span>
+							)}
+							{matchup && (
+								<a class="match-compare" href={`${base}mons/${matchup.number}`}>
+									{matchup.number} COMPARE
+								</a>
+							)}
+						</span>
 						<a class="match-name" href={`${base}trainers/${p2.number}`}>{p2.name}</a>
 					</li>
 				);
@@ -123,6 +132,24 @@ const base = import.meta.env.BASE_URL;
 		flex-shrink: 0;
 		font-weight: 700;
 		color: var(--ceefax-yellow);
+	}
+
+	.match-mid {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.15rem;
+	}
+
+	.match-compare {
+		font-size: 0.65rem;
+		font-weight: 400;
+		text-decoration: none;
+		color: var(--ceefax-green);
+	}
+
+	.match-compare:hover {
+		color: var(--ceefax-cyan);
 	}
 
 	.match-vs {
