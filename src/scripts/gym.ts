@@ -533,39 +533,15 @@ function movePromptHtml(): string {
 	const panels = prompt.actives.map((active, i) => slotPanelHtml(active, i)).join('');
 	const needed = prompt.actives.length;
 	const allReady = pending.slice(0, needed).every(Boolean);
-	const foeActive = activeMons('p2').filter((m): m is GymMonView => !!m);
 	return `
 		<div class="gym-prompt">
 			<div class="gym-prompt-title">CHOOSE ACTIONS FOR BOTH POKEMON</div>
 			<div class="gym-slot-panels">${panels}</div>
-			<div class="gym-target-area" id="gym-target-area">${targetAreaHtml()}</div>
 			<div class="gym-prompt-actions">
 				<button class="mgr-btn mgr-btn-danger" data-gym="undo-all" ${allReady || teraFlags.slice(0, needed).some(Boolean) ? '' : 'disabled'}>UNDO ALL</button>
 				<button class="mgr-btn" data-gym="send-turn" ${allReady ? '' : 'disabled'}>SEND TURN &raquo;</button>
 			</div>
 		</div>`;
-
-	function targetAreaHtml(): string {
-		if (!awaitingTarget || !prompt || prompt.kind !== 'move') return '';
-		const { slotIndex, moveSlot } = awaitingTarget;
-		const active = prompt.actives[slotIndex];
-		const move = active?.moves.find((m) => m.slot === moveSlot);
-		if (!active || !move) return '';
-		const options = targetOptionsFor(move.target, move.name, prompt.actives, slotIndex, foeActive);
-		if (options.length === 0) {
-			return `<div class="gym-target-list"><span class="gym-note">NO VALID TARGETS FOR ${esc(move.name.toUpperCase())}</span></div>`;
-		}
-		return `
-			<div class="gym-target-label">${esc(active.mon.name.toUpperCase())}: TARGET FOR ${esc(move.name.toUpperCase())}?</div>
-			<div class="gym-target-list">
-				${options
-					.map(
-						(o) =>
-							`<button class="mgr-btn mgr-btn-sm" data-gym="choose-target" data-slot="${slotIndex}" data-move="${moveSlot}" data-loc="${o.loc}">${esc(o.label.toUpperCase())}</button>`,
-					)
-					.join('')}
-			</div>`;
-	}
 }
 
 function slotPanelHtml(active: GymActivePromptData, i: number): string {
@@ -578,7 +554,28 @@ function slotPanelHtml(active: GymActivePromptData, i: number): string {
 		</div>`;
 	if (pend) return `<div class="gym-slot-panel is-done">${head}<div class="gym-slot-body"></div></div>`;
 	if (awaitingTarget && awaitingTarget.slotIndex === i) {
-		return `<div class="gym-slot-panel is-targeting">${head}<div class="gym-slot-body"><p class="gym-note">PICK A TARGET BELOW &#8595;</p></div></div>`;
+		const { moveSlot } = awaitingTarget;
+		const move = active.moves.find((m) => m.slot === moveSlot);
+		const mp = prompt && prompt.kind === 'move' ? prompt : null;
+		const foeActive = mp ? activeMons('p2').filter((m): m is GymMonView => !!m) : [];
+		const options = move && mp ? targetOptionsFor(move.target, move.name, mp.actives, i, foeActive) : [];
+		const list =
+			!move || options.length === 0
+				? `<p class="gym-note">NO VALID TARGETS${move ? ` FOR ${esc(move.name.toUpperCase())}` : ''}</p>`
+				: `
+					<div class="gym-target-list">
+						${options
+							.map(
+								(o) =>
+									`<button class="mgr-btn mgr-btn-sm" data-gym="choose-target" data-slot="${i}" data-move="${moveSlot}" data-loc="${o.loc}">${esc(o.label.toUpperCase())}</button>`,
+							)
+							.join('')}
+					</div>
+					<div class="gym-switches"><button class="mgr-btn mgr-btn-sm mgr-btn-danger" data-gym="cancel-target" data-slot="${i}">CANCEL</button></div>`;
+		return `<div class="gym-slot-panel is-targeting">${head}<div class="gym-slot-body">
+			<div class="gym-target-label">TARGET FOR ${esc((move?.name ?? '?').toUpperCase())}?</div>
+			${list}
+		</div></div>`;
 	}
 	const moves = active.moves
 		.map((move) => {
@@ -904,6 +901,11 @@ function handle(action: string, el: HTMLElement): void {
 			const rawLoc = el.dataset.loc ?? '0';
 			awaitingTarget = null;
 			pending[slotIndex] = { type: 'move', slotIndex, moveSlot, locStr: normalizeLoc(rawLoc) };
+			render();
+			break;
+		}
+		case 'cancel-target': {
+			awaitingTarget = null;
 			render();
 			break;
 		}

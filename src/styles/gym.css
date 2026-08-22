@@ -751,15 +751,6 @@
 	color: var(--ceefax-black);
 }
 
-.gym-target-area {
-	min-height: 0;
-}
-
-.gym-target-area:not(:empty) {
-	padding: 0.5rem;
-	border: 2px solid var(--ceefax-yellow);
-}
-
 .gym-target-label {
 	color: var(--ceefax-yellow);
 	font-size: 0.8rem;
