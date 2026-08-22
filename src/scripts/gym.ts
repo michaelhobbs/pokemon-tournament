@@ -304,7 +304,7 @@ function activeCardHtml(mon: GymMonView | null, slot: number): string {
 					.slice(0, 5)
 					.map(
 						(v) =>
-							`<span class="gym-volatile" tabindex="0" data-gym-desc="volatile:${esc(v)}">${esc(v.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase())}</span>`,
+							`<span class="gym-volatile" tabindex="0" data-gym-desc="volatile:${esc(v)}">${esc(describeRule(`volatile:${v}`)?.title ?? v.replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase())}</span>`,
 					)
 					.join('')}
 				${mon.ability ? `<span class="gym-rule-chip gym-rule-ability" tabindex="0" data-gym-desc="ability:${esc(mon.ability)}">AB: ${esc(ruleChipLabel('ability', mon.ability))}</span>` : ''}

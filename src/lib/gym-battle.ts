@@ -379,6 +379,11 @@ interface ActiveRequestData {
 	canTerastallize?: unknown;
 }
 
+/** Normalizes a `-start`/`-end` effect arg ("move: Taunt", "confusion") to a slug id ("taunt"). */
+export function volatileKey(raw: string): string {
+	return raw.replace(/^move:/, '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 export class GymBattle {
 	private readonly streams: ReturnType<typeof BattleStreams.getPlayerStreams>;
 	private readonly onSnapshot: (snapshot: GymSnapshot) => void;
@@ -794,7 +799,7 @@ export class GymBattle {
 			}
 			case '-start': {
 				const mon = this.byIdent(parts[2] ?? '');
-				const volatile = (parts[3] ?? '').replace(/^move:/, '');
+				const volatile = volatileKey(parts[3] ?? '');
 				if (!mon || !volatile) break;
 				if (volatile === 'typechange') {
 					// e.g. Protean / Colour Change / Terastallization follow-up.
@@ -819,7 +824,7 @@ export class GymBattle {
 			}
 			case '-end': {
 				const mon = this.byIdent(parts[2] ?? '');
-				const volatile = (parts[3] ?? '').replace(/^move:/, '');
+				const volatile = volatileKey(parts[3] ?? '');
 				if (mon) mon.volatiles = mon.volatiles.filter((v) => v !== volatile);
 				break;
 			}
