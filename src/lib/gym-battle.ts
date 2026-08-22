@@ -86,6 +86,8 @@ export interface GymOutcome {
 export interface TargetOption {
 	loc: number;
 	label: string;
+	/** Effectiveness of the pending move against this target, e.g. "×2 SUPER EFFECTIVE". */
+	effect?: string;
 }
 
 /** Applies a stat-stage delta, clamped to the game's -6..+6 range; 0 removes the entry. */
@@ -236,7 +238,7 @@ const WEATHER_LABELS: Record<string, string> = {
 	sandstorm: 'SANDSTORM',
 	hail: 'HAIL',
 	snow: 'SNOW',
-	snowscape: 'SNOW',
+	snowscape: 'SNOWSCAPE',
 	desolateland: 'DESOLATE LAND',
 	primordialsea: 'PRIMORDIAL SEA',
 	deltastream: 'DELTA STREAM',
@@ -337,26 +339,32 @@ export function targetOptionsFor(
 	const allyIndex = slotIndex ^ 1;
 	const ally = myActives[allyIndex]?.mon;
 	const livingFoes = foeMons.filter((m): m is GymMonView => !!m && !m.fainted);
+	const effectOn = (mon: GymMonView): string | undefined =>
+		moveName ? moveEffectiveness(moveName, mon) ?? undefined : undefined;
 	switch (target) {
 		case 'normal':
 		case 'adjacentFoe':
-			return livingFoes.map((m) => ({ loc: m.activeSlot === 1 ? 2 : 1, label: m.name }));
+			return livingFoes.map((m) => ({ loc: m.activeSlot === 1 ? 2 : 1, label: m.name, effect: effectOn(m) }));
 		case 'adjacentAlly':
-			return ally && !ally.fainted ? [{ loc: -(allyIndex + 1), label: ally.name }] : [];
+			return ally && !ally.fainted ? [{ loc: -(allyIndex + 1), label: ally.name, effect: effectOn(ally) }] : [];
 		case 'adjacentAllyOrSelf': {
 			const options: TargetOption[] = [];
-			if (self) options.push({ loc: -(slotIndex + 1), label: `${self.name} (SELF)` });
-			if (ally && !ally.fainted) options.push({ loc: -(allyIndex + 1), label: `${ally.name} (ALLY)` });
+			if (self) options.push({ loc: -(slotIndex + 1), label: `${self.name} (SELF)`, effect: effectOn(self) });
+			if (ally && !ally.fainted) options.push({ loc: -(allyIndex + 1), label: `${ally.name} (ALLY)`, effect: effectOn(ally) });
 			return options;
 		}
 		case 'any': {
-			const options: TargetOption[] = livingFoes.map((m) => ({ loc: m.activeSlot === 1 ? 2 : 1, label: m.name }));
+			const options: TargetOption[] = livingFoes.map((m) => ({
+				loc: m.activeSlot === 1 ? 2 : 1,
+				label: m.name,
+				effect: effectOn(m),
+			}));
 			// "any" also covers damaging attacks (e.g. Dark Pulse) that must not
 			// be aimed at allies - only support moves get self/ally targets.
 			const info = moveName ? Dex.forGen(GYM_GEN).moves.get(moveName) : null;
 			if (!info || info.category !== 'Status') return options;
-			if (self) options.push({ loc: -(slotIndex + 1), label: `${self.name} (SELF)` });
-			if (ally && !ally.fainted) options.push({ loc: -(allyIndex + 1), label: `${ally.name} (ALLY)` });
+			if (self) options.push({ loc: -(slotIndex + 1), label: `${self.name} (SELF)`, effect: effectOn(self) });
+			if (ally && !ally.fainted) options.push({ loc: -(allyIndex + 1), label: `${ally.name} (ALLY)`, effect: effectOn(ally) });
 			return options;
 		}
 		default:

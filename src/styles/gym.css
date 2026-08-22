@@ -526,6 +526,12 @@
 	color: var(--ceefax-blue);
 }
 
+.gym-target-row {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.4rem;
+}
+
 .gym-eff {
 	font-size: 0.65rem;
 	letter-spacing: 0.5px;
@@ -760,7 +766,8 @@
 
 .gym-target-list {
 	display: flex;
-	flex-wrap: wrap;
+	flex-direction: column;
+	align-items: flex-start;
 	gap: 0.35rem;
 }
 

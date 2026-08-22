@@ -20,6 +20,7 @@ const WEATHER_DESCRIPTIONS: Record<string, RuleDescription> = {
 	sandstorm: { title: 'SANDSTORM', text: 'Non-Rock/Ground/Steel types lose 1/16 of max HP each turn. Rock types get +50% SP. DEF.' },
 	hail: { title: 'HAIL', text: 'Non-Ice types lose 1/16 of max HP each turn. Lasts 5 turns (8 with Icy Rock).' },
 	snow: { title: 'SNOW', text: 'Ice types get +50% DEF. Does not damage. Replaces Hail from Gen 9.' },
+	snowscape: { title: 'SNOWSCAPE', text: 'Sets snow: Ice types get +50% DEF. Does not damage. Lasts 5 turns (8 with Icy Rock).' },
 	desolateland: { title: 'DESOLATE LAND', text: "Primal Groudon's sunlight - Water moves fail entirely." },
 	primordialsea: { title: 'PRIMORDIAL SEA', text: "Primal Kyogre's rain - Fire moves fail entirely." },
 	deltastream: { title: 'DELTA STREAM', text: "Mega Rayquaza's winds - Flying-type weaknesses are negated." },

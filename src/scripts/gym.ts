@@ -567,7 +567,7 @@ function slotPanelHtml(active: GymActivePromptData, i: number): string {
 						${options
 							.map(
 								(o) =>
-									`<button class="mgr-btn mgr-btn-sm" data-gym="choose-target" data-slot="${i}" data-move="${moveSlot}" data-loc="${o.loc}">${esc(o.label.toUpperCase())}</button>`,
+									`<span class="gym-target-row"><button class="mgr-btn mgr-btn-sm" data-gym="choose-target" data-slot="${i}" data-move="${moveSlot}" data-loc="${o.loc}">${esc(o.label.toUpperCase())}</button>${o.effect ? ` <span class="gym-eff${o.effect.startsWith('NO EFFECT') ? ' gym-eff-none' : o.effect.includes('SUPER') ? ' gym-eff-super' : ''}">${esc(o.effect.toUpperCase())}</span>` : ''}</span>`,
 							)
 							.join('')}
 					</div>
