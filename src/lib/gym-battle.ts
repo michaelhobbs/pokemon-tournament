@@ -465,9 +465,8 @@ export class GymBattle {
 		for (const line of chunk.split('\n')) {
 			const trimmed = line.trim();
 			if (!trimmed.startsWith('|')) continue;
-			// Mirror every protocol event to the console (minus bulky request
-			// payloads) so the UI log can be audited against the raw stream.
-			if (!trimmed.startsWith('|request')) console.log(`[GYM RAW] ${trimmed}`);
+			// Mirror every protocol event to the console so the UI log can be audited against the raw stream.
+			console.log(`[GYM RAW] ${trimmed}`);
 			if (this.handleLine(trimmed)) sawRequest = true;
 		}
 		this.emitSnapshot();
