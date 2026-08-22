@@ -318,7 +318,10 @@ function activeCardHtml(mon: GymMonView | null, slot: number): string {
 /** The foe's four, with whatever state the sim has revealed - unrevealed counts as healthy bench. */
 function foeTeamEntries(): OwnMon[] {
 	return foeTeam.map((name) => {
-		const mon = snapshot?.p2Mons.find((m) => m.name === name);
+		// Illusion leaves two entries per name (the disguise + the real mon);
+		// prefer whichever is on the field, else the most recently revealed.
+		const matches = snapshot?.p2Mons.filter((m) => m.name === name) ?? [];
+		const mon = matches.find((m) => m.activeSlot !== null) ?? matches[matches.length - 1];
 		return {
 			name,
 			pos: 0,

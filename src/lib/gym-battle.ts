@@ -521,6 +521,26 @@ export class GymBattle {
 				const details = parts[3] ?? '';
 				const condition = parts[4] ?? '';
 				const mon = this.upsertMember(ident, details, condition);
+				// Illusion's reveal (`replace`) carries no HP arg - inherit the
+				// state of the disguise it unmasks on that slot.
+				if (cmd === 'replace' && !condition) {
+					const side = ident.startsWith('p1') ? 'p1' : 'p2';
+					const slot = ident.slice(2, 3) === 'b' ? 1 : 0;
+					const prevIdent = this.lastActiveIdents[side][slot];
+					const prevMon = prevIdent && prevIdent !== ident ? this.members.get(prevIdent) : undefined;
+					if (prevMon && !prevMon.fainted) {
+						mon.hp = prevMon.hp;
+						mon.maxHp = prevMon.maxHp;
+						mon.hpPct = prevMon.hpPct;
+						mon.status = prevMon.status;
+						mon.fainted = false;
+						// The disguise's damage history belonged to the illusion,
+						// so restore the impersonated mon to pristine bench state.
+						prevMon.hp = prevMon.maxHp;
+						prevMon.hpPct = 100;
+						prevMon.status = null;
+					}
+				}
 				// A fresh entry onto the field clears stat stages and volatiles.
 				mon.stages = {};
 				mon.volatiles = [];
@@ -954,6 +974,10 @@ export class GymBattle {
 			mon.fainted = true;
 			mon.status = null;
 		} else {
+			// A live condition must clear a stale KO - e.g. Illusion: Zoroark
+			// faints while disguised as its teammate, sharing that teammate's
+			// ident until the real one later enters on the same slot letter.
+			mon.fainted = false;
 			mon.status = parsed.status;
 		}
 	}
