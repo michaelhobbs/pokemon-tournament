@@ -16,34 +16,74 @@ export function speciesToKey(species: string): string {
 	return SPECIES_TO_KEY[species] ?? species;
 }
 
-export function buildTeam(species: string[], level = 100): string {
-	const sets = species.map((name) => {
-		const set = POKEMON_SETS[name];
-		if (!set) {
+/** A full Showdown-style set (parsed from an imported team), packed verbatim with defaults filled in. */
+export interface CustomSet {
+	name?: string;
+	species: string;
+	item?: string;
+	ability?: string;
+	moves?: string[];
+	nature?: string;
+	gender?: string;
+	evs?: Partial<Record<'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe', number>>;
+	ivs?: Partial<Record<'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe', number>>;
+	level?: number;
+	teraType?: string;
+	shiny?: boolean;
+	happiness?: number;
+	pokeball?: string;
+	hpType?: string;
+}
+
+const DEFAULT_IVS = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
+
+export function buildTeam(inputs: readonly (string | CustomSet)[], level = 100): string {
+	const sets = inputs.map((input) => {
+		if (typeof input === 'string') {
+			const set = POKEMON_SETS[input];
+			if (!set) {
+				return {
+					name: input,
+					species: input,
+					item: 'Leftovers',
+					ability: 'Huge Power',
+					nature: 'Hardy',
+					gender: '',
+					evs: { hp: 252, atk: 252, def: 0, spa: 0, spd: 4, spe: 0 },
+					ivs: DEFAULT_IVS,
+					level,
+					moves: ['Tackle', 'Tackle', 'Tackle', 'Tackle'],
+				};
+			}
 			return {
-				name,
-				species: name,
-				item: 'Leftovers',
-				ability: 'Huge Power',
-				nature: 'Hardy',
+				name: input,
+				species: set.species,
+				item: set.item,
+				ability: set.ability,
+				nature: set.nature,
 				gender: '',
-				evs: { hp: 252, atk: 252, def: 0, spa: 0, spd: 4, spe: 0 },
-				ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
+				evs: set.evs,
+				ivs: DEFAULT_IVS,
 				level,
-				moves: ['Tackle', 'Tackle', 'Tackle', 'Tackle'],
+				moves: set.moves,
 			};
 		}
 		return {
-			name,
-			species: set.species,
-			item: set.item,
-			ability: set.ability,
-			nature: set.nature,
-			gender: '',
-			evs: set.evs,
-			ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 } as const,
-			level,
-			moves: set.moves,
+			name: input.name ?? '',
+			species: input.species,
+			item: input.item ?? '',
+			ability: input.ability ?? 'Pressure',
+			nature: input.nature ?? 'Hardy',
+			gender: input.gender ?? '',
+			evs: { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0, ...input.evs },
+			ivs: { ...DEFAULT_IVS, ...input.ivs },
+			level: input.level ?? level,
+			moves: input.moves && input.moves.length > 0 ? input.moves : ['Tackle', 'Tackle', 'Tackle', 'Tackle'],
+			...(input.teraType ? { teraType: input.teraType } : {}),
+			...(input.hpType ? { hpType: input.hpType } : {}),
+			...(input.shiny ? { shiny: true } : {}),
+			...(input.happiness !== undefined ? { happiness: input.happiness } : {}),
+			...(input.pokeball ? { pokeball: input.pokeball } : {}),
 		};
 	});
 	return Teams.pack(sets);

@@ -2,7 +2,9 @@ import { findPlayer, PLAYERS, type Player } from '../data/players';
 import { POKEMON_TYPES } from '../data/pokemon';
 import { POKEMON_SPRITES } from '../data/pokemon-sprites';
 import { spriteFor } from '../data/trainer-sprites';
+import { TROPHY_SPRITE } from '../data/trophy';
 import { applySwaps, swapsFor } from '../data/midseason';
+import { speciesToKey } from '../lib/battle';
 import {
 	GymBattle,
 	HUMAN_NAME,
@@ -19,8 +21,9 @@ import {
 	type GymActivePromptData,
 } from '../lib/gym-battle';
 import { describeRule, ruleChipLabel } from '../lib/gym-descriptions';
+import { dexTypes, importTeamText, monSprite, onMonSprites, spreadText, type ImportedMon } from '../lib/team-import';
 
-type Step = 'trainer' | 'foe-draft' | 'draft' | 'battle';
+type Step = 'trainer' | 'foe-draft' | 'custom-import' | 'draft' | 'battle';
 
 interface PendingMove {
 	type: 'move';
@@ -48,6 +51,14 @@ let step: Step = 'trainer';
 let opponentNumber: number | null = null;
 let foeTeam: string[] = [];
 let pickedTeam: string[] = [];
+let customFoeTeam: ImportedMon[] | null = null;
+let foeImportOpen = false;
+let foeImportText = '';
+let foeImportError: string | null = null;
+let ownImportTeam: ImportedMon[] | null = null;
+let ownImportOpen = false;
+let ownImportText = '';
+let ownImportError: string | null = null;
 let battle: GymBattle | null = null;
 let snapshot: GymSnapshot | null = null;
 let prompt: GymPrompt | null = null;
@@ -75,6 +86,9 @@ export function initGym(): void {
 		document.addEventListener('mouseout', onDescLeave);
 		document.addEventListener('focusout', onDescLeave);
 		document.addEventListener('scroll', hideDescTip, true);
+		onMonSprites(() => {
+			if (mount()) render();
+		});
 	}
 	if (!gymWindow.ceefaxGymPageLoadAttached) {
 		gymWindow.ceefaxGymPageLoadAttached = true;
@@ -96,6 +110,9 @@ function render(): void {
 			break;
 		case 'foe-draft':
 			root.innerHTML = foeDraftHtml();
+			break;
+		case 'custom-import':
+			root.innerHTML = customImportHtml();
 			break;
 		case 'draft':
 			root.innerHTML = draftHtml();
@@ -131,8 +148,25 @@ function trainerHtml(): string {
 		<section class="gym-section">
 			<h2 class="gym-title">CHOOSE YOUR OPPONENT</h2>
 			<p class="gym-note">DOUBLES BATTLE - BOTH SIDES BRING 4. PICK THEIR TEAM, OR LET FATE DECIDE.</p>
-			<div class="gym-trainer-grid">${cards}</div>
+			<div class="gym-trainer-grid">${cards}${customTrainerCardHtml()}</div>
 		</section>`;
+}
+
+/** Same-size tile as the trainer cards, offering the Showdown import flow. */
+function customTrainerCardHtml(): string {
+	return `
+		<div class="gym-card gym-card-custom">
+			<div class="gym-card-head">
+				${pixelSpriteHtml(TROPHY_SPRITE.map, TROPHY_SPRITE.palette)}
+				<div>
+					<div class="gym-card-name">CUSTOM CHALLENGE</div>
+					<div class="gym-card-epithet">IMPORT A TEAM</div>
+					<div class="gym-card-hometown">POKEMON SHOWDOWN FORMAT</div>
+				</div>
+			</div>
+			<div class="gym-team-chips"><span class="gym-chip">THE GYM USES ANY 4 POKEMON YOU BRING</span></div>
+			<button class="mgr-btn gym-btn-wide" data-gym="pick-custom">CUSTOM: IMPORT A CUSTOM TEAM</button>
+		</div>`;
 }
 
 /* ---------- step 2: opponent team ---------- */
@@ -169,18 +203,133 @@ function foeDraftHtml(): string {
 		</section>`;
 }
 
+/* ---------- step 2: imported foe team ---------- */
+
+const IMPORT_PLACEHOLDER = [
+	'Garchomp @ Choice Scarf',
+	'Ability: Rough Skin',
+	'Tera Type: Dragon',
+	'EVs: 252 Atk / 4 SpD / 252 Spe',
+	'Jolly Nature',
+	'- Earthquake',
+	'- Dragon Claw',
+	'',
+	'Typhlosion-Hisui @ Choice Specs',
+	'Ability: Flash Fire',
+	'...',
+].join('\n');
+
+function customImportHtml(): string {
+	return `
+		<section class="gym-section">
+			<h2 class="gym-title">CUSTOM CHALLENGE - THE GYM'S TEAM</h2>
+			<p class="gym-note">IMPORT A TEAM IN POKEMON SHOWDOWN EXPORT FORMAT FOR THE GYM TO USE AGAINST YOU. IT MUST CONTAIN EXACTLY 4 POKEMON AND PASS VALIDATION BEFORE YOU DRAFT.</p>
+			<div class="gym-draft-bar">
+				<button class="mgr-btn" data-gym="back-to-trainers">&larr; BACK</button>
+				${customFoeTeam
+					? `<button class="mgr-btn" data-gym="reimport-foe">IMPORT A DIFFERENT TEAM</button>
+				<button class="mgr-btn" data-gym="confirm-custom-foe">NEXT: YOUR DRAFT &raquo;</button>`
+					: `<button class="mgr-btn" data-gym="open-foe-import">IMPORT TEAM TEXT</button>`}
+			</div>
+			${foeImportOpen && !customFoeTeam ? importFormHtml('foe', foeImportText, foeImportError) : ''}
+			${customFoeTeam ? importedPreviewHtml(customFoeTeam) : ''}
+		</section>`;
+}
+
+function importFormHtml(kind: 'foe' | 'own', text: string, error: string | null): string {
+	return `
+		<div class="gym-import">
+			<label class="gym-sub" for="gym-import-text">${kind === 'foe' ? 'GYM TEAM TEXT' : 'YOUR TEAM TEXT'} - SHOWDOWN EXPORT FORMAT</label>
+			<textarea id="gym-import-text" class="gym-import-text" rows="16" spellcheck="false" placeholder="${esc(IMPORT_PLACEHOLDER)}">${esc(text)}</textarea>
+			<div class="gym-draft-bar">
+				<button class="mgr-btn" data-gym="submit-${kind}-import">PARSE &amp; VALIDATE &raquo;</button>
+				<button class="mgr-btn mgr-btn-danger" data-gym="cancel-${kind}-import">CANCEL</button>
+			</div>
+			${error ? `<p class="gym-import-error">${esc(error)}</p>` : ''}
+		</div>`;
+}
+
+function importedPreviewHtml(mons: ImportedMon[]): string {
+	return `<div class="gym-import-grid">${mons.map((mon, i) => importedMonCardHtml(mon, i)).join('')}</div>`;
+}
+
+function importedMonCardHtml(mon: ImportedMon, index: number): string {
+	const natureRow =
+		mon.nature || mon.teraType
+			? `<div class="gym-import-row"><span class="gym-sub">NATURE:</span> ${esc((mon.nature ?? '-').toUpperCase())}${
+					mon.teraType ? ` <span class="gym-chip">TERA ${esc(mon.teraType.toUpperCase())}</span>` : ''
+				}</div>`
+			: '';
+	return `
+		<div class="gym-mon-pick gym-import-card">
+			<span class="gym-pick-order">${index + 1}</span>
+			${monImgHtml(mon.species)}
+			<span class="gym-mon-name">${esc(mon.label.toUpperCase())}${mon.nickname ? ` <small>(${esc(mon.species.toUpperCase())})</small>` : ''}</span>
+			<span class="gym-mon-types">${typesHtml(mon.species)}</span>
+			<div class="gym-import-detail">
+				${mon.item ? `<div class="gym-import-row"><span class="gym-sub">ITEM:</span> ${esc(mon.item.toUpperCase())}</div>` : ''}
+				${mon.ability ? `<div class="gym-import-row"><span class="gym-sub">ABILITY:</span> ${esc(mon.ability.toUpperCase())}</div>` : ''}
+				${natureRow}
+				<div class="gym-import-moves">${mon.moves.length > 0 ? mon.moves.map((move) => esc(move.toUpperCase())).join(' &middot; ') : '-'}</div>
+				<div class="gym-import-spread">EVs: ${esc(spreadText(mon.evs) || 'NONE SPENT')}</div>
+				${mon.ivs.length > 0 ? `<div class="gym-import-spread gym-import-ivs">IVs: ${esc(spreadText(mon.ivs))}</div>` : ''}
+				<div class="gym-import-spread">LV ${mon.level}</div>
+			</div>
+		</div>`;
+}
+
 /* ---------- step 2: draft ---------- */
 
 function draftPool(): string[] {
+	if (customFoeTeam) {
+		const banned = new Set(customFoeTeam.flatMap((mon) => [mon.species, speciesToKey(mon.species)]));
+		return ALL_POOL.filter((name) => !banned.has(name));
+	}
 	const foe = opponent();
 	if (!foe) return ALL_POOL;
 	const banned = new Set(currentTeam(foe));
 	return ALL_POOL.filter((name) => !banned.has(name));
 }
 
-function draftHtml(): string {
+interface NameSpecies {
+	label: string;
+	species: string;
+}
+
+/** The foe's four as label/species pairs - imported teams included. */
+function foeNameList(): NameSpecies[] {
+	if (customFoeTeam) return customFoeTeam.map((mon) => ({ label: mon.label, species: mon.species }));
+	return currentTeamOfOpponent().map((name) => ({ label: name, species: name }));
+}
+
+function currentTeamOfOpponent(): string[] {
 	const foe = opponent();
-	if (!foe) return trainerHtml();
+	return foe ? currentTeam(foe) : [];
+}
+
+function humanReady(): boolean {
+	return ownImportTeam !== null || pickedTeam.length === 4;
+}
+
+function draftHtml(): string {
+	if (!customFoeTeam && !opponent()) return trainerHtml();
+	const bannedChips = foeNameList()
+		.map(({ label, species }) => `<span class="gym-banned">${bannedChipHtml(label, species)}</span>`)
+		.join('');
+	if (ownImportTeam) {
+		return `
+			<section class="gym-section">
+				<h2 class="gym-title">DRAFT VS ${esc(opponentLabel().toUpperCase())}</h2>
+				<p class="gym-note">YOUR IMPORTED TEAM PASSED VALIDATION - IT WILL BE USED AS-IS.</p>
+				<p class="gym-note">BANNED (THEIR TEAM): ${bannedChips}</p>
+				<div class="gym-draft-bar">
+					<button class="mgr-btn" data-gym="back-to-trainers">&larr; BACK</button>
+					<button class="mgr-btn mgr-btn-danger" data-gym="clear-own-import">CLEAR IMPORT</button>
+					<button class="mgr-btn" data-gym="start-battle">START BATTLE &raquo;</button>
+				</div>
+				${importedPreviewHtml(ownImportTeam)}
+			</section>`;
+	}
 	const pool = draftPool();
 	const mons = pool
 		.map((name) => {
@@ -195,19 +344,20 @@ function draftHtml(): string {
 				</button>`;
 		})
 		.join('');
-	const bannedChips = currentTeam(foe).map((name) => `<span class="gym-banned">${monChipHtml(name)}</span>`).join('');
 	const ready = pickedTeam.length === 4;
 	return `
 		<section class="gym-section">
-			<h2 class="gym-title">DRAFT VS ${esc(foe.name.toUpperCase())}</h2>
+			<h2 class="gym-title">DRAFT VS ${esc(opponentLabel().toUpperCase())}</h2>
 			<p class="gym-note">PICK 4 POKEMON - YOU CHOOSE YOUR 2 LEADS AT TEAM PREVIEW.</p>
 			<p class="gym-note">BANNED (THEIR TEAM): ${bannedChips}</p>
 			<div class="gym-draft-bar">
 				<span class="gym-count">SELECTED <strong>${pickedTeam.length}</strong>/4</span>
 				<button class="mgr-btn" data-gym="back-to-trainers">&larr; BACK</button>
 				<button class="mgr-btn mgr-btn-danger" data-gym="clear-draft" ${pickedTeam.length === 0 ? 'disabled' : ''}>CLEAR</button>
+				<button class="mgr-btn" data-gym="open-own-import">IMPORT A CUSTOM TEAM</button>
 				<button class="mgr-btn" data-gym="start-battle" ${ready ? '' : 'disabled'}>START BATTLE &raquo;</button>
 			</div>
+			${ownImportOpen ? importFormHtml('own', ownImportText, ownImportError) : ''}
 			<div class="gym-draft-grid">${mons}</div>
 		</section>`;
 }
@@ -234,7 +384,7 @@ function battleHtml(): string {
 	return `
 		<section class="gym-section gym-battle">
 			<div class="gym-battle-head">
-				<h2 class="gym-title">VS ${esc(opponentName().toUpperCase())}</h2>
+				<h2 class="gym-title">VS ${esc(opponentLabel().toUpperCase())}</h2>
 				<span class="gym-turn">TURN ${snapshot.turn}</span>
 			</div>
 			${outcome ? resultOverlayHtml() : ''}
@@ -242,7 +392,7 @@ function battleHtml(): string {
 				<div class="gym-main">
 					<div class="gym-field">
 						<div class="gym-side gym-side-foe">
-							<div class="gym-side-title">${esc(opponentName().toUpperCase())}${sideConditionsHtml('p2')}</div>
+							<div class="gym-side-title">${esc(opponentLabel().toUpperCase())}${sideConditionsHtml('p2')}</div>
 							<div class="gym-active-row">${foeActive.map((mon, i) => activeCardHtml(mon, i)).join('') ?? '<span class="gym-empty-slot">...</span>'}</div>
 							<div class="gym-bench-row">${benchHtml('p2')}</div>
 						</div>
@@ -284,8 +434,7 @@ function stageChipsHtml(mon: GymMonView): string {
 function activeCardHtml(mon: GymMonView | null, slot: number): string {
 	if (!mon) return '<span class="gym-empty-slot">EMPTY</span>';
 	const hpColor = mon.fainted ? 'var(--ceefax-red)' : mon.hpPct > 50 ? 'var(--ceefax-green)' : mon.hpPct > 20 ? 'var(--ceefax-yellow)' : 'var(--ceefax-red)';
-	const spriteKey = POKEMON_SPRITES[mon.name] ? mon.name : '';
-	const img = spriteKey ? `<img src="${POKEMON_SPRITES[spriteKey]}" alt="" loading="lazy" />` : '';
+	const img = monImgHtml(mon.name, mon.species);
 	return `
 		<div class="gym-active${mon.fainted ? ' is-fainted' : ''}">
 			<div class="gym-active-top">
@@ -310,20 +459,21 @@ function activeCardHtml(mon: GymMonView | null, slot: number): string {
 				${mon.ability ? `<span class="gym-rule-chip gym-rule-ability" tabindex="0" data-gym-desc="ability:${esc(mon.ability)}">AB: ${esc(ruleChipLabel('ability', mon.ability))}</span>` : ''}
 				${mon.item ? `<span class="gym-rule-chip gym-rule-item" tabindex="0" data-gym-desc="item:${esc(mon.item)}">IT: ${esc(ruleChipLabel('item', mon.item))}</span>` : ''}
 			</div>
-			<div class="gym-mon-types">${typesHtml(mon.name, mon.types)}</div>
+			<div class="gym-mon-types">${typesHtml(mon.name, mon.types, mon.species)}</div>
 			${slot >= 0 ? `<span class="gym-slot-tag">SLOT ${slot + 1}</span>` : ''}
 		</div>`;
 }
 
 /** The foe's four, with whatever state the sim has revealed - unrevealed counts as healthy bench. */
 function foeTeamEntries(): OwnMon[] {
-	return foeTeam.map((name) => {
+	return foeNameList().map(({ label, species }) => {
 		// Illusion leaves two entries per name (the disguise + the real mon);
 		// prefer whichever is on the field, else the most recently revealed.
-		const matches = snapshot?.p2Mons.filter((m) => m.name === name) ?? [];
+		const matches = snapshot?.p2Mons.filter((m) => m.name === label || (species && m.species === species)) ?? [];
 		const mon = matches.find((m) => m.activeSlot !== null) ?? matches[matches.length - 1];
 		return {
-			name,
+			name: label,
+			species: mon?.species ?? species,
 			pos: 0,
 			hpPct: mon?.hpPct ?? 100,
 			fainted: mon?.fainted ?? false,
@@ -339,7 +489,7 @@ function benchChipsHtml(bench: OwnMon[]): string {
 		.map(
 			(mon) => `
 			<span class="gym-bench-mon${mon.fainted ? ' is-fainted' : ''}" title="${esc(mon.name)}">
-				<img src="${POKEMON_SPRITES[mon.name] ?? ''}" alt="${esc(mon.name)}" loading="lazy" />
+				${monImgHtml(mon.name, mon.species)}
 				<span class="gym-bench-meta">${mon.fainted ? '&#10005;' : `${mon.hpPct}%`}${
 					mon.status
 						? ` <span class="gym-bench-status" tabindex="0" data-gym-desc="status:${esc(mon.status)}">${labelStatus(mon.status)}</span>`
@@ -509,14 +659,17 @@ function actionHtml(): string {
 }
 
 function teamPreviewHtml(): string {
-	const buttons = pickedTeam
-		.map((name, i) => {
+	const slots = ownImportTeam
+		? ownImportTeam.map((mon) => ({ label: mon.label, species: mon.species }))
+		: pickedTeam.map((name) => ({ label: name, species: undefined as string | undefined }));
+	const buttons = slots
+		.map(({ label, species }, i) => {
 			const leadPos = teamOrder.indexOf(i);
 			return `
 				<button class="gym-mon-pick gym-team-order${leadPos >= 0 ? ' is-selected' : ''}" data-gym="team-order" data-pos="${i}">
 					<span class="gym-pick-order">${leadPos >= 0 ? leadPos + 1 : ''}</span>
-					<img src="${POKEMON_SPRITES[name] ?? ''}" alt="" loading="lazy" />
-					<span class="gym-mon-name">${esc(name)}</span>
+					${monImgHtml(label, species)}
+					<span class="gym-mon-name">${esc(label)}</span>
 				</button>`;
 		})
 		.join('');
@@ -671,7 +824,9 @@ function opponent(): Player | undefined {
 	return opponentNumber === null ? undefined : findPlayer(opponentNumber);
 }
 
-function opponentName(): string {
+/** Name shown for the opposing side - custom challenges have no trainer. */
+function opponentLabel(): string {
+	if (customFoeTeam) return 'CUSTOM GYM';
 	return opponent()?.name ?? '???';
 }
 
@@ -681,6 +836,7 @@ function pokemonAt(pos: number): string | undefined {
 
 interface OwnMon {
 	name: string;
+	species?: string;
 	pos: number;
 	hpPct: number;
 	fainted: boolean;
@@ -699,6 +855,7 @@ function ownTeam(): OwnMon[] {
 			.sort((a, b) => a.teamPos - b.teamPos)
 			.map((mon) => ({
 				name: mon.name,
+				species: mon.species,
 				pos: mon.teamPos,
 				hpPct: mon.hpPct,
 				fainted: mon.fainted,
@@ -706,10 +863,12 @@ function ownTeam(): OwnMon[] {
 				active: mon.activeSlot !== null,
 			}));
 	}
-	return pickedTeam.map((name, i) => {
-		const mon = snapshot?.p1Mons.find((m) => m.name === name);
+	const slots = ownImportTeam ?? pickedTeam.map((label) => ({ label, species: undefined }));
+	return slots.map(({ label, species }, i) => {
+		const mon = snapshot?.p1Mons.find((m) => m.name === label || (species && m.species === species));
 		return {
-			name,
+			name: label,
+			species: mon?.species ?? species,
 			pos: i + 1,
 			hpPct: mon?.hpPct ?? 100,
 			fainted: mon?.fainted ?? false,
@@ -746,8 +905,26 @@ function monChipHtml(name: string): string {
 	return `<span class="gym-chip">${sprite}${esc(name)}</span>`;
 }
 
-function typesHtml(name: string, currentTypes?: string[] | null): string {
-	const types = currentTypes ?? POKEMON_TYPES[name] ?? [];
+/** Banned-list chip: sprite from our pool, else the pokedex fetcher. */
+function bannedChipHtml(label: string, species?: string): string {
+	const sprite = POKEMON_SPRITES[label] ? `<img src="${POKEMON_SPRITES[label]}" alt="" loading="lazy" />` : monImgHtml(species ?? label);
+	return `<span class="gym-chip">${sprite}${esc(label)}</span>`;
+}
+
+/**
+ * Sprite for any name: pool sprites win, then the async pokedex fetcher
+ * (cached in team-import) fills in imported species; dots while loading.
+ */
+function monImgHtml(name: string, species?: string): string {
+	if (POKEMON_SPRITES[name]) return `<img src="${POKEMON_SPRITES[name]}" alt="" loading="lazy" />`;
+	if (species && POKEMON_SPRITES[species]) return `<img src="${POKEMON_SPRITES[species]}" alt="" loading="lazy" />`;
+	const resolved = monSprite(species || name);
+	if (resolved.url) return `<img src="${esc(resolved.url)}" alt="${esc(name)}" loading="lazy" />`;
+	return `<span class="gym-sprite-wait${resolved.loading ? '' : ' is-missing'}" title="${esc(name)}">${resolved.loading ? '&middot;&middot;&middot;' : '?'}</span>`;
+}
+
+function typesHtml(name: string, currentTypes?: string[] | null, species?: string): string {
+	const types = currentTypes ?? POKEMON_TYPES[name] ?? dexTypes(species || name);
 	return types.map((t) => `<span class="mgr-type" data-type="${esc(t)}">${esc(String(t).toUpperCase())}</span>`).join('');
 }
 
@@ -805,8 +982,63 @@ function handle(action: string, el: HTMLElement): void {
 			opponentNumber = Number(el.dataset.num);
 			pickedTeam = [];
 			foeTeam = [];
+			customFoeTeam = null;
+			ownImportTeam = null;
+			foeImportOpen = ownImportOpen = false;
+			foeImportError = ownImportError = null;
 			step = 'foe-draft';
 			render();
+			break;
+		case 'pick-custom':
+			resetBattleState();
+			opponentNumber = null;
+			foeTeam = [];
+			pickedTeam = [];
+			customFoeTeam = null;
+			foeImportOpen = false;
+			foeImportText = '';
+			foeImportError = null;
+			step = 'custom-import';
+			render();
+			break;
+		case 'open-foe-import':
+			foeImportOpen = true;
+			render();
+			break;
+		case 'cancel-foe-import':
+			foeImportOpen = false;
+			foeImportError = null;
+			render();
+			break;
+		case 'submit-foe-import': {
+			const textarea = document.getElementById('gym-import-text');
+			if (textarea instanceof HTMLTextAreaElement) foeImportText = textarea.value;
+			const result = importTeamText(foeImportText);
+			if (result.ok) {
+				customFoeTeam = result.mons;
+				foeImportOpen = false;
+				foeImportError = null;
+			} else {
+				foeImportError = result.error;
+			}
+			render();
+			break;
+		}
+		case 'reimport-foe':
+			customFoeTeam = null;
+			foeImportOpen = true;
+			render();
+			break;
+		case 'confirm-custom-foe':
+			if (customFoeTeam) {
+				pickedTeam = [];
+				ownImportTeam = null;
+				ownImportOpen = false;
+				ownImportText = '';
+				ownImportError = null;
+				step = 'draft';
+				render();
+			}
 			break;
 		case 'toggle-foe-mon': {
 			const name = el.dataset.name ?? '';
@@ -851,16 +1083,53 @@ function handle(action: string, el: HTMLElement): void {
 			pickedTeam = [];
 			render();
 			break;
+		case 'open-own-import':
+			ownImportOpen = true;
+			render();
+			break;
+		case 'cancel-own-import':
+			ownImportOpen = false;
+			ownImportError = null;
+			render();
+			break;
+		case 'submit-own-import': {
+			const textarea = document.getElementById('gym-import-text');
+			if (textarea instanceof HTMLTextAreaElement) ownImportText = textarea.value;
+			const result = importTeamText(ownImportText);
+			if (result.ok) {
+				ownImportTeam = result.mons;
+				pickedTeam = [];
+				teamOrder = [];
+				ownImportOpen = false;
+				ownImportError = null;
+			} else {
+				ownImportError = result.error;
+			}
+			render();
+			break;
+		}
+		case 'clear-own-import':
+			ownImportTeam = null;
+			ownImportText = '';
+			ownImportError = null;
+			ownImportOpen = false;
+			render();
+			break;
 		case 'back-to-trainers':
 			resetBattleState();
 			opponentNumber = null;
 			foeTeam = [];
 			pickedTeam = [];
+			customFoeTeam = null;
+			ownImportTeam = null;
+			foeImportOpen = ownImportOpen = false;
+			foeImportText = ownImportText = '';
+			foeImportError = ownImportError = null;
 			step = 'trainer';
 			render();
 			break;
 		case 'start-battle':
-			if (opponentNumber !== null && pickedTeam.length === 4 && foeTeam.length === 4) startBattle();
+			if (humanReady() && (customFoeTeam || (opponentNumber !== null && foeTeam.length === 4))) startBattle();
 			break;
 		case 'team-order': {
 			const pos = Number(el.dataset.pos);
@@ -877,7 +1146,7 @@ function handle(action: string, el: HTMLElement): void {
 		case 'team-confirm':
 			if (teamOrder.length === 2) {
 				// Leads first, bench fills in draft order.
-				const rest = pickedTeam.map((_name, i) => i).filter((i) => !teamOrder.includes(i));
+				const rest = [0, 1, 2, 3].filter((i) => !teamOrder.includes(i));
 				battle?.submitTeamOrder([...teamOrder, ...rest].map((index) => index + 1));
 				teamOrder = [];
 				prompt = null;
@@ -1013,8 +1282,7 @@ function resetBattleState(): void {
 }
 
 function startBattle(): void {
-	const opponent = opponentNumber === null ? undefined : findPlayer(opponentNumber);
-	if (!opponent || pickedTeam.length !== 4 || foeTeam.length !== 4) return;
+	if (!humanReady() || !(customFoeTeam || (opponentNumber !== null && foeTeam.length === 4))) return;
 	resetBattleState();
 	step = 'battle';
 	render();
@@ -1022,7 +1290,10 @@ function startBattle(): void {
 	const engine = new GymBattle({
 		humanTeam: pickedTeam,
 		aiTeam: foeTeam,
-		opponentName: opponent.name,
+		humanSets: ownImportTeam?.map((mon) => mon.set),
+		aiSets: customFoeTeam?.map((mon) => mon.set),
+		nameMap: Object.fromEntries([...(ownImportTeam ?? []), ...(customFoeTeam ?? [])].map((mon) => [mon.species, mon.label])),
+		opponentName: opponentLabel(),
 		onSnapshot: (snap) => {
 			snapshot = snap;
 			render();

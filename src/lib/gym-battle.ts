@@ -1,7 +1,7 @@
 import { BattleStreams, Dex, RandomPlayerAI, PRNG } from '@pkmn/sim';
 import { POKEMON_SETS } from '../data/pokemon-sets';
 import { multiplier, POKEMON_TYPES } from '../data/pokemon';
-import { buildTeam } from './battle';
+import { buildTeam, type CustomSet } from './battle';
 
 export const GYM_FORMAT = 'gen9doublescustomgame';
 export const HUMAN_NAME = 'CHALLENGER';
@@ -14,6 +14,8 @@ export interface GymMonView {
 	ident: string;
 	side: 'p1' | 'p2';
 	name: string;
+	/** Raw sim species (e.g. "Typhlosion-Hisui") - used for pokedex sprite/type lookups. */
+	species: string;
 	level: number;
 	hp: number;
 	maxHp: number;
@@ -155,6 +157,12 @@ function cleanEffect(effect: string): string {
 	return effect.replace(/^(item|move|ability|status):\s*/i, '').toUpperCase();
 }
 
+/** Base types of any species straight from the pokedex (imported teams, formes, nicknames' species). */
+function dexSpeciesTypes(name: string): string[] {
+	const species = Dex.forGen(GYM_GEN).species.get(name);
+	return species?.exists ? species.types.map(String) : [];
+}
+
 /** Damage reasons arrive either as ids ("sandstorm") or display names ("item: Life Orb"). */
 function labelDamageReason(reason: string): string {
 	return PASSIVE_LABELS[reason] ?? cleanEffect(reason);
@@ -195,11 +203,15 @@ const STATUS_IMMUNES: Record<string, string[]> = {
 /**
  * Effectiveness label for using `moveName` on a mon, or null when unremarkable
  * (normal damage / no notable status interaction). Uses the mon's tracked
- * battle types when present, else its base species types.
+ * battle types when present, else its base species types - pool table first,
+ * then the dex so imported teams resolve too.
  */
-export function moveEffectiveness(moveName: string, target: { name: string; types: string[] | null }): string | null {
+export function moveEffectiveness(
+	moveName: string,
+	target: { name: string; species?: string; types: string[] | null },
+): string | null {
 	const info = Dex.forGen(9).moves.get(moveName);
-	const defTypes = (target.types ?? POKEMON_TYPES[target.name] ?? []).map((t) => t.toLowerCase());
+	const defTypes = (target.types ?? POKEMON_TYPES[target.name] ?? dexSpeciesTypes(target.species || target.name)).map((t) => t.toLowerCase());
 	if (!info || defTypes.length === 0) return null;
 	if (info.category !== 'Status') {
 		// The site's type chart is keyed by TitleCase type names.
@@ -406,7 +418,20 @@ export class GymBattle {
 	private readonly onPrompt: (prompt: GymPrompt) => void;
 	private readonly onEnd: (outcome: GymOutcome) => void;
 
+	/** Display label for a raw species name: imported-team overrides first, then the pool-key mapping. */
+	private label(detailsName: string): string {
+		return this.nameMap[detailsName] ?? displayName(detailsName);
+	}
+
+	/** Base species types - pool table first, then the dex (imported/nickname mons). */
+	private baseTypes(mon: GymMonView): string[] {
+		const pool = POKEMON_TYPES[mon.name];
+		if (pool) return [...pool];
+		return dexSpeciesTypes(mon.species);
+	}
+
 	private members = new Map<string, GymMonView>();
+	private readonly nameMap: Record<string, string>;
 	/** Our four rebuilt from each |request|'s side.pokemon - includes unrevealed mons. */
 	private p1Roster: GymMonView[] = [];
 	private p1ActiveIdents: (string | null)[] = [null, null];
@@ -429,8 +454,11 @@ export class GymBattle {
 	private latestRequest: Record<string, unknown> | null = null;
 
 	constructor(opts: {
-		humanTeam: string[];
-		aiTeam: string[];
+		humanTeam?: string[];
+		aiTeam?: string[];
+		humanSets?: CustomSet[];
+		aiSets?: CustomSet[];
+		nameMap?: Record<string, string>;
 		opponentName: string;
 		onSnapshot: (snapshot: GymSnapshot) => void;
 		onPrompt: (prompt: GymPrompt) => void;
@@ -444,14 +472,15 @@ export class GymBattle {
 		this.onSnapshot = opts.onSnapshot;
 		this.onPrompt = opts.onPrompt;
 		this.onEnd = opts.onEnd;
+		this.nameMap = opts.nameMap ?? {};
 
 		void new RandomPlayerAI(this.streams.p2, { seed: prng }).start();
 
 		const spec = { formatid: GYM_FORMAT, seed: prng.getSeed() };
 		const init =
 			`>start ${JSON.stringify(spec)}\n` +
-			`>player p1 ${JSON.stringify({ name: HUMAN_NAME, team: buildTeam(opts.humanTeam) })}\n` +
-			`>player p2 ${JSON.stringify({ name: opts.opponentName.toUpperCase(), team: buildTeam(opts.aiTeam) })}`;
+			`>player p1 ${JSON.stringify({ name: HUMAN_NAME, team: opts.humanSets ? buildTeam(opts.humanSets) : buildTeam(opts.humanTeam ?? []) })}\n` +
+			`>player p2 ${JSON.stringify({ name: opts.opponentName.toUpperCase(), team: opts.aiSets ? buildTeam(opts.aiSets) : buildTeam(opts.aiTeam ?? []) })}`;
 		void this.streams.omniscient.write(init);
 	}
 
@@ -842,13 +871,14 @@ export class GymBattle {
 					// "[silent]" follow-ups from Terastallize still update state.
 					const types = (parts[4] ?? '').split('/').filter(Boolean).map((t) => cleanEffect(t));
 					if (types.length > 0) {
+						mon.types = types;
 						const silent = parts.some((p) => p === '[silent]');
 						if (!silent) this.pushLog(`${mon.name} changed its type to ${types.join('/')}!`);
 					}
 				} else if (volatile === 'typeadd') {
 					const type = cleanEffect(parts[4] ?? '');
 					if (type) {
-						const base = mon.types ?? [...(POKEMON_TYPES[mon.name] ?? [])];
+						const base = mon.types ?? this.baseTypes(mon);
 						if (!base.includes(type)) base.push(type);
 						mon.types = base;
 						this.pushLog(`${mon.name} gained the ${type} type!`);
@@ -923,7 +953,8 @@ export class GymBattle {
 			mon = {
 				ident,
 				side,
-				name: displayName(detailsName),
+				species: detailsName,
+				name: this.label(detailsName),
 				level: levelPart ? Number(levelPart.slice(1)) || GYM_LEVEL : GYM_LEVEL,
 				hp: 0,
 				maxHp: 1,
@@ -953,13 +984,16 @@ export class GymBattle {
 		if (!Array.isArray(list)) return;
 		this.p1Roster = list.map((entry, i) => {
 			const ident = entry.ident ?? '';
-			const name = displayName(ident.slice(ident.indexOf(':') + 2) || ident);
+			const speciesRaw = (entry.details ?? '').split(', ')[0] ?? '';
+			const fallbackName = displayName(ident.slice(ident.indexOf(':') + 2) || ident);
+			const name = (speciesRaw && this.nameMap[speciesRaw]) || fallbackName;
 			const prev = this.p1Roster.find((m) => m.name === name);
 			const mon: GymMonView =
 				prev ?? {
 					ident,
 					side: 'p1',
 					name,
+					species: speciesRaw || fallbackName,
 					level: parseLevel(entry.details) || GYM_LEVEL,
 					hp: 0,
 					maxHp: 1,
@@ -1005,7 +1039,8 @@ export class GymBattle {
 			mon = {
 				ident,
 				side: (ident.startsWith('p1') ? 'p1' : 'p2') as 'p1' | 'p2',
-				name: displayName(ident.slice(5) || ident),
+				species: ident.slice(5) || ident,
+				name: this.label(ident.slice(5) || ident),
 				level: GYM_LEVEL,
 				hp: 0,
 				maxHp: 1,

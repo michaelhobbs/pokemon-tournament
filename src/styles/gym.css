@@ -834,3 +834,106 @@
 	gap: 0.5rem;
 }
 
+/* ---------- team import ---------- */
+
+.gym-card-custom {
+	border-color: var(--ceefax-cyan);
+	background: rgba(0, 255, 255, 0.06);
+}
+
+.gym-card-custom .gym-card-name {
+	color: var(--ceefax-cyan);
+}
+
+.gym-import {
+	display: grid;
+	justify-items: start;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border: 2px solid var(--ceefax-blue);
+	background: var(--ceefax-black);
+}
+
+.gym-import-text {
+	width: 100%;
+	min-height: 12rem;
+	padding: 0.5rem;
+	border: 2px solid var(--ceefax-blue);
+	background: var(--ceefax-black);
+	color: var(--ceefax-white);
+	font-family: var(--ceefax-font);
+	font-size: 0.8rem;
+	line-height: 1.5;
+	resize: vertical;
+}
+
+.gym-import-text:focus {
+	outline: none;
+	border-color: var(--ceefax-cyan);
+}
+
+.gym-import-error {
+	margin: 0;
+	color: var(--ceefax-red);
+	font-size: 0.8rem;
+	line-height: 1.6;
+}
+
+.gym-import-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+	gap: 0.5rem;
+}
+
+.gym-mon-pick.gym-import-card,
+.gym-import-card.gym-mon-pick {
+	cursor: default;
+	border-color: var(--ceefax-green);
+}
+
+.gym-import-detail {
+	grid-column: 1 / -1;
+	display: grid;
+	gap: 0.2rem;
+	padding-top: 0.35rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.25);
+	font-size: 0.7rem;
+	line-height: 1.5;
+	color: var(--ceefax-white);
+}
+
+.gym-import-row .gym-sub {
+	margin-right: 0.3rem;
+}
+
+.gym-import-moves {
+	color: var(--ceefax-yellow);
+}
+
+.gym-import-spread {
+	color: var(--ceefax-cyan);
+}
+
+.gym-import-ivs {
+	color: var(--ceefax-white);
+	opacity: 0.75;
+}
+
+.gym-sprite-wait {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border: 1px dashed var(--ceefax-blue);
+	color: var(--ceefax-blue);
+	font-size: 0.9rem;
+	letter-spacing: 2px;
+}
+
+.gym-sprite-wait.is-missing {
+	border-style: dotted;
+	opacity: 0.5;
+}
+
+
