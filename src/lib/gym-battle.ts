@@ -384,6 +384,22 @@ export function volatileKey(raw: string): string {
 	return raw.replace(/^move:/, '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+/**
+ * Request JSON renames Return/Frustration to include their happiness-based
+ * base power ("Return 102"), which is not a selectable move - resolve the
+ * display name through the dex, falling back to the move id.
+ */
+function moveDisplayName(data: Record<string, unknown>): string {
+	const raw = String(data.name ?? data.move ?? '?');
+	const dex = Dex.forGen(GYM_GEN);
+	if (dex.moves.get(raw).exists) return raw;
+	if (typeof data.id === 'string') {
+		const byId = dex.moves.get(data.id);
+		if (byId?.exists) return byId.name;
+	}
+	return raw.replace(/\s*\d+$/, '') || raw;
+}
+
 export class GymBattle {
 	private readonly streams: ReturnType<typeof BattleStreams.getPlayerStreams>;
 	private readonly onSnapshot: (snapshot: GymSnapshot) => void;
@@ -1089,7 +1105,7 @@ export class GymBattle {
 				if (!mon || mon.fainted || mon.volatiles.includes('commanding')) return;
 				const moves: GymMoveInfo[] = (active.moves ?? []).map((m, j) => ({
 					slot: j + 1,
-					name: String(m.name ?? m.move ?? '?'),
+					name: moveDisplayName(m),
 					target: String(m.target ?? 'normal'),
 					disabled: Boolean(m.disabled),
 					pp: Number(m.pp ?? 0),
