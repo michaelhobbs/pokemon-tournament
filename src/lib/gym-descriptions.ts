@@ -63,10 +63,62 @@ const VOLATILE_DESCRIPTIONS: Record<string, RuleDescription> = {
 	embargo: { title: 'EMBARGO', text: 'Its item is unusable for 5 turns.' },
 	commanding: { title: 'COMMANDER', text: 'This Pokemon has jumped inside Tatsugiri - it takes no direct action until Tatsugiri faints.' },
 	typechange: { title: 'TYPE CHANGE', text: "This Pokemon's typing has changed (e.g. Protean, Terastallization)." },
+	flinch: { title: 'FLINCH', text: 'Loses its chance to act this turn. Only lands if the flinched Pokemon has not moved yet.' },
+	trapped: { title: 'TRAPPED', text: 'Cannot switch out until the effect wears off or the trapper leaves the field.' },
+	infatuation: { title: 'INFATUATION', text: '50% chance each turn to be unable to act while the attracting Pokemon stays on the field.' },
 };
 
 function prettify(id: string): string {
 	return id.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/-/g, ' ').toUpperCase();
+}
+
+/** Status/volatile descriptions reachable by rule key ("brn", "confusion", ...). */
+const RULE_DESCRIPTIONS: Record<string, RuleDescription> = { ...STATUS_DESCRIPTIONS, ...VOLATILE_DESCRIPTIONS };
+
+/**
+ * Phrases in a move's short description that mean the move INFLICTS a
+ * condition, mapped to the rule key whose explanation should be appended.
+ * Rows flagged `false` skip the context check - their phrases are specific
+ * enough to never appear as mere mentions.
+ */
+const MOVE_EFFECT_HINTS: [RegExp, string, boolean?][] = [
+	[/badly poison/i, 'tox'],
+	[/poison/i, 'psn'],
+	[/burn/i, 'brn'],
+	[/paralyz/i, 'par'],
+	[/freeze/i, 'frz'],
+	[/\bsleep/i, 'slp'],
+	[/confus/i, 'confusion'],
+	[/flinch/i, 'flinch'],
+	[/seed|restored to user/i, 'leechseed', false],
+	[/taunts?|status moves/i, 'taunt', false],
+	[/encores?|repeats its last move/i, 'encore', false],
+	[/torments?|same move twice/i, 'torment', false],
+	[/nightmare|sleeping target/i, 'nightmare', false],
+	[/infatuat|falls? in love/i, 'infatuation', false],
+	[/prevents?[^.]{0,24}(switch|escap|flee|leav)|cannot switch|can't escape/i, 'trapped', false],
+	[/heal block|prevented from healing/i, 'healblock', false],
+	[/embargo|item has no effect|use items/i, 'embargo', false],
+];
+
+/**
+ * True-ish: a condition adjective preceded by these words is context, not an
+ * infliction ("power doubles if user is burn/poison/paralyzed"). The wide
+ * window bridges separators like Facade's slashes.
+ */
+const NON_INFLICT_CONTEXT = /\b(is|are|was|if|when|while|already|against)\b[^.]{0,24}$/i;
+
+/** Rule keys for every condition a move's description says it inflicts ("badly poisons" -> tox only). */
+function inflictedKeys(text: string): string[] {
+	const keys: string[] = [];
+	for (const [pattern, key, useContextCheck] of MOVE_EFFECT_HINTS) {
+		if (keys.includes(key) || (key === 'psn' && keys.includes('tox'))) continue;
+		const match = pattern.exec(text);
+		if (!match) continue;
+		if (useContextCheck !== false && NON_INFLICT_CONTEXT.test(text.slice(0, match.index).trimEnd())) continue;
+		keys.push(key);
+	}
+	return keys;
 }
 
 /** Resolves a `kind:id` rule key (from data-gym-desc attributes) to a description. */
@@ -109,9 +161,16 @@ export function describeRule(key: string): RuleDescription | null {
 				typeof info.accuracy === 'number' ? `${info.accuracy}% ACC` : null,
 				info.pp ? `${info.pp} PP` : null,
 			].filter(Boolean);
+			const base = info.shortDesc || info.desc || '';
+			// Append what each inflicted condition actually does ("10% chance to
+			// confuse the target. (CONFUSION: 33% chance each turn to hurt itself...)").
+			const hints = inflictedKeys(base)
+				.map((key) => RULE_DESCRIPTIONS[key])
+				.filter(Boolean)
+				.map((desc) => `(${desc.title}: ${desc.text})`);
 			return {
 				title: info.name.toUpperCase(),
-				text: [meta.join(' · '), info.shortDesc || info.desc || ''].filter(Boolean).join(' — '),
+				text: [[meta.join(' · '), base].filter(Boolean).join(' — '), ...hints].join(' ').trim(),
 			};
 		}
 		case 'tera': {
