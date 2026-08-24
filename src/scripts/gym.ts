@@ -296,10 +296,16 @@ interface NameSpecies {
 	species: string;
 }
 
-/** The foe's four as label/species pairs - imported teams included. */
-function foeNameList(): NameSpecies[] {
+/** Everything the opponent owns, hence off-limits in your draft - imported teams bring exactly their four. */
+function foeBannedList(): NameSpecies[] {
 	if (customFoeTeam) return customFoeTeam.map((mon) => ({ label: mon.label, species: mon.species }));
 	return currentTeamOfOpponent().map((name) => ({ label: name, species: name }));
+}
+
+/** The foe's chosen four as label/species pairs - imported teams included. */
+function foeNameList(): NameSpecies[] {
+	if (customFoeTeam) return customFoeTeam.map((mon) => ({ label: mon.label, species: mon.species }));
+	return foeTeam.map((name) => ({ label: name, species: name }));
 }
 
 function currentTeamOfOpponent(): string[] {
@@ -313,7 +319,7 @@ function humanReady(): boolean {
 
 function draftHtml(): string {
 	if (!customFoeTeam && !opponent()) return trainerHtml();
-	const bannedChips = foeNameList()
+	const bannedChips = foeBannedList()
 		.map(({ label, species }) => `<span class="gym-banned">${bannedChipHtml(label, species)}</span>`)
 		.join('');
 	if (ownImportTeam) {
