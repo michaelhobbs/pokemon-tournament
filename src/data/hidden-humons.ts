@@ -93,7 +93,7 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
 		key: 'cop',
 		name: 'COPMON',
 		title: 'THE LAW',
-		page: '911',
+		page: '999',
 		cost: 750,
 		sprite: COP_SPRITE,
 		blurb: 'A HUMON WHO BECAME THE POLICE. STOP. DROP. TRADE.',

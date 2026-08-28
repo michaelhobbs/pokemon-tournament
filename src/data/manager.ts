@@ -89,7 +89,7 @@ export interface GameState {
 export const BOSS_PLAYER_NUMBERS: number[] = PLAYERS.map((player) => player.number);
 export const TOWN_PLAYER_NUMBERS: number[] = PLAYERS.map((player) => player.number);
 
-export const HIDDEN_PAGE_NUMBERS: string[] = ['000', '123', '404', '666', '911'];
+export const HIDDEN_PAGE_NUMBERS: string[] = ['000', '123', '404', '666', '999'];
 
 export const HOME_BASE = { col: 12, row: 14 };
 

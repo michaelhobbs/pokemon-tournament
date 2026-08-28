@@ -48,7 +48,7 @@ describe('ALL_PAGES', () => {
 	it('includes hidden pages', () => {
 		expect(ALL_PAGES.find((p) => p.number === '000')).toBeDefined();
 		expect(ALL_PAGES.find((p) => p.number === '666')).toBeDefined();
-		expect(ALL_PAGES.find((p) => p.number === '911')).toBeDefined();
+		expect(ALL_PAGES.find((p) => p.number === '999')).toBeDefined();
 	});
 });
 
@@ -121,7 +121,6 @@ describe('findPage', () => {
 
 	it('returns undefined for unknown page numbers', () => {
 		expect(findPage('001')).toBeUndefined();
-		expect(findPage('999')).toBeUndefined();
 	});
 
 	it('finds hidden pages', () => {

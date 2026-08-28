@@ -60,7 +60,7 @@ const PAGE_LABELS: Record<string, string> = {
 	'123': 'PROFESSOR JOAK',
 	'404': 'PAGE NOT FOUND',
 	'666': 'DEVILMON',
-	'911': 'COPMON',
+	'999': 'COPMON',
 };
 
 export function initManager(): void {

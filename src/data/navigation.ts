@@ -69,9 +69,9 @@ export const DEVILMON_PAGE: PageLink = {
 	hidden: true,
 };
 export const COPMON_PAGE: PageLink = {
-	number: '911',
+	number: '999',
 	label: 'COPMON',
-	href: `${base}911`,
+	href: `${base}999`,
 	hidden: true,
 };
 
@@ -138,6 +138,7 @@ export const ALL_PAGES: PageLink[] = [
 	NOT_FOUND_PAGE,
 	JOAk_PAGE,
 	DEVILMON_PAGE,
+	COPMON_PAGE,
 	HOME_PAGE,
 	RULES_PAGE,
 	STANDINGS_PAGE,

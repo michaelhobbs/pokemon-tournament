@@ -7,7 +7,7 @@ A football-manager style idle game for the Pokémon tournament site. The player 
 - **Your squad is HUMONs.** You start with the one caught on the home page (existing `pkm:humon-caught` gate — no HUMON, no game). Humons auto-manage their own pokémon; you only give instructions.
 - **Each humon collects its own team** by travelling to hometowns on the map (800). Each hometown's catch pool = that trainer's team (current, mid-season swaps applied via `applySwaps`).
 - **Gym bosses** = the 10 tournament trainers. Beat one (deterministic type sim) → badge + that trainer joins your roster as a humon (reusing `spriteFor()`).
-- **Hidden humons** = secret pages: Joak (123, needs a purchased **JOAK BALL**), Devilmon (new page 666, needs currency), Copmon (new page 911, needs currency).
+- **Hidden humons** = secret pages: Joak (123, needs a purchased **JOAK BALL**), Devilmon (new page 666, needs currency), Copmon (page 999, needs currency).
 - **Cooldowns in hours** per action per humon; results are resolved deterministically from a stored seed, so nothing is lost across SPA nav / refresh.
 
 ## New data layer
@@ -30,13 +30,13 @@ A football-manager style idle game for the Pokémon tournament site. The player 
 | **812 TRAVEL** | pick idle humon + hometown → shows catch pool + seeded chance → start trip (duration from map grid distance) |
 | **813 TRAINING** | pick humon → train (XP/level/currency) |
 | **814 GYMS** | 10 bosses: hometown, badge state, team, recommended level → challenge |
-| **815 UNLOCKS** | hidden-page visit tracker (000/123/404/666/911) + currency shop for Joak/Devil/Cop |
+| **815 UNLOCKS** | hidden-page visit tracker (000/123/404/666/999) + currency shop for Joak/Devil/Cop |
 
-Plus new hidden pages **`666.astro` (DEVILMON)** and **`911.astro` (COPMON)**, and a purchase widget on **`123.astro`** ("BUY A JOAK BALL — $500").
+Plus new hidden pages **`666.astro` (DEVILMON)** and **`999.astro` (COPMON)**, and a purchase widget on **`123.astro`** ("BUY A JOAK BALL — $500").
 
 ## Wiring
 
-- **`navigation.ts`**: `MANAGER_PAGE` + `MANAGER_CHILD_PAGES` (610–615), `DEVILMON_PAGE`/`COPMON_PAGE` (hidden) — add to `PAGES`, `ALL_PAGES` (and hidden pages so typing 666/911 works).
+- **`navigation.ts`**: `MANAGER_PAGE` + `MANAGER_CHILD_PAGES` (610–615), `DEVILMON_PAGE`/`COPMON_PAGE` (hidden) — add to `PAGES`, `ALL_PAGES` (and hidden pages so typing 666/999 works).
 - **`src/scripts/manager.ts`**: global init (included once, like `ceefax-nav.ts`); on every `astro:page-load` loads state, resolves elapsed actions, marks the current page as visited (for unlock conditions), re-renders any `data-manager-feature` containers, ticks countdowns every second. A small `ManagerApp.astro` component injects it per page with a feature key (`hub|roster|travel|training|gyms|unlocks`).
 - **`CeefaxLayout`**: pages render static Ceefax skeletons; the script fills them client-side from localStorage (same pattern as `TournamentGraphic.initBall`).
 - Reuse `SectionNav.astro`, `CeefaxBlock`, `CeefaxHeading`, `PixelArt`, `TrainerSprite`, `POKEMON_SPRITES`, and the map markers for distance.
@@ -48,7 +48,7 @@ Train 2h · travel 2–8h (map distance) · gym 6h · gym win $150–300 · trav
 ## Implementation order
 
 1. `manager.ts` engine + `hidden-humons.ts` sprites
-2. `666.astro`, `911.astro`, 123 JOAK BALL widget + nav wiring
+2. `666.astro`, `999.astro`, 123 JOAK BALL widget + nav wiring
 3. `ManagerApp.astro` + `manager.ts` script + CeefaxLayout include
 4. Pages 810–815 (hub → roster → training → travel → gyms → unlocks)
 5. Verify: `npm run build` (plus `npx astro check` if configured)
