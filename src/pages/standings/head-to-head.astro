@@ -5,11 +5,11 @@ import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
 import HeadToHeadTable from '../../components/ceefax/HeadToHeadTable.astro';
 import SectionNav from '../../components/ceefax/SectionNav.astro';
 import { PLAYERS } from '../../data/players';
-import { WEEKS } from '../../data/matches';
+import { FIRST_HALF_WEEKS } from '../../data/matches';
 import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from '../../data/navigation';
 
 const headToHead = new Map<string, 'W' | 'L'>();
-for (const week of WEEKS) {
+for (const week of FIRST_HALF_WEEKS) {
 	for (const match of week.matches) {
 		if (match.wins1 === undefined || match.wins2 === undefined) continue;
 		headToHead.set(
