@@ -126,7 +126,7 @@ export const WEEKS: Week[] = [
 			{ p1: 9, p2: 11 },
 			{ p1: 8, p2: 3, wins1: 0, wins2: 3 },
 			{ p1: 2, p2: 10 },
-			{ p1: 6, p2: 1 },
+			{ p1: 6, p2: 1, wins1: 0, wins2: 3 },
 		],
 	},
 	{
