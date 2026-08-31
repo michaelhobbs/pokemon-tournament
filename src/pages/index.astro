@@ -14,10 +14,17 @@ const base = import.meta.env.BASE_URL;
     <TournamentGraphic />
   </div>
   <CeefaxBlock title="STATUS" number="1" color="green">
-    <p>2ND ROUND ROBIN - WEEK 1</p>
+    <p><span class="home-status-arrow" aria-hidden="true">▶</span> <a class="home-status-link" href={`${base}games/11`}
+        ><b>2ND ROUND ROBIN - WEEK 11</b></a
+      ></p>
     <p>
       <a class="home-status-link" href={`${base}standings/draft-mid`}
         ><span class="home-status-arrow" aria-hidden="true">▶</span> VIEW MID-SEASON DRAFT</a
+      >
+    </p>
+    <p>
+      <a class="home-status-link" href={`${base}standings/draft-mid`}
+        ><span class="home-status-arrow" aria-hidden="true">▶</span> VIEW STANDINGS</a
       >
     </p>
   </CeefaxBlock>
