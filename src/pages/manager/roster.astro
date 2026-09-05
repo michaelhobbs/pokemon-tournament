@@ -1,13 +1,17 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import SectionNav from '../../components/ceefax/SectionNav.astro';
-import ManagerApp from '../../components/ceefax/ManagerApp.astro';
-import { MANAGER_PAGE, MANAGER_CHILD_PAGES } from '../../data/navigation';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import SectionNav from "../../components/ceefax/SectionNav.astro";
+import ManagerApp from "../../components/ceefax/ManagerApp.astro";
+import { MANAGER_PAGE, MANAGER_CHILD_PAGES } from "../../data/navigation";
 ---
 
 <CeefaxLayout title="ROSTER" pageNumber="811">
-	<CeefaxHeading text="ROSTER" color="cyan" />
-	<ManagerApp feature="roster" />
-	<SectionNav children={MANAGER_CHILD_PAGES} current="811" main={MANAGER_PAGE} />
+  <CeefaxHeading text="ROSTER" color="cyan" />
+  <ManagerApp feature="roster" />
+  <SectionNav
+    children={MANAGER_CHILD_PAGES}
+    current="811"
+    main={MANAGER_PAGE}
+  />
 </CeefaxLayout>

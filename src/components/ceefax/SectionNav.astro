@@ -1,70 +1,76 @@
 ---
-import type { PageLink } from '../../data/navigation';
+import type { PageLink } from "../../data/navigation";
 
 interface Props {
-	/** Child pages of the group in ascending page-number order. */
-	children: PageLink[];
-	/** Current page number (string) within the group. */
-	current: string;
-	/** The group's main/index page, shown centered. */
-	main: PageLink;
+  /** Child pages of the group in ascending page-number order. */
+  children: PageLink[];
+  /** Current page number (string) within the group. */
+  current: string;
+  /** The group's main/index page, shown centered. */
+  main: PageLink;
 }
 
 const { children, current, main } = Astro.props;
 const index = children.findIndex((child) => child.number === current);
 const prev = index > 0 ? children[index - 1] : undefined;
-const next = index >= 0 && index < children.length - 1 ? children[index + 1] : undefined;
+const next =
+  index >= 0 && index < children.length - 1 ? children[index + 1] : undefined;
 ---
 
 <nav class="section-nav" aria-label="Section pages">
-	{prev ? (
-		<a href={prev.href}>
-			{prev.number} {prev.label}
-		</a>
-	) : (
-		<span aria-hidden="true"></span>
-	)}
-	<a href={main.href}>
-		{main.number} {main.label}
-	</a>
-	{next ? (
-		<a href={next.href}>
-			{next.number} {next.label}
-		</a>
-	) : (
-		<span aria-hidden="true"></span>
-	)}
+  {
+    prev ? (
+      <a href={prev.href}>
+        {prev.number} {prev.label}
+      </a>
+    ) : (
+      <span aria-hidden="true" />
+    )
+  }
+  <a href={main.href}>
+    {main.number}
+    {main.label}
+  </a>
+  {
+    next ? (
+      <a href={next.href}>
+        {next.number} {next.label}
+      </a>
+    ) : (
+      <span aria-hidden="true" />
+    )
+  }
 </nav>
 
 <style>
-	.section-nav {
-		grid-column: 1 / -1;
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-		align-items: center;
-		gap: 1rem;
-		padding-top: 0.5rem;
-		border-top: 2px solid var(--ceefax-cyan);
-	}
+  .section-nav {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    border-top: 2px solid var(--ceefax-cyan);
+  }
 
-	.section-nav > :first-child {
-		justify-self: start;
-	}
+  .section-nav > :first-child {
+    justify-self: start;
+  }
 
-	.section-nav > :nth-child(2) {
-		justify-self: center;
-	}
+  .section-nav > :nth-child(2) {
+    justify-self: center;
+  }
 
-	.section-nav > :last-child {
-		justify-self: end;
-	}
+  .section-nav > :last-child {
+    justify-self: end;
+  }
 
-	.section-nav a {
-		text-decoration: none;
-		color: var(--ceefax-yellow);
-	}
+  .section-nav a {
+    text-decoration: none;
+    color: var(--ceefax-yellow);
+  }
 
-	.section-nav a:hover {
-		color: var(--ceefax-cyan);
-	}
+  .section-nav a:hover {
+    color: var(--ceefax-cyan);
+  }
 </style>

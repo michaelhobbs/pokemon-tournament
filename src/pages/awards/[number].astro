@@ -1,20 +1,20 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import PixelArt from '../../components/ceefax/PixelArt.astro';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import PixelArt from "../../components/ceefax/PixelArt.astro";
 import {
-	AWARDS,
-	awardFor,
-	awardDisplayName,
-	awardDisplayDescription,
-	awardDisplaySprite,
-} from '../../data/awards';
+  AWARDS,
+  awardFor,
+  awardDisplayName,
+  awardDisplayDescription,
+  awardDisplaySprite,
+} from "../../data/awards";
 
 export function getStaticPaths() {
-	return AWARDS.map((award) => ({
-		params: { number: String(award.number) },
-	}));
+  return AWARDS.map((award) => ({
+    params: { number: String(award.number) },
+  }));
 }
 
 const { number } = Astro.params;
@@ -28,122 +28,130 @@ const base = import.meta.env.BASE_URL;
 ---
 
 <CeefaxLayout
-	title={`AWARDS — ${awardDisplayName(award)}`}
-	pageNumber={String(award.number)}
+  title={`AWARDS — ${awardDisplayName(award)}`}
+  pageNumber={String(award.number)}
 >
-	<CeefaxHeading text={awardDisplayName(award)} color="yellow" />
-	<div class="award-wrap">
-		<CeefaxBlock title={awardDisplayName(award)} number={award.number} color="yellow">
-			<div class="award-display">
-				<PixelArt sprite={awardDisplaySprite(award)} size="14rem" />
-				<p class="award-desc">{awardDisplayDescription(award)}</p>
-				<div class="award-nameplate">
-					<span class="nameplate-label">WINNER</span>
-					<span class="nameplate-name">TBD</span>
-				</div>
-			</div>
-		</CeefaxBlock>
-	</div>
-	<nav class="award-nav" aria-label="Award pages">
-		{prev ? (
-			<a href={`${base}awards/${prev.number}`}>
-				{prev.number} {awardDisplayName(prev)}
-			</a>
-		) : (
-			<span aria-hidden="true"></span>
-		)}
-		<a href={`${base}awards`}>700 AWARDS</a>
-		{next ? (
-			<a href={`${base}awards/${next.number}`}>
-				{next.number} {awardDisplayName(next)}
-			</a>
-		) : (
-			<span aria-hidden="true"></span>
-		)}
-	</nav>
+  <CeefaxHeading text={awardDisplayName(award)} color="yellow" />
+  <div class="award-wrap">
+    <CeefaxBlock
+      title={awardDisplayName(award)}
+      number={award.number}
+      color="yellow"
+    >
+      <div class="award-display">
+        <PixelArt sprite={awardDisplaySprite(award)} size="14rem" />
+        <p class="award-desc">{awardDisplayDescription(award)}</p>
+        <div class="award-nameplate">
+          <span class="nameplate-label">WINNER</span>
+          <span class="nameplate-name">TBD</span>
+        </div>
+      </div>
+    </CeefaxBlock>
+  </div>
+  <nav class="award-nav" aria-label="Award pages">
+    {
+      prev ? (
+        <a href={`${base}awards/${prev.number}`}>
+          {prev.number} {awardDisplayName(prev)}
+        </a>
+      ) : (
+        <span aria-hidden="true" />
+      )
+    }
+    <a href={`${base}awards`}>700 AWARDS</a>
+    {
+      next ? (
+        <a href={`${base}awards/${next.number}`}>
+          {next.number} {awardDisplayName(next)}
+        </a>
+      ) : (
+        <span aria-hidden="true" />
+      )
+    }
+  </nav>
 </CeefaxLayout>
 
 <style>
-	.award-wrap {
-		grid-column: 1 / -1;
-		justify-self: center;
-		width: fit-content;
-		max-width: 100%;
-	}
+  .award-wrap {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: fit-content;
+    max-width: 100%;
+  }
 
-	.award-wrap :global(.ceefax-block) {
-		width: fit-content;
-		max-width: 100%;
-	}
+  .award-wrap :global(.ceefax-block) {
+    width: fit-content;
+    max-width: 100%;
+  }
 
-	.award-display {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
-		padding: 0.5rem 0;
-	}
+  .award-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
 
-	.award-desc {
-		margin: 0;
-		color: var(--ceefax-cyan);
-		font-weight: 700;
-		text-align: center;
-	}
+  .award-desc {
+    margin: 0;
+    color: var(--ceefax-cyan);
+    font-weight: 700;
+    text-align: center;
+  }
 
-	.award-nameplate {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.25rem;
-		border: 3px solid var(--ceefax-black);
-		background: var(--ceefax-black);
-		padding: 0.5rem 2rem;
-		min-width: 12rem;
-	}
+  .award-nameplate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    border: 3px solid var(--ceefax-black);
+    background: var(--ceefax-black);
+    padding: 0.5rem 2rem;
+    min-width: 12rem;
+  }
 
-	.nameplate-label {
-		font-size: 0.8rem;
-		letter-spacing: 0.2em;
-		color: var(--ceefax-white);
-	}
+  .nameplate-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--ceefax-white);
+  }
 
-	.nameplate-name {
-		font-weight: 700;
-		font-size: 1.1rem;
-		letter-spacing: 0.08em;
-		color: var(--ceefax-yellow);
-		text-transform: uppercase;
-	}
+  .nameplate-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--ceefax-yellow);
+    text-transform: uppercase;
+  }
 
-	.award-nav {
-		grid-column: 1 / -1;
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-		align-items: center;
-		gap: 1rem;
-		padding-top: 0.5rem;
-		border-top: 2px solid var(--ceefax-cyan);
-	}
+  .award-nav {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    border-top: 2px solid var(--ceefax-cyan);
+  }
 
-	.award-nav > :first-child {
-		justify-self: start;
-	}
+  .award-nav > :first-child {
+    justify-self: start;
+  }
 
-	.award-nav > :nth-child(2) {
-		justify-self: center;
-	}
+  .award-nav > :nth-child(2) {
+    justify-self: center;
+  }
 
-	.award-nav > :last-child {
-		justify-self: end;
-	}
+  .award-nav > :last-child {
+    justify-self: end;
+  }
 
-	.award-nav a {
-		text-decoration: none;
-		color: var(--ceefax-yellow);
-	}
+  .award-nav a {
+    text-decoration: none;
+    color: var(--ceefax-yellow);
+  }
 
-	.award-nav a:hover {
-		color: var(--ceefax-cyan);
-	}
+  .award-nav a:hover {
+    color: var(--ceefax-cyan);
+  }
 </style>

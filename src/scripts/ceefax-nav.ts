@@ -1,7 +1,7 @@
 import {
   navigate as transitionNavigate,
   supportsViewTransitions,
-} from 'astro:transitions/client';
+} from "astro:transitions/client";
 
 export interface NavEntry {
   number: string;
@@ -42,7 +42,7 @@ const navWindow = window as NavWindow;
 const currentState = (): NavData | null => navWindow.ceefaxNavState ?? null;
 
 const getPageDisplay = (): HTMLElement | null =>
-  document.getElementById('ceefax-pagebox');
+  document.getElementById("ceefax-pagebox");
 
 const setDisplay = (
   display: HTMLElement,
@@ -50,10 +50,10 @@ const setDisplay = (
   unknown: boolean,
 ): void => {
   display.textContent = text;
-  display.setAttribute('data-unknown', String(unknown));
+  display.setAttribute("data-unknown", String(unknown));
 };
 
-let buffer = '';
+let buffer = "";
 let timer: number | undefined;
 let unknownTimer: number | undefined;
 
@@ -68,7 +68,7 @@ const syncDisplay = (state: NavData): void => {
 const showUnknown = (): void => {
   const display = getPageDisplay();
   if (!display) return;
-  setDisplay(display, '???', true);
+  setDisplay(display, "???", true);
   unknownTimer = window.setTimeout(() => {
     const state = currentState();
     if (state) syncDisplay(state);
@@ -78,7 +78,7 @@ const showUnknown = (): void => {
 const clearBuffer = (): void => {
   window.clearTimeout(timer);
   timer = undefined;
-  buffer = '';
+  buffer = "";
 };
 
 const navigateToCode = (code: string): boolean => {
@@ -109,9 +109,9 @@ const isTypingTarget = (target: EventTarget | null): boolean => {
   if (!el || !el.isConnected) return false;
   const tag = el.tagName;
   return (
-    tag === 'INPUT' ||
-    tag === 'TEXTAREA' ||
-    tag === 'SELECT' ||
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT" ||
     el.isContentEditable
   );
 };
@@ -153,25 +153,25 @@ const onKeydown = (event: KeyboardEvent): void => {
   }
 
   switch (event.key) {
-    case 'ArrowRight':
-    case 'ArrowUp':
+    case "ArrowRight":
+    case "ArrowUp":
       event.preventDefault();
       step(1);
       return;
-    case 'ArrowLeft':
-    case 'ArrowDown':
+    case "ArrowLeft":
+    case "ArrowDown":
       event.preventDefault();
       step(-1);
       return;
-    case 'h':
-    case 'H':
-    case '?':
+    case "h":
+    case "H":
+    case "?":
       event.preventDefault();
       navigate(state.help);
       return;
-    case 'Escape':
+    case "Escape":
       event.preventDefault();
-      navigate(state.pages.find((page) => page.number === '100')?.href ?? '/');
+      navigate(state.pages.find((page) => page.number === "100")?.href ?? "/");
       return;
   }
 
@@ -184,11 +184,11 @@ const scrollToHash = (): void => {
   if (!hash) return;
   const target = document.getElementById(decodeURIComponent(hash.slice(1)));
   if (!target) return;
-  requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+  requestAnimationFrame(() => target.scrollIntoView({ block: "start" }));
 };
 
 const syncScrollPadding = (): void => {
-  const head = document.querySelector<HTMLElement>('.ceefax-head');
+  const head = document.querySelector<HTMLElement>(".ceefax-head");
   if (head) {
     document.documentElement.style.scrollPaddingTop = `${head.offsetHeight}px`;
   }
@@ -197,7 +197,9 @@ const syncScrollPadding = (): void => {
 const syncTicker = (): void => {
   const elapsed = (Date.now() - TICKER_EPOCH) % TICKER_DURATION_MS;
   const delay = -(elapsed / 1000);
-  for (const track of document.querySelectorAll<HTMLElement>('.ceefax-ticker-track')) {
+  for (const track of document.querySelectorAll<HTMLElement>(
+    ".ceefax-ticker-track",
+  )) {
     track.style.animationDelay = `${delay}s`;
   }
 };
@@ -209,8 +211,8 @@ const onPageLoad = (): void => {
   const parsed = JSON.parse(raw);
   const data: NavData = {
     pages: parsed.pages ?? [],
-    current: parsed.current ?? '',
-    help: parsed.help ?? '/help',
+    current: parsed.current ?? "",
+    help: parsed.help ?? "/help",
   };
   navWindow.ceefaxNavState = data;
   window.scrollTo(0, 0);
@@ -218,11 +220,11 @@ const onPageLoad = (): void => {
   scrollToHash();
   syncTicker();
   syncDisplay(data);
-  const footerPage = document.getElementById('ceefax-footer-page');
+  const footerPage = document.getElementById("ceefax-footer-page");
   if (footerPage) footerPage.textContent = `PAGE ${data.current}`;
 };
 
-const PAGE_CODE_INPUT_ID = 'ceefax-page-code-input';
+const PAGE_CODE_INPUT_ID = "ceefax-page-code-input";
 
 const pageCodeInput = (): HTMLInputElement | null =>
   document.getElementById(PAGE_CODE_INPUT_ID) as HTMLInputElement | null;
@@ -231,18 +233,18 @@ const activatePageBox = (): void => {
   if (pageCodeInput()) return;
   const display = getPageDisplay();
   if (!display) return;
-  const input = document.createElement('input');
+  const input = document.createElement("input");
   input.id = PAGE_CODE_INPUT_ID;
-  input.type = 'tel';
-  input.inputMode = 'numeric';
-  input.pattern = '[0-9]*';
+  input.type = "tel";
+  input.inputMode = "numeric";
+  input.pattern = "[0-9]*";
   input.maxLength = CODE_LENGTH;
-  input.autocomplete = 'off';
-  input.autocapitalize = 'off';
+  input.autocomplete = "off";
+  input.autocapitalize = "off";
   input.spellcheck = false;
-  input.setAttribute('aria-label', 'Page number');
-  input.classList.add('ceefax-pagebox');
-  display.style.display = 'none';
+  input.setAttribute("aria-label", "Page number");
+  input.classList.add("ceefax-pagebox");
+  display.style.display = "none";
   display.parentElement?.insertBefore(input, display.nextSibling);
   input.focus();
 };
@@ -252,7 +254,7 @@ const deactivatePageBox = (): void => {
   const display = getPageDisplay();
   if (input) input.remove();
   if (display) {
-    display.style.display = '';
+    display.style.display = "";
     const state = currentState();
     if (state) syncDisplay(state);
   }
@@ -263,10 +265,10 @@ let inputFlashTimer: number | undefined;
 const flashUnknown = (): void => {
   const input = pageCodeInput();
   if (!input) return;
-  input.setAttribute('data-unknown', 'true');
+  input.setAttribute("data-unknown", "true");
   window.clearTimeout(inputFlashTimer);
   inputFlashTimer = window.setTimeout(() => {
-    input.removeAttribute('data-unknown');
+    input.removeAttribute("data-unknown");
   }, UNKNOWN_MS);
 };
 
@@ -274,7 +276,7 @@ const onPageInput = (event: Event): void => {
   const input = event.target as HTMLInputElement | null;
   if (!input || input.id !== PAGE_CODE_INPUT_ID) return;
   if (/\D/.test(input.value)) {
-    input.value = input.value.replace(/\D/g, '');
+    input.value = input.value.replace(/\D/g, "");
   }
   if (input.value.length === CODE_LENGTH && !navigateToCode(input.value)) {
     flashUnknown();
@@ -285,15 +287,15 @@ const onPageBoxKeydown = (event: KeyboardEvent): void => {
   const target = event.target as HTMLElement | null;
   if (!target || target.id !== PAGE_CODE_INPUT_ID) return;
   const input = target as HTMLInputElement;
-  if (event.key === 'Enter') {
+  if (event.key === "Enter") {
     event.preventDefault();
-    const digits = input.value.replace(/\D/g, '');
+    const digits = input.value.replace(/\D/g, "");
     if (digits.length === CODE_LENGTH && !navigateToCode(digits)) {
       flashUnknown();
     }
     return;
   }
-  if (event.key === 'Escape') {
+  if (event.key === "Escape") {
     event.preventDefault();
     deactivatePageBox();
     return;
@@ -304,7 +306,7 @@ const onPageBoxKeydown = (event: KeyboardEvent): void => {
   }
   if (
     /^[0-9]$/.test(event.key) &&
-    input.value.replace(/\D/g, '').length >= CODE_LENGTH
+    input.value.replace(/\D/g, "").length >= CODE_LENGTH
   ) {
     event.preventDefault();
   }
@@ -314,7 +316,7 @@ const onPageBoxClick = (event: Event): void => {
   const target = event.target as HTMLElement | null;
   if (!target) return;
   if (target.closest(`#${PAGE_CODE_INPUT_ID}`)) return;
-  if (target.closest('#ceefax-pagebox')) {
+  if (target.closest("#ceefax-pagebox")) {
     event.preventDefault();
     activatePageBox();
   }
@@ -330,10 +332,10 @@ const onPageBoxFocusOut = (event: FocusEvent): void => {
 
 const onNavButtonClick = (event: Event): void => {
   const target = event.target as HTMLElement | null;
-  if (!target || typeof target.closest !== 'function') return;
-  const button = target.closest('#ceefax-prev, #ceefax-next');
+  if (!target || typeof target.closest !== "function") return;
+  const button = target.closest("#ceefax-prev, #ceefax-next");
   if (!button) return;
-  step(button.id === 'ceefax-prev' ? -1 : 1);
+  step(button.id === "ceefax-prev" ? -1 : 1);
 };
 
 export function initCeefaxNavigation(data: NavData): void {
@@ -341,22 +343,22 @@ export function initCeefaxNavigation(data: NavData): void {
 
   if (!navWindow.ceefaxNavInstalled) {
     navWindow.ceefaxNavInstalled = true;
-    window.addEventListener('keydown', onKeydown);
-    document.addEventListener('click', onPageBoxClick);
-    document.addEventListener('input', onPageInput);
-    document.addEventListener('keydown', onPageBoxKeydown);
-    document.addEventListener('focusout', onPageBoxFocusOut);
-    document.addEventListener('click', onNavButtonClick);
+    window.addEventListener("keydown", onKeydown);
+    document.addEventListener("click", onPageBoxClick);
+    document.addEventListener("input", onPageInput);
+    document.addEventListener("keydown", onPageBoxKeydown);
+    document.addEventListener("focusout", onPageBoxFocusOut);
+    document.addEventListener("click", onNavButtonClick);
   }
 
   if (!navWindow.ceefaxNavPageLoadAttached) {
     navWindow.ceefaxNavPageLoadAttached = true;
-    document.addEventListener('astro:page-load', onPageLoad);
+    document.addEventListener("astro:page-load", onPageLoad);
   }
 
   if (!navWindow.ceefaxNavResizeAttached) {
     navWindow.ceefaxNavResizeAttached = true;
-    window.addEventListener('resize', syncScrollPadding);
+    window.addEventListener("resize", syncScrollPadding);
   }
 
   syncScrollPadding();

@@ -1,81 +1,82 @@
 ---
-type CeefaxColor = 'cyan' | 'yellow' | 'magenta' | 'red' | 'green' | 'blue' | 'white';
+type CeefaxColor =
+  "cyan" | "yellow" | "magenta" | "red" | "green" | "blue" | "white";
 
 interface Props {
-	title: string;
-	color?: CeefaxColor;
-	number?: string | number;
-	id?: string;
+  title: string;
+  color?: CeefaxColor;
+  number?: string | number;
+  id?: string;
 }
 
-const { title, color = 'cyan', number, id } = Astro.props;
+const { title, color = "cyan", number, id } = Astro.props;
 ---
 
 <section class="ceefax-block" data-color={color} id={id}>
-	<h2 class="ceefax-block-title">
-		{number !== undefined && <span class="ceefax-block-number">{number}</span>}
-		{title}
-	</h2>
-	<div class="ceefax-block-body">
-		<slot />
-	</div>
+  <h2 class="ceefax-block-title">
+    {number !== undefined && <span class="ceefax-block-number">{number}</span>}
+    {title}
+  </h2>
+  <div class="ceefax-block-body">
+    <slot />
+  </div>
 </section>
 
 <style>
-	.ceefax-block[data-color='cyan'] {
-		--block-color: var(--ceefax-cyan);
-	}
+  .ceefax-block[data-color="cyan"] {
+    --block-color: var(--ceefax-cyan);
+  }
 
-	.ceefax-block[data-color='yellow'] {
-		--block-color: var(--ceefax-yellow);
-	}
+  .ceefax-block[data-color="yellow"] {
+    --block-color: var(--ceefax-yellow);
+  }
 
-	.ceefax-block[data-color='magenta'] {
-		--block-color: var(--ceefax-magenta);
-	}
+  .ceefax-block[data-color="magenta"] {
+    --block-color: var(--ceefax-magenta);
+  }
 
-	.ceefax-block[data-color='red'] {
-		--block-color: var(--ceefax-red);
-	}
+  .ceefax-block[data-color="red"] {
+    --block-color: var(--ceefax-red);
+  }
 
-	.ceefax-block[data-color='green'] {
-		--block-color: var(--ceefax-green);
-	}
+  .ceefax-block[data-color="green"] {
+    --block-color: var(--ceefax-green);
+  }
 
-	.ceefax-block[data-color='blue'] {
-		--block-color: var(--ceefax-blue);
-	}
+  .ceefax-block[data-color="blue"] {
+    --block-color: var(--ceefax-blue);
+  }
 
-	.ceefax-block[data-color='white'] {
-		--block-color: var(--ceefax-white);
-	}
+  .ceefax-block[data-color="white"] {
+    --block-color: var(--ceefax-white);
+  }
 
-	.ceefax-block {
-		scroll-margin-top: 0.5rem;
-	}
+  .ceefax-block {
+    scroll-margin-top: 0.5rem;
+  }
 
-	.ceefax-block-title {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin: 0;
-		padding: 0.15rem 0.6rem;
-		font-size: 1.1rem;
-		line-height: 1.3;
-		letter-spacing: 0.06em;
-		color: var(--ceefax-black);
-		background: var(--block-color);
-	}
+  .ceefax-block-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.15rem 0.6rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    color: var(--ceefax-black);
+    background: var(--block-color);
+  }
 
-	.ceefax-block-number {
-		background: var(--ceefax-black);
-		color: var(--block-color);
-		padding: 0 0.4rem;
-	}
+  .ceefax-block-number {
+    background: var(--ceefax-black);
+    color: var(--block-color);
+    padding: 0 0.4rem;
+  }
 
-	.ceefax-block-body {
-		border: 2px solid var(--block-color);
-		border-top-width: 0;
-		padding: 0.75rem;
-	}
+  .ceefax-block-body {
+    border: 2px solid var(--block-color);
+    border-top-width: 0;
+    padding: 0.75rem;
+  }
 </style>

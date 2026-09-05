@@ -1,9 +1,9 @@
 ---
-import { POKEMON_STATS, STAT_COLUMNS } from '../../data/pokemon-stats';
-import { spriteFor } from '../../data/pokemon-sprites';
+import { POKEMON_STATS, STAT_COLUMNS } from "../../data/pokemon-stats";
+import { spriteFor } from "../../data/pokemon-sprites";
 
 interface Props {
-	team: string[];
+  team: string[];
 }
 
 const { team } = Astro.props;
@@ -16,23 +16,25 @@ const plotH = H - margin.top - margin.bottom;
 const bandW = plotW / team.length;
 
 const BAR_COLOURS = [
-	'var(--ceefax-cyan)',
-	'var(--ceefax-yellow)',
-	'var(--ceefax-magenta)',
-	'var(--ceefax-green)',
-	'var(--ceefax-blue)',
-	'var(--ceefax-red)',
+  "var(--ceefax-cyan)",
+  "var(--ceefax-yellow)",
+  "var(--ceefax-magenta)",
+  "var(--ceefax-green)",
+  "var(--ceefax-blue)",
+  "var(--ceefax-red)",
 ];
 
-const allValues = team.flatMap((name) => STAT_COLUMNS.map(({ key }) => POKEMON_STATS[name]?.[key]?.max ?? 0));
+const allValues = team.flatMap((name) =>
+  STAT_COLUMNS.map(({ key }) => POKEMON_STATS[name]?.[key]?.max ?? 0),
+);
 const maxVal = Math.max(1, ...allValues);
 
 function niceStep(raw: number): number {
-	if (raw <= 0) return 1;
-	const p = Math.pow(10, Math.floor(Math.log10(raw)));
-	const n = raw / p;
-	const m = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10;
-	return m * p;
+  if (raw <= 0) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / p;
+  const m = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10;
+  return m * p;
 }
 
 const step = niceStep(maxVal / 5);
@@ -44,103 +46,152 @@ const yPx = (v: number) => margin.top + plotH - (v / yMax) * plotH;
 const barW = (bandW * 0.78) / STAT_COLUMNS.length;
 
 const groups = team.map((name, g) => {
-	const stats = POKEMON_STATS[name];
-	const gx = margin.left + bandW * (g + 0.5);
-	const bars = STAT_COLUMNS.map(({ key }, s) => {
-		const value = stats?.[key]?.max ?? 0;
-		return {
-			x: gx - (bandW * 0.78) / 2 + barW * s,
-			y: yPx(value),
-			height: yPx(0) - yPx(value),
-			value,
-			colour: BAR_COLOURS[s],
-		};
-	});
-	return { name, sprite: spriteFor(name), gx, bars };
+  const stats = POKEMON_STATS[name];
+  const gx = margin.left + bandW * (g + 0.5);
+  const bars = STAT_COLUMNS.map(({ key }, s) => {
+    const value = stats?.[key]?.max ?? 0;
+    return {
+      x: gx - (bandW * 0.78) / 2 + barW * s,
+      y: yPx(value),
+      height: yPx(0) - yPx(value),
+      value,
+      colour: BAR_COLOURS[s],
+    };
+  });
+  return { name, sprite: spriteFor(name), gx, bars };
 });
 ---
 
 <div class="grouped-chart">
-	<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Grouped bar chart of level 100 maximum stats for each pokemon on the team">
-		{ticks.map((value) => (
-			<g>
-				<line x1={margin.left} x2={W - margin.right} y1={yPx(value)} y2={yPx(value)} class="chart-grid" />
-				<text x={margin.left - 8} y={yPx(value) + 3} class="chart-tick" text-anchor="end">
-					{Math.round(value)}
-				</text>
-			</g>
-		))}
-		<line x1={margin.left} x2={margin.left} y1={margin.top} y2={H - margin.bottom} class="chart-axis" />
-		<line x1={margin.left} x2={W - margin.right} y1={H - margin.bottom} y2={H - margin.bottom} class="chart-axis" />
-		{groups.map((group) => (
-			<g>
-				{group.sprite && (
-					<image
-						href={group.sprite}
-						x={group.gx - 12}
-						y={H - margin.bottom + 4}
-						width="24"
-						height="24"
-						class="chart-sprite"
-					/>
-				)}
-				<text x={group.gx} y={H - margin.bottom + 40} class="chart-name" text-anchor="middle">
-					{group.name}
-				</text>
-				{group.bars.map((bar) => (
-					<rect
-						x={bar.x}
-						y={bar.y}
-						width={barW}
-						height={Math.max(0, bar.height)}
-						fill={bar.colour}
-						stroke="var(--ceefax-black)"
-						stroke-width="1"
-					/>
-				))}
-			</g>
-		))}
-		{STAT_COLUMNS.map(({ label }, i) => (
-			<g>
-				<rect x={margin.left + i * 58} y={margin.top - 24} width="11" height="11" fill={BAR_COLOURS[i]} stroke="var(--ceefax-black)" />
-				<text x={margin.left + 15 + i * 58} y={margin.top - 15} class="chart-legend">{label}</text>
-			</g>
-		))}
-	</svg>
+  <svg
+    viewBox={`0 0 ${W} ${H}`}
+    role="img"
+    aria-label="Grouped bar chart of level 100 maximum stats for each pokemon on the team"
+  >
+    {
+      ticks.map((value) => (
+        <g>
+          <line
+            x1={margin.left}
+            x2={W - margin.right}
+            y1={yPx(value)}
+            y2={yPx(value)}
+            class="chart-grid"
+          />
+          <text
+            x={margin.left - 8}
+            y={yPx(value) + 3}
+            class="chart-tick"
+            text-anchor="end"
+          >
+            {Math.round(value)}
+          </text>
+        </g>
+      ))
+    }
+    <line
+      x1={margin.left}
+      x2={margin.left}
+      y1={margin.top}
+      y2={H - margin.bottom}
+      class="chart-axis"></line>
+    <line
+      x1={margin.left}
+      x2={W - margin.right}
+      y1={H - margin.bottom}
+      y2={H - margin.bottom}
+      class="chart-axis"></line>
+    {
+      groups.map((group) => (
+        <g>
+          {group.sprite && (
+            <image
+              href={group.sprite}
+              x={group.gx - 12}
+              y={H - margin.bottom + 4}
+              width="24"
+              height="24"
+              class="chart-sprite"
+            />
+          )}
+          <text
+            x={group.gx}
+            y={H - margin.bottom + 40}
+            class="chart-name"
+            text-anchor="middle"
+          >
+            {group.name}
+          </text>
+          {group.bars.map((bar) => (
+            <rect
+              x={bar.x}
+              y={bar.y}
+              width={barW}
+              height={Math.max(0, bar.height)}
+              fill={bar.colour}
+              stroke="var(--ceefax-black)"
+              stroke-width="1"
+            />
+          ))}
+        </g>
+      ))
+    }
+    {
+      STAT_COLUMNS.map(({ label }, i) => (
+        <g>
+          <rect
+            x={margin.left + i * 58}
+            y={margin.top - 24}
+            width="11"
+            height="11"
+            fill={BAR_COLOURS[i]}
+            stroke="var(--ceefax-black)"
+          />
+          <text
+            x={margin.left + 15 + i * 58}
+            y={margin.top - 15}
+            class="chart-legend"
+          >
+            {label}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
 </div>
 
 <style>
-	.grouped-chart svg {
-		display: block;
-		width: 100%;
-		height: auto;
-	}
+  .grouped-chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 
-	.chart-grid {
-		stroke: var(--ceefax-cyan);
-		stroke-width: 1;
-		opacity: 0.35;
-	}
+  .chart-grid {
+    stroke: var(--ceefax-cyan);
+    stroke-width: 1;
+    opacity: 0.35;
+  }
 
-	.chart-axis {
-		stroke: var(--ceefax-cyan);
-		stroke-width: 2;
-	}
+  .chart-axis {
+    stroke: var(--ceefax-cyan);
+    stroke-width: 2;
+  }
 
-	.chart-tick,
-	.chart-legend {
-		fill: var(--ceefax-white);
-		font-size: 11px;
-		font-family: inherit;
-	}
+  .chart-tick,
+  .chart-legend {
+    fill: var(--ceefax-white);
+    font-size: 11px;
+    font-family: inherit;
+  }
 
-	.chart-name {
-		fill: var(--ceefax-white);
-		font-size: 9px;
-		font-family: inherit;
-	}
+  .chart-name {
+    fill: var(--ceefax-white);
+    font-size: 9px;
+    font-family: inherit;
+  }
 
-	.chart-sprite {
-		image-rendering: pixelated;
-	}
+  .chart-sprite {
+    image-rendering: pixelated;
+  }
 </style>

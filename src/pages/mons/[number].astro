@@ -1,32 +1,32 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import MonsNav from '../../components/ceefax/MonsNav.astro';
-import SplitViolinChart from '../../components/ceefax/SplitViolinChart.astro';
-import TeraAnalysisBlock from '../../components/ceefax/TeraAnalysisBlock.astro';
-import { findPlayer } from '../../data/players';
-import { swapsFor, applySwaps } from '../../data/midseason';
-import { analyzeTera } from '../../data/tera';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import MonsNav from "../../components/ceefax/MonsNav.astro";
+import SplitViolinChart from "../../components/ceefax/SplitViolinChart.astro";
+import TeraAnalysisBlock from "../../components/ceefax/TeraAnalysisBlock.astro";
+import { findPlayer } from "../../data/players";
+import { swapsFor, applySwaps } from "../../data/midseason";
+import { analyzeTera } from "../../data/tera";
 import {
-	POKEMON_STATS,
-	STAT_COLUMNS,
-	type PokemonStats,
-} from '../../data/pokemon-stats';
-import { spriteFor } from '../../data/pokemon-sprites';
-import { pokemonAnchor } from '../../data/pokemon';
+  POKEMON_STATS,
+  STAT_COLUMNS,
+  type PokemonStats,
+} from "../../data/pokemon-stats";
+import { spriteFor } from "../../data/pokemon-sprites";
+import { pokemonAnchor } from "../../data/pokemon";
 import {
-	TRAINER_MATCHUPS,
-	matchupColours,
-	type TrainerColour,
-	type TrainerMatchup,
-} from '../../data/matchups';
+  TRAINER_MATCHUPS,
+  matchupColours,
+  type TrainerColour,
+  type TrainerMatchup,
+} from "../../data/matchups";
 
 export function getStaticPaths() {
-	return TRAINER_MATCHUPS.map((matchup) => ({
-		params: { number: String(matchup.number) },
-		props: { matchup },
-	}));
+  return TRAINER_MATCHUPS.map((matchup) => ({
+    params: { number: String(matchup.number) },
+    props: { matchup },
+  }));
 }
 
 const { matchup } = Astro.props as { matchup: TrainerMatchup };
@@ -37,10 +37,10 @@ if (!player1 || !player2) throw new Error(`Unknown matchup: ${matchup.number}`);
 const [colour1, colour2] = matchupColours(player1.number, player2.number);
 
 interface MonsRow {
-	pokemon: string;
-	colour: TrainerColour;
-	trainerNumber: number;
-	stats: PokemonStats;
+  pokemon: string;
+  colour: TrainerColour;
+  trainerNumber: number;
+  stats: PokemonStats;
 }
 
 const base = import.meta.env.BASE_URL;
@@ -49,18 +49,18 @@ const team1 = applySwaps(player1.team, swapsFor(player1.number));
 const team2 = applySwaps(player2.team, swapsFor(player2.number));
 
 const rows: MonsRow[] = [
-	...team1.map((pokemon) => ({
-		pokemon,
-		colour: colour1,
-		trainerNumber: player1.number,
-		stats: POKEMON_STATS[pokemon],
-	})),
-	...team2.map((pokemon) => ({
-		pokemon,
-		colour: colour2,
-		trainerNumber: player2.number,
-		stats: POKEMON_STATS[pokemon],
-	})),
+  ...team1.map((pokemon) => ({
+    pokemon,
+    colour: colour1,
+    trainerNumber: player1.number,
+    stats: POKEMON_STATS[pokemon],
+  })),
+  ...team2.map((pokemon) => ({
+    pokemon,
+    colour: colour2,
+    trainerNumber: player2.number,
+    stats: POKEMON_STATS[pokemon],
+  })),
 ];
 
 const team1Stats = rows.slice(0, 6).map((row) => row.stats);
@@ -73,251 +73,269 @@ const title = `${player1.name.toUpperCase()} VS ${player2.name.toUpperCase()}`;
 ---
 
 <CeefaxLayout title={title} pageNumber={String(matchup.number)}>
-	<CeefaxHeading text={title} color="cyan" />
-	<div class="matchup-wrap">
-		<CeefaxBlock title={title} number={matchup.number} color="cyan">
-			<div class="matchup-legend">
-				<span class="matchup-legend-item" data-colour={colour1}>{player1.name}</span>
-				<span class="matchup-legend-item" data-colour={colour2}>{player2.name}</span>
-			</div>
-			<div class="matchup-table">
-				<table data-mons-sortable>
-					<thead>
-						<tr>
-							<th scope="col" class="mons-sortable" data-sort-key="name">MONS</th>
-							{STAT_COLUMNS.map((col) => (
-								<th scope="col" class="mons-sortable" data-sort-key={col.key}>{col.label}</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{rows.map((row) => {
-							const sprite = spriteFor(row.pokemon);
-							return (
-								<tr data-colour={row.colour}>
-									<td class="matchup-name">
-										{sprite && (
-											<img
-												class="table-sprite"
-												src={sprite}
-												alt={row.pokemon}
-												width="40"
-												height="40"
-												loading="lazy"
-											/>
-										)}
-										<a
-											class="matchup-link"
-											href={`${base}trainers/${row.trainerNumber}#${pokemonAnchor(row.pokemon)}`}
-										>
-											{row.pokemon}
-										</a>
-									</td>
-									{STAT_COLUMNS.map((col) => (
-										<td data-value={row.stats[col.key].max}>{row.stats[col.key].max}</td>
-									))}
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-			</div>
-		</CeefaxBlock>
-	</div>
-	<div class="matchup-wrap">
-		<CeefaxBlock title="STATS COMPARISON — SPLIT VIOLINS (MAX, LEVEL 100)" number={matchup.number} color="yellow">
-			<SplitViolinChart
-				team1={team1Stats}
-				team2={team2Stats}
-				colour1={colour1}
-				colour2={colour2}
-				name1={player1.name}
-				name2={player2.name}
-			/>
-		</CeefaxBlock>
-	</div>
-	<div class="tera-wrap">
-		<CeefaxBlock title="TERA ANALYSIS" number={matchup.number} color="magenta">
-			<TeraAnalysisBlock
-				name1={player1.name}
-				name2={player2.name}
-				colour1={colour1}
-				colour2={colour2}
-				analysis1={analysis1}
-				analysis2={analysis2}
-			/>
-		</CeefaxBlock>
-	</div>
-	<MonsNav current={String(matchup.number)} />
+  <CeefaxHeading text={title} color="cyan" />
+  <div class="matchup-wrap">
+    <CeefaxBlock title={title} number={matchup.number} color="cyan">
+      <div class="matchup-legend">
+        <span class="matchup-legend-item" data-colour={colour1}
+          >{player1.name}</span
+        >
+        <span class="matchup-legend-item" data-colour={colour2}
+          >{player2.name}</span
+        >
+      </div>
+      <div class="matchup-table">
+        <table data-mons-sortable>
+          <thead>
+            <tr>
+              <th scope="col" class="mons-sortable" data-sort-key="name"
+                >MONS</th
+              >
+              {
+                STAT_COLUMNS.map((col) => (
+                  <th scope="col" class="mons-sortable" data-sort-key={col.key}>
+                    {col.label}
+                  </th>
+                ))
+              }
+            </tr>
+          </thead>
+          <tbody>
+            {
+              rows.map((row) => {
+                const sprite = spriteFor(row.pokemon);
+                return (
+                  <tr data-colour={row.colour}>
+                    <td class="matchup-name">
+                      {sprite && (
+                        <img
+                          class="table-sprite"
+                          src={sprite}
+                          alt={row.pokemon}
+                          width="40"
+                          height="40"
+                          loading="lazy"
+                        />
+                      )}
+                      <a
+                        class="matchup-link"
+                        href={`${base}trainers/${row.trainerNumber}#${pokemonAnchor(row.pokemon)}`}
+                      >
+                        {row.pokemon}
+                      </a>
+                    </td>
+                    {STAT_COLUMNS.map((col) => (
+                      <td data-value={row.stats[col.key].max}>
+                        {row.stats[col.key].max}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            }
+          </tbody>
+        </table>
+      </div>
+    </CeefaxBlock>
+  </div>
+  <div class="matchup-wrap">
+    <CeefaxBlock
+      title="STATS COMPARISON — SPLIT VIOLINS (MAX, LEVEL 100)"
+      number={matchup.number}
+      color="yellow"
+    >
+      <SplitViolinChart
+        team1={team1Stats}
+        team2={team2Stats}
+        colour1={colour1}
+        colour2={colour2}
+        name1={player1.name}
+        name2={player2.name}
+      />
+    </CeefaxBlock>
+  </div>
+  <div class="tera-wrap">
+    <CeefaxBlock title="TERA ANALYSIS" number={matchup.number} color="magenta">
+      <TeraAnalysisBlock
+        name1={player1.name}
+        name2={player2.name}
+        colour1={colour1}
+        colour2={colour2}
+        analysis1={analysis1}
+        analysis2={analysis2}
+      />
+    </CeefaxBlock>
+  </div>
+  <MonsNav current={String(matchup.number)} />
 </CeefaxLayout>
 
 <script>
-	import { initMonsSort } from '../../scripts/mons-sort';
-	initMonsSort();
+  import { initMonsSort } from "../../scripts/mons-sort";
+  initMonsSort();
 </script>
 
 <style>
-	.matchup-wrap {
-		grid-column: 1 / -1;
-	}
+  .matchup-wrap {
+    grid-column: 1 / -1;
+  }
 
-	.tera-wrap {
-		grid-column: 1 / -1;
-	}
+  .tera-wrap {
+    grid-column: 1 / -1;
+  }
 
-	.matchup-wrap :global(.ceefax-block-body) {
-		padding: 0;
-	}
+  .matchup-wrap :global(.ceefax-block-body) {
+    padding: 0;
+  }
 
-	.matchup-legend {
-		display: flex;
-		gap: 0.75rem;
-		padding: 0.4rem 0.6rem;
-		background: var(--ceefax-black);
-		border-bottom: 2px solid var(--ceefax-cyan);
-	}
+  .matchup-legend {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--ceefax-black);
+    border-bottom: 2px solid var(--ceefax-cyan);
+  }
 
-	.matchup-legend-item {
-		font-weight: 700;
-		letter-spacing: 0.06em;
-		color: var(--ceefax-black);
-		padding: 0.1rem 0.6rem;
-	}
+  .matchup-legend-item {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--ceefax-black);
+    padding: 0.1rem 0.6rem;
+  }
 
-	.matchup-legend-item[data-colour='cyan'] {
-		background: var(--ceefax-cyan);
-	}
+  .matchup-legend-item[data-colour="cyan"] {
+    background: var(--ceefax-cyan);
+  }
 
-	.matchup-legend-item[data-colour='yellow'] {
-		background: var(--ceefax-yellow);
-	}
+  .matchup-legend-item[data-colour="yellow"] {
+    background: var(--ceefax-yellow);
+  }
 
-	.matchup-legend-item[data-colour='magenta'] {
-		background: var(--ceefax-magenta);
-	}
+  .matchup-legend-item[data-colour="magenta"] {
+    background: var(--ceefax-magenta);
+  }
 
-	.matchup-legend-item[data-colour='red'] {
-		background: var(--ceefax-red);
-	}
+  .matchup-legend-item[data-colour="red"] {
+    background: var(--ceefax-red);
+  }
 
-	.matchup-legend-item[data-colour='green'] {
-		background: var(--ceefax-green);
-	}
+  .matchup-legend-item[data-colour="green"] {
+    background: var(--ceefax-green);
+  }
 
-	.matchup-legend-item[data-colour='blue'] {
-		background: var(--ceefax-blue);
-	}
+  .matchup-legend-item[data-colour="blue"] {
+    background: var(--ceefax-blue);
+  }
 
-	.matchup-legend-item[data-colour='white'] {
-		background: var(--ceefax-white);
-	}
+  .matchup-legend-item[data-colour="white"] {
+    background: var(--ceefax-white);
+  }
 
-	.matchup-table {
-		overflow-x: auto;
-	}
+  .matchup-table {
+    overflow-x: auto;
+  }
 
-	.matchup-table table {
-		width: 100%;
-		min-width: 42rem;
-		border-collapse: collapse;
-	}
+  .matchup-table table {
+    width: 100%;
+    min-width: 42rem;
+    border-collapse: collapse;
+  }
 
-	.matchup-table th,
-	.matchup-table td {
-		border: 1px solid var(--ceefax-black);
-		padding: 0.2rem 0.5rem;
-		text-align: right;
-	}
+  .matchup-table th,
+  .matchup-table td {
+    border: 1px solid var(--ceefax-black);
+    padding: 0.2rem 0.5rem;
+    text-align: right;
+  }
 
-	.matchup-table th {
-		background: var(--ceefax-black);
-		color: var(--ceefax-white);
-		font-weight: 700;
-	}
+  .matchup-table th {
+    background: var(--ceefax-black);
+    color: var(--ceefax-white);
+    font-weight: 700;
+  }
 
-	.matchup-table th.mons-sortable {
-		cursor: pointer;
-		user-select: none;
-	}
+  .matchup-table th.mons-sortable {
+    cursor: pointer;
+    user-select: none;
+  }
 
-	.matchup-table th.mons-sortable:hover {
-		background: var(--ceefax-white);
-		color: var(--ceefax-black);
-	}
+  .matchup-table th.mons-sortable:hover {
+    background: var(--ceefax-white);
+    color: var(--ceefax-black);
+  }
 
-	.matchup-table th.mons-sortable[data-direction='asc']::after {
-		content: ' \25B2';
-	}
+  .matchup-table th.mons-sortable[data-direction="asc"]::after {
+    content: " \25B2";
+  }
 
-	.matchup-table th.mons-sortable[data-direction='desc']::after {
-		content: ' \25BC';
-	}
+  .matchup-table th.mons-sortable[data-direction="desc"]::after {
+    content: " \25BC";
+  }
 
-	.matchup-table .matchup-name,
-	.matchup-table th:first-child {
-		text-align: left;
-	}
+  .matchup-table .matchup-name,
+  .matchup-table th:first-child {
+    text-align: left;
+  }
 
-	.matchup-table td {
-		color: var(--ceefax-black);
-	}
+  .matchup-table td {
+    color: var(--ceefax-black);
+  }
 
-	.matchup-table .matchup-name {
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		font-weight: 700;
-		white-space: nowrap;
-	}
+  .matchup-table .matchup-name {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
 
-	.matchup-table .table-sprite {
-		width: 40px;
-		height: 40px;
-		object-fit: contain;
-		background: var(--ceefax-black);
-		border: 1px solid var(--ceefax-black);
-		image-rendering: pixelated;
-		flex-shrink: 0;
-	}
+  .matchup-table .table-sprite {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    background: var(--ceefax-black);
+    border: 1px solid var(--ceefax-black);
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
 
-	.matchup-table .matchup-link {
-		color: inherit;
-		text-decoration: none;
-	}
+  .matchup-table .matchup-link {
+    color: inherit;
+    text-decoration: none;
+  }
 
-	.matchup-table .matchup-link:hover {
-		text-decoration: underline;
-	}
+  .matchup-table .matchup-link:hover {
+    text-decoration: underline;
+  }
 
-	.matchup-table tr[data-colour='cyan'] {
-		background: var(--ceefax-cyan);
-	}
+  .matchup-table tr[data-colour="cyan"] {
+    background: var(--ceefax-cyan);
+  }
 
-	.matchup-table tr[data-colour='yellow'] {
-		background: var(--ceefax-yellow);
-	}
+  .matchup-table tr[data-colour="yellow"] {
+    background: var(--ceefax-yellow);
+  }
 
-	.matchup-table tr[data-colour='magenta'] {
-		background: var(--ceefax-magenta);
-	}
+  .matchup-table tr[data-colour="magenta"] {
+    background: var(--ceefax-magenta);
+  }
 
-	.matchup-table tr[data-colour='red'] {
-		background: var(--ceefax-red);
-	}
+  .matchup-table tr[data-colour="red"] {
+    background: var(--ceefax-red);
+  }
 
-	.matchup-table tr[data-colour='green'] {
-		background: var(--ceefax-green);
-	}
+  .matchup-table tr[data-colour="green"] {
+    background: var(--ceefax-green);
+  }
 
-	.matchup-table tr[data-colour='blue'] {
-		background: var(--ceefax-blue);
-	}
+  .matchup-table tr[data-colour="blue"] {
+    background: var(--ceefax-blue);
+  }
 
-	.matchup-table tr[data-colour='blue'] td {
-		color: var(--ceefax-white);
-	}
+  .matchup-table tr[data-colour="blue"] td {
+    color: var(--ceefax-white);
+  }
 
-	.matchup-table tr[data-colour='white'] {
-		background: var(--ceefax-white);
-	}
+  .matchup-table tr[data-colour="white"] {
+    background: var(--ceefax-white);
+  }
 </style>

@@ -1,30 +1,34 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import DraftTable from '../../components/ceefax/DraftTable.astro';
-import SectionNav from '../../components/ceefax/SectionNav.astro';
-import { PLAYERS } from '../../data/players';
-import { MIDSEASON_SWAPS } from '../../data/midseason';
-import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from '../../data/navigation';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import DraftTable from "../../components/ceefax/DraftTable.astro";
+import SectionNav from "../../components/ceefax/SectionNav.astro";
+import { PLAYERS } from "../../data/players";
+import { MIDSEASON_SWAPS } from "../../data/midseason";
+import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from "../../data/navigation";
 ---
 
 <CeefaxLayout title="MID-SEASON DRAFT" pageNumber="311">
-	<CeefaxHeading text="MID-SEASON DRAFT" color="magenta" />
-	<div class="draft-section">
-		<CeefaxBlock title="MID-SEASON DRAFT RESULTS" number="311" color="magenta">
-			<DraftTable players={PLAYERS} swaps={MIDSEASON_SWAPS} />
-		</CeefaxBlock>
-	</div>
-	<SectionNav children={STANDINGS_CHILD_PAGES} current="311" main={STANDINGS_PAGE} />
+  <CeefaxHeading text="MID-SEASON DRAFT" color="magenta" />
+  <div class="draft-section">
+    <CeefaxBlock title="MID-SEASON DRAFT RESULTS" number="311" color="magenta">
+      <DraftTable players={PLAYERS} swaps={MIDSEASON_SWAPS} />
+    </CeefaxBlock>
+  </div>
+  <SectionNav
+    children={STANDINGS_CHILD_PAGES}
+    current="311"
+    main={STANDINGS_PAGE}
+  />
 </CeefaxLayout>
 
 <style>
-	.draft-section {
-		grid-column: 1 / -1;
-	}
+  .draft-section {
+    grid-column: 1 / -1;
+  }
 
-	.draft-section :global(.ceefax-block-body) {
-		padding: 0;
-	}
+  .draft-section :global(.ceefax-block-body) {
+    padding: 0;
+  }
 </style>

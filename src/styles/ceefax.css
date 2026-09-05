@@ -1,6 +1,6 @@
 :root {
   --ceefax-font:
-    'Courier New', 'Nimbus Mono PS', ui-monospace, 'SFMono-Regular', monospace;
+    "Courier New", "Nimbus Mono PS", ui-monospace, "SFMono-Regular", monospace;
   --ceefax-black: #000000;
   --ceefax-cyan: #00ffff;
   --ceefax-yellow: #ffff00;
@@ -90,7 +90,7 @@ svg {
   box-sizing: content-box;
 }
 
-#ceefax-page-code-input[data-unknown='true'] {
+#ceefax-page-code-input[data-unknown="true"] {
   background: var(--ceefax-red);
   color: var(--ceefax-white);
 }

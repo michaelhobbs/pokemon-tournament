@@ -1,16 +1,21 @@
 ---
-import CeefaxLayout from '../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
-import NavigationHotkeys from '../components/ceefax/NavigationHotkeys.astro';
-import PageDirectory from '../components/ceefax/PageDirectory.astro';
-import { VISIBLE_PAGES } from '../data/navigation';
+import CeefaxLayout from "../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../components/ceefax/CeefaxHeading.astro";
+import NavigationHotkeys from "../components/ceefax/NavigationHotkeys.astro";
+import PageDirectory from "../components/ceefax/PageDirectory.astro";
+import { VISIBLE_PAGES } from "../data/navigation";
 ---
 
 <CeefaxLayout title="HELP" pageNumber="990">
-	<CeefaxHeading text="HELP" color="cyan" />
-	<CeefaxBlock title="NAVIGATION HOTKEYS" number="1" color="yellow">
-		<NavigationHotkeys />
-	</CeefaxBlock>
-	<PageDirectory title="PAGE DIRECTORY" number="2" color="cyan" pages={VISIBLE_PAGES} />
+  <CeefaxHeading text="HELP" color="cyan" />
+  <CeefaxBlock title="NAVIGATION HOTKEYS" number="1" color="yellow">
+    <NavigationHotkeys />
+  </CeefaxBlock>
+  <PageDirectory
+    title="PAGE DIRECTORY"
+    number="2"
+    color="cyan"
+    pages={VISIBLE_PAGES}
+  />
 </CeefaxLayout>

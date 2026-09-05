@@ -1,51 +1,55 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import HeadToHeadTable from '../../components/ceefax/HeadToHeadTable.astro';
-import SectionNav from '../../components/ceefax/SectionNav.astro';
-import { PLAYERS } from '../../data/players';
-import { SECOND_HALF_WEEKS } from '../../data/matches';
-import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from '../../data/navigation';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import HeadToHeadTable from "../../components/ceefax/HeadToHeadTable.astro";
+import SectionNav from "../../components/ceefax/SectionNav.astro";
+import { PLAYERS } from "../../data/players";
+import { SECOND_HALF_WEEKS } from "../../data/matches";
+import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from "../../data/navigation";
 
-const headToHead = new Map<string, 'W' | 'L'>();
+const headToHead = new Map<string, "W" | "L">();
 for (const week of SECOND_HALF_WEEKS) {
-	for (const match of week.matches) {
-		if (match.wins1 === undefined || match.wins2 === undefined) continue;
-		headToHead.set(
-			`${match.p1}:${match.p2}`,
-			match.wins1 > match.wins2 ? 'W' : 'L',
-		);
-	}
+  for (const match of week.matches) {
+    if (match.wins1 === undefined || match.wins2 === undefined) continue;
+    headToHead.set(
+      `${match.p1}:${match.p2}`,
+      match.wins1 > match.wins2 ? "W" : "L",
+    );
+  }
 }
 
 const players = [...PLAYERS].sort((a, b) => a.number - b.number);
 ---
 
 <CeefaxLayout title="HEAD TO HEAD - 2ND HALF" pageNumber="302">
-	<CeefaxHeading text="HEAD TO HEAD - 2ND HALF" color="magenta" />
-	<div class="h2h-wrap">
-		<CeefaxBlock title="HEAD TO HEAD - 2ND HALF" number="302" color="magenta">
-			<HeadToHeadTable players={players} headToHead={headToHead} />
-		</CeefaxBlock>
-	</div>
-	<SectionNav children={STANDINGS_CHILD_PAGES} current="302" main={STANDINGS_PAGE} />
+  <CeefaxHeading text="HEAD TO HEAD - 2ND HALF" color="magenta" />
+  <div class="h2h-wrap">
+    <CeefaxBlock title="HEAD TO HEAD - 2ND HALF" number="302" color="magenta">
+      <HeadToHeadTable players={players} headToHead={headToHead} />
+    </CeefaxBlock>
+  </div>
+  <SectionNav
+    children={STANDINGS_CHILD_PAGES}
+    current="302"
+    main={STANDINGS_PAGE}
+  />
 </CeefaxLayout>
 
 <style>
-	.h2h-wrap {
-		grid-column: 1 / -1;
-		justify-self: center;
-		width: fit-content;
-		max-width: 100%;
-	}
+  .h2h-wrap {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: fit-content;
+    max-width: 100%;
+  }
 
-	.h2h-wrap :global(.ceefax-block) {
-		width: fit-content;
-		max-width: 100%;
-	}
+  .h2h-wrap :global(.ceefax-block) {
+    width: fit-content;
+    max-width: 100%;
+  }
 
-	.h2h-wrap :global(.ceefax-block-body) {
-		overflow-x: auto;
-	}
+  .h2h-wrap :global(.ceefax-block-body) {
+    overflow-x: auto;
+  }
 </style>

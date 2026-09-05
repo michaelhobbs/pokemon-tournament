@@ -1,13 +1,13 @@
 ---
-import type { Player } from '../../data/players';
-import type { MidseasonSwap } from '../../data/midseason';
-import { applySwaps } from '../../data/midseason';
-import { pokemonAnchor } from '../../data/pokemon';
+import type { Player } from "../../data/players";
+import type { MidseasonSwap } from "../../data/midseason";
+import { applySwaps } from "../../data/midseason";
+import { pokemonAnchor } from "../../data/pokemon";
 
 interface Props {
-	players: Player[];
-	placeholder?: boolean;
-	swaps?: Record<number, MidseasonSwap[]>;
+  players: Player[];
+  placeholder?: boolean;
+  swaps?: Record<number, MidseasonSwap[]>;
 }
 
 const { players, placeholder = false, swaps } = Astro.props;
@@ -15,134 +15,144 @@ const base = import.meta.env.BASE_URL;
 const PICK_COUNT = 6;
 
 const pokemonLink = (playerNumber: number, name: string): string =>
-	`${base}trainers/${playerNumber}#${pokemonAnchor(name)}`;
+  `${base}trainers/${playerNumber}#${pokemonAnchor(name)}`;
 ---
 
 <div class="draft-table">
-	<table>
-		<thead>
-			<tr>
-				<th scope="col">TRAINER</th>
-				{Array.from({ length: PICK_COUNT }, (_, i) => (
-					<th scope="col">PICK {i + 1}</th>
-				))}
-			</tr>
-		</thead>
-		<tbody>
-			{players.map((player) => {
-				const playerSwaps = swaps?.[player.number] ?? [];
-				const dossier = new Set(applySwaps(player.team, playerSwaps));
-				const link = (name: string) =>
-					dossier.has(name) ? (
-						<a class="draft-link" href={pokemonLink(player.number, name)}>{name}</a>
-					) : (
-						name
-					);
-				return (
-					<>
-						<tr>
-							<td class="draft-trainer" rowspan={swaps ? 2 : undefined}>
-								<a href={`${base}trainers/${player.number}`}>{player.name}</a>
-							</td>
-							{placeholder
-								? Array.from({ length: PICK_COUNT }, () => (
-										<td class="draft-tbd">TBD</td>
-									))
-								: player.team.map((pokemon) => {
-									const swap = playerSwaps.find((s) => s.removed === pokemon);
-									return swap ? (
-										<td class="draft-removed">{link(pokemon)}</td>
-									) : (
-										<td rowspan={swaps ? 2 : undefined}>{link(pokemon)}</td>
-									);
-								})}
-						</tr>
-						{swaps && (
-							<tr>
-								{player.team.map((pokemon) => {
-									const swap = playerSwaps.find((s) => s.removed === pokemon);
-									return swap ? (
-										<td class="draft-replacement">{link(swap.replacement)}</td>
-									) : null;
-								})}
-							</tr>
-						)}
-					</>
-				);
-			})}
-		</tbody>
-	</table>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">TRAINER</th>
+        {
+          Array.from({ length: PICK_COUNT }, (_, i) => (
+            <th scope="col">PICK {i + 1}</th>
+          ))
+        }
+      </tr>
+    </thead>
+    <tbody>
+      {
+        players.map((player) => {
+          const playerSwaps = swaps?.[player.number] ?? [];
+          const dossier = new Set(applySwaps(player.team, playerSwaps));
+          const link = (name: string) =>
+            dossier.has(name) ? (
+              <a class="draft-link" href={pokemonLink(player.number, name)}>
+                {name}
+              </a>
+            ) : (
+              name
+            );
+          return (
+            <>
+              <tr>
+                <td class="draft-trainer" rowspan={swaps ? 2 : undefined}>
+                  <a href={`${base}trainers/${player.number}`}>{player.name}</a>
+                </td>
+                {placeholder
+                  ? Array.from({ length: PICK_COUNT }, () => (
+                      <td class="draft-tbd">TBD</td>
+                    ))
+                  : player.team.map((pokemon) => {
+                      const swap = playerSwaps.find(
+                        (s) => s.removed === pokemon,
+                      );
+                      return swap ? (
+                        <td class="draft-removed">{link(pokemon)}</td>
+                      ) : (
+                        <td rowspan={swaps ? 2 : undefined}>{link(pokemon)}</td>
+                      );
+                    })}
+              </tr>
+              {swaps && (
+                <tr>
+                  {player.team.map((pokemon) => {
+                    const swap = playerSwaps.find((s) => s.removed === pokemon);
+                    return swap ? (
+                      <td class="draft-replacement">
+                        {link(swap.replacement)}
+                      </td>
+                    ) : null;
+                  })}
+                </tr>
+              )}
+            </>
+          );
+        })
+      }
+    </tbody>
+  </table>
 </div>
 
 <style>
-	.draft-table {
-		overflow-x: auto;
-	}
+  .draft-table {
+    overflow-x: auto;
+  }
 
-	.draft-table table {
-		width: 100%;
-		min-width: 0;
-		border-collapse: collapse;
-	}
+  .draft-table table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+  }
 
-	.draft-table th,
-	.draft-table td {
-		border: 1px solid var(--ceefax-cyan);
-		padding: 0.2rem 0.35rem;
-		text-align: left;
-	}
+  .draft-table th,
+  .draft-table td {
+    border: 1px solid var(--ceefax-cyan);
+    padding: 0.2rem 0.35rem;
+    text-align: left;
+  }
 
-	.draft-table th {
-		background: var(--ceefax-cyan);
-		color: var(--ceefax-black);
-		font-weight: 700;
-	}
+  .draft-table th {
+    background: var(--ceefax-cyan);
+    color: var(--ceefax-black);
+    font-weight: 700;
+  }
 
-	.draft-table td {
-		color: var(--ceefax-white);
-	}
+  .draft-table td {
+    color: var(--ceefax-white);
+  }
 
-	.draft-table td:first-child {
-		color: var(--ceefax-yellow);
-	}
+  .draft-table td:first-child {
+    color: var(--ceefax-yellow);
+  }
 
-	.draft-table td:first-child a {
-		color: var(--ceefax-cyan);
-	}
+  .draft-table td:first-child a {
+    color: var(--ceefax-cyan);
+  }
 
-	.draft-table .draft-link {
-		color: var(--ceefax-white);
-		text-decoration: none;
-	}
+  .draft-table .draft-link {
+    color: var(--ceefax-white);
+    text-decoration: none;
+  }
 
-	.draft-table .draft-link:hover {
-		color: var(--ceefax-cyan);
-		text-decoration: underline;
-	}
+  .draft-table .draft-link:hover {
+    color: var(--ceefax-cyan);
+    text-decoration: underline;
+  }
 
-	.draft-table .draft-tbd {
-		color: var(--ceefax-magenta);
-		font-weight: 700;
-	}
+  .draft-table .draft-tbd {
+    color: var(--ceefax-magenta);
+    font-weight: 700;
+  }
 
-	.draft-table td.draft-removed {
-		background: var(--ceefax-red);
-		color: var(--ceefax-black);
-		font-weight: 700;
-	}
+  .draft-table td.draft-removed {
+    background: var(--ceefax-red);
+    color: var(--ceefax-black);
+    font-weight: 700;
+  }
 
-	.draft-table td.draft-replacement {
-		background: var(--ceefax-green);
-		color: var(--ceefax-black);
-		font-weight: 700;
-	}
+  .draft-table td.draft-replacement {
+    background: var(--ceefax-green);
+    color: var(--ceefax-black);
+    font-weight: 700;
+  }
 
-	.draft-table td.draft-replacement a {
-		color: var(--ceefax-black);
-		text-decoration: underline;
-	}
+  .draft-table td.draft-replacement a {
+    color: var(--ceefax-black);
+    text-decoration: underline;
+  }
 
-	.draft-table td.draft-replacement a:hover {
-		color: var(--ceefax-magenta);
-	}
+  .draft-table td.draft-replacement a:hover {
+    color: var(--ceefax-magenta);
+  }
 </style>

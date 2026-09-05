@@ -1,24 +1,28 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import TrainerSprite from '../../components/ceefax/TrainerSprite.astro';
-import TeamList from '../../components/ceefax/TeamList.astro';
-import TeamAnalysisBlock from '../../components/ceefax/TeamAnalysisBlock.astro';
-import ResultsTable from '../../components/ceefax/ResultsTable.astro';
-import GroupedBarChart from '../../components/ceefax/GroupedBarChart.astro';
-import PokemonDossier from '../../components/ceefax/PokemonDossier.astro';
-import { colourFor } from '../../data/matchups';
-import { PLAYERS, findPlayer } from '../../data/players';
-import { FIRST_HALF_WEEKS, SECOND_HALF_WEEKS, type Week } from '../../data/matches';
-import { analyzeTeam } from '../../data/pokemon';
-import { spriteFor } from '../../data/pokemon-sprites';
-import { swapsFor, applySwaps } from '../../data/midseason';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import TrainerSprite from "../../components/ceefax/TrainerSprite.astro";
+import TeamList from "../../components/ceefax/TeamList.astro";
+import TeamAnalysisBlock from "../../components/ceefax/TeamAnalysisBlock.astro";
+import ResultsTable from "../../components/ceefax/ResultsTable.astro";
+import GroupedBarChart from "../../components/ceefax/GroupedBarChart.astro";
+import PokemonDossier from "../../components/ceefax/PokemonDossier.astro";
+import { colourFor } from "../../data/matchups";
+import { PLAYERS, findPlayer } from "../../data/players";
+import {
+  FIRST_HALF_WEEKS,
+  SECOND_HALF_WEEKS,
+  type Week,
+} from "../../data/matches";
+import { analyzeTeam } from "../../data/pokemon";
+import { spriteFor } from "../../data/pokemon-sprites";
+import { swapsFor, applySwaps } from "../../data/midseason";
 
 export function getStaticPaths() {
-	return PLAYERS.map((player) => ({
-		params: { number: String(player.number) },
-	}));
+  return PLAYERS.map((player) => ({
+    params: { number: String(player.number) },
+  }));
 }
 
 const { number } = Astro.params;
@@ -26,26 +30,28 @@ const player = findPlayer(Number(number));
 if (!player) throw new Error(`Unknown player: ${number}`);
 
 const buildResults = (weeks: Week[]) =>
-	weeks.flatMap((week) =>
-		week.matches
-			.filter((match) => match.p1 === player.number || match.p2 === player.number)
-			.map((match) => {
-				const isHome = match.p1 === player.number;
-				const opponent = findPlayer(isHome ? match.p2 : match.p1);
-				if (!opponent) throw new Error(`Unknown player in week ${week.number}`);
-				const mine = isHome ? match.wins1 : match.wins2;
-				const theirs = isHome ? match.wins2 : match.wins1;
-				const played = mine !== undefined && theirs !== undefined;
-				return {
-					week: week.number,
-					opponent,
-					mine: mine ?? 0,
-					theirs: theirs ?? 0,
-					played,
-					won: played ? mine! > theirs! : false,
-				};
-			}),
-	);
+  weeks.flatMap((week) =>
+    week.matches
+      .filter(
+        (match) => match.p1 === player.number || match.p2 === player.number,
+      )
+      .map((match) => {
+        const isHome = match.p1 === player.number;
+        const opponent = findPlayer(isHome ? match.p2 : match.p1);
+        if (!opponent) throw new Error(`Unknown player in week ${week.number}`);
+        const mine = isHome ? match.wins1 : match.wins2;
+        const theirs = isHome ? match.wins2 : match.wins1;
+        const played = mine !== undefined && theirs !== undefined;
+        return {
+          week: week.number,
+          opponent,
+          mine: mine ?? 0,
+          theirs: theirs ?? 0,
+          played,
+          won: played ? mine! > theirs! : false,
+        };
+      }),
+  );
 
 const firstHalfResults = buildResults(FIRST_HALF_WEEKS);
 const secondHalfResults = buildResults(SECOND_HALF_WEEKS);
@@ -63,199 +69,232 @@ const next = PLAYERS[playerIndex + 1];
 const base = import.meta.env.BASE_URL;
 ---
 
-<CeefaxLayout title={`${player.name} ${player.epithet}`} pageNumber={pageNumber}>
-	<CeefaxHeading text={`${player.name} ${player.epithet}`} color="cyan" />
-	<TrainerSprite number={player.number} />
-	<CeefaxBlock title="PROFILE" number={player.number} color="cyan">
-		<p>HOMETOWN: {player.hometown}</p>
-		<p>SIGNATURE: {player.signature}</p>
-	</CeefaxBlock>
-	<CeefaxHeading text={hasSwaps ? '1ST HALF' : '1ST & 2ND HALF'} color="cyan" />
-	<CeefaxBlock title="TEAM" number={player.number} color="yellow">
-		<TeamList team={player.team} dossier={secondTeam} />
-	</CeefaxBlock>
-	<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
-		<TeamAnalysisBlock analysis={firstHalfAnalysis} />
-	</CeefaxBlock>
-	<CeefaxBlock title="RESULTS" number={player.number} color="green">
-		<ResultsTable results={firstHalfResults} />
-	</CeefaxBlock>
-	{!hasSwaps && (
-		<CeefaxBlock title="2ND HALF RESULTS" number={player.number} color="green">
-			<ResultsTable results={secondHalfResults} />
-		</CeefaxBlock>
-	)}
-	<CeefaxHeading text="SUBSTITUTES" color="magenta" />
-	<CeefaxBlock title="MID-SEASON DRAFT" number={player.number} color="magenta">
-		{hasSwaps ? (
-			<ul class="swap-list">
-				{swaps.map((swap) => {
-					const removedSprite = spriteFor(swap.removed);
-					const replacementSprite = spriteFor(swap.replacement);
-					return (
-						<li class="swap-row">
-							<div class="swap-poke">
-								{removedSprite && (
-									<img
-										class="swap-sprite"
-										src={removedSprite}
-										alt={swap.removed}
-										width="48"
-										height="48"
-										loading="lazy"
-									/>
-								)}
-								<span class="swap-name">{swap.removed}</span>
-							</div>
-							<span class="swap-arrow" aria-hidden="true">→</span>
-							<div class="swap-poke">
-								{replacementSprite && (
-									<img
-										class="swap-sprite"
-										src={replacementSprite}
-										alt={swap.replacement}
-										width="48"
-										height="48"
-										loading="lazy"
-									/>
-								)}
-								<span class="swap-name">{swap.replacement}</span>
-							</div>
-						</li>
-					);
-				})}
-			</ul>
-		) : (
-			<p class="no-swaps">NO SUBSTITUTES DRAFTED</p>
-		)}
-	</CeefaxBlock>
-	{hasSwaps && (
-		<>
-			<CeefaxHeading text="2ND HALF" color="yellow" />
-			<CeefaxBlock title="TEAM" number={player.number} color="yellow">
-				<TeamList team={secondTeam} dossier={secondTeam} />
-			</CeefaxBlock>
-			<CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
-				<TeamAnalysisBlock analysis={secondHalfAnalysis} />
-			</CeefaxBlock>
-			<CeefaxBlock title="RESULTS" number={player.number} color="green">
-				<ResultsTable results={secondHalfResults} />
-			</CeefaxBlock>
-		</>
-	)}
-	<div class="trainer-chart">
-		<CeefaxBlock title="TEAM STATS (MAX, LEVEL 100)" number={player.number} color="green">
-			<GroupedBarChart team={secondTeam} />
-		</CeefaxBlock>
-	</div>
-	<div class="trainer-dossiers">
-		<CeefaxHeading text="POKEDEX ENTRIES" color="green" />
-		{secondTeam.map((pokemon) => (
-			<PokemonDossier name={pokemon} colour={colourFor(player.number)} number={player.number} />
-		))}
-	</div>
-	<nav class="trainer-nav" aria-label="Trainer pages">
-		{prev ? (
-			<a href={`${base}trainers/${prev.number}`}>{prev.name}</a>
-		) : (
-			<span aria-hidden="true"></span>
-		)}
-		<a href={`${base}trainers`}>400 DIRECTORY</a>
-		{next ? (
-			<a href={`${base}trainers/${next.number}`}>{next.name}</a>
-		) : (
-			<span aria-hidden="true"></span>
-		)}
-	</nav>
+<CeefaxLayout
+  title={`${player.name} ${player.epithet}`}
+  pageNumber={pageNumber}
+>
+  <CeefaxHeading text={`${player.name} ${player.epithet}`} color="cyan" />
+  <TrainerSprite number={player.number} />
+  <CeefaxBlock title="PROFILE" number={player.number} color="cyan">
+    <p>HOMETOWN: {player.hometown}</p>
+    <p>SIGNATURE: {player.signature}</p>
+  </CeefaxBlock>
+  <CeefaxHeading text={hasSwaps ? "1ST HALF" : "1ST & 2ND HALF"} color="cyan" />
+  <CeefaxBlock title="TEAM" number={player.number} color="yellow">
+    <TeamList team={player.team} dossier={secondTeam} />
+  </CeefaxBlock>
+  <CeefaxBlock title="TEAM ANALYSIS" number={player.number} color="magenta">
+    <TeamAnalysisBlock analysis={firstHalfAnalysis} />
+  </CeefaxBlock>
+  <CeefaxBlock title="RESULTS" number={player.number} color="green">
+    <ResultsTable results={firstHalfResults} />
+  </CeefaxBlock>
+  {
+    !hasSwaps && (
+      <CeefaxBlock
+        title="2ND HALF RESULTS"
+        number={player.number}
+        color="green"
+      >
+        <ResultsTable results={secondHalfResults} />
+      </CeefaxBlock>
+    )
+  }
+  <CeefaxHeading text="SUBSTITUTES" color="magenta" />
+  <CeefaxBlock title="MID-SEASON DRAFT" number={player.number} color="magenta">
+    {
+      hasSwaps ? (
+        <ul class="swap-list">
+          {swaps.map((swap) => {
+            const removedSprite = spriteFor(swap.removed);
+            const replacementSprite = spriteFor(swap.replacement);
+            return (
+              <li class="swap-row">
+                <div class="swap-poke">
+                  {removedSprite && (
+                    <img
+                      class="swap-sprite"
+                      src={removedSprite}
+                      alt={swap.removed}
+                      width="48"
+                      height="48"
+                      loading="lazy"
+                    />
+                  )}
+                  <span class="swap-name">{swap.removed}</span>
+                </div>
+                <span class="swap-arrow" aria-hidden="true">
+                  →
+                </span>
+                <div class="swap-poke">
+                  {replacementSprite && (
+                    <img
+                      class="swap-sprite"
+                      src={replacementSprite}
+                      alt={swap.replacement}
+                      width="48"
+                      height="48"
+                      loading="lazy"
+                    />
+                  )}
+                  <span class="swap-name">{swap.replacement}</span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p class="no-swaps">NO SUBSTITUTES DRAFTED</p>
+      )
+    }
+  </CeefaxBlock>
+  {
+    hasSwaps && (
+      <>
+        <CeefaxHeading text="2ND HALF" color="yellow" />
+        <CeefaxBlock title="TEAM" number={player.number} color="yellow">
+          <TeamList team={secondTeam} dossier={secondTeam} />
+        </CeefaxBlock>
+        <CeefaxBlock
+          title="TEAM ANALYSIS"
+          number={player.number}
+          color="magenta"
+        >
+          <TeamAnalysisBlock analysis={secondHalfAnalysis} />
+        </CeefaxBlock>
+        <CeefaxBlock title="RESULTS" number={player.number} color="green">
+          <ResultsTable results={secondHalfResults} />
+        </CeefaxBlock>
+      </>
+    )
+  }
+  <div class="trainer-chart">
+    <CeefaxBlock
+      title="TEAM STATS (MAX, LEVEL 100)"
+      number={player.number}
+      color="green"
+    >
+      <GroupedBarChart team={secondTeam} />
+    </CeefaxBlock>
+  </div>
+  <div class="trainer-dossiers">
+    <CeefaxHeading text="POKEDEX ENTRIES" color="green" />
+    {
+      secondTeam.map((pokemon) => (
+        <PokemonDossier
+          name={pokemon}
+          colour={colourFor(player.number)}
+          number={player.number}
+        />
+      ))
+    }
+  </div>
+  <nav class="trainer-nav" aria-label="Trainer pages">
+    {
+      prev ? (
+        <a href={`${base}trainers/${prev.number}`}>{prev.name}</a>
+      ) : (
+        <span aria-hidden="true" />
+      )
+    }
+    <a href={`${base}trainers`}>400 DIRECTORY</a>
+    {
+      next ? (
+        <a href={`${base}trainers/${next.number}`}>{next.name}</a>
+      ) : (
+        <span aria-hidden="true" />
+      )
+    }
+  </nav>
 </CeefaxLayout>
 
 <style>
-	.swap-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 0.75rem;
-	}
+  .swap-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
 
-	.swap-row {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 1.5rem;
-	}
+  .swap-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
 
-	.swap-poke {
-		display: grid;
-		justify-items: center;
-		gap: 0.2rem;
-		min-width: 64px;
-	}
+  .swap-poke {
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    min-width: 64px;
+  }
 
-	.swap-sprite {
-		width: 48px;
-		height: 48px;
-		object-fit: contain;
-		background: var(--ceefax-black);
-		border: 1px solid var(--ceefax-black);
-		image-rendering: pixelated;
-	}
+  .swap-sprite {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background: var(--ceefax-black);
+    border: 1px solid var(--ceefax-black);
+    image-rendering: pixelated;
+  }
 
-	.swap-name {
-		color: var(--ceefax-white);
-		text-align: center;
-	}
+  .swap-name {
+    color: var(--ceefax-white);
+    text-align: center;
+  }
 
-	.swap-arrow {
-		color: var(--ceefax-yellow);
-		font-size: 1.5rem;
-		font-weight: 700;
-	}
+  .swap-arrow {
+    color: var(--ceefax-yellow);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
 
-	.no-swaps {
-		margin: 0;
-		color: var(--ceefax-yellow);
-		font-weight: 700;
-	}
+  .no-swaps {
+    margin: 0;
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+  }
 
-	.trainer-chart {
-		grid-column: 1 / -1;
-	}
+  .trainer-chart {
+    grid-column: 1 / -1;
+  }
 
-	.trainer-dossiers {
-		grid-column: 1 / -1;
-		display: grid;
-		gap: 1rem;
-	}
+  .trainer-dossiers {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1rem;
+  }
 
-	.trainer-nav {
-		grid-column: 1 / -1;
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-		align-items: center;
-		gap: 1rem;
-		padding-top: 0.5rem;
-		border-top: 2px solid var(--ceefax-cyan);
-	}
+  .trainer-nav {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    border-top: 2px solid var(--ceefax-cyan);
+  }
 
-	.trainer-nav > :first-child {
-		justify-self: start;
-	}
+  .trainer-nav > :first-child {
+    justify-self: start;
+  }
 
-	.trainer-nav > :nth-child(2) {
-		justify-self: center;
-	}
+  .trainer-nav > :nth-child(2) {
+    justify-self: center;
+  }
 
-	.trainer-nav > :last-child {
-		justify-self: end;
-	}
+  .trainer-nav > :last-child {
+    justify-self: end;
+  }
 
-	.trainer-nav a {
-		text-decoration: none;
-		color: var(--ceefax-yellow);
-	}
+  .trainer-nav a {
+    text-decoration: none;
+    color: var(--ceefax-yellow);
+  }
 
-	.trainer-nav a:hover {
-		color: var(--ceefax-cyan);
-	}
+  .trainer-nav a:hover {
+    color: var(--ceefax-cyan);
+  }
 </style>

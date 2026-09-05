@@ -1,73 +1,83 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import { FIRST_HALF_WEEKS, SECOND_HALF_WEEKS } from '../../data/matches';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import { FIRST_HALF_WEEKS, SECOND_HALF_WEEKS } from "../../data/matches";
 ---
 
 <CeefaxLayout title="GAMES" pageNumber="500">
-	<CeefaxHeading text="GAMES" color="cyan" />
-	<CeefaxBlock title="FIXTURES - 1ST HALF" number="500" color="yellow">
-		<ul class="week-list">
-			{FIRST_HALF_WEEKS.map((week) => (
-				<li>
-					<a class="week-link" href={`${import.meta.env.BASE_URL}games/${week.number}`}>
-						<span class="week-number">{500 + week.number}</span>
-						<span>WEEK {week.number}</span>
-						<span class="week-date">{week.date}</span>
-					</a>
-				</li>
-			))}
-		</ul>
-	</CeefaxBlock>
-	<CeefaxBlock title="FIXTURES - 2ND HALF" number="500" color="magenta">
-		<ul class="week-list">
-			{SECOND_HALF_WEEKS.map((week) => (
-				<li>
-					<a class="week-link" href={`${import.meta.env.BASE_URL}games/${week.number}`}>
-						<span class="week-number">{500 + week.number}</span>
-						<span>WEEK {week.number}</span>
-						<span class="week-date">{week.date}</span>
-					</a>
-				</li>
-			))}
-		</ul>
-	</CeefaxBlock>
-	<CeefaxBlock title="FORMAT" number="1" color="cyan">
-		<p>EVERY WEEK HAS 5 MATCHES.</p>
-		<p>EACH MATCH IS BEST OF THREE — ALL THREE GAMES PLAYED.</p>
-	</CeefaxBlock>
+  <CeefaxHeading text="GAMES" color="cyan" />
+  <CeefaxBlock title="FIXTURES - 1ST HALF" number="500" color="yellow">
+    <ul class="week-list">
+      {
+        FIRST_HALF_WEEKS.map((week) => (
+          <li>
+            <a
+              class="week-link"
+              href={`${import.meta.env.BASE_URL}games/${week.number}`}
+            >
+              <span class="week-number">{500 + week.number}</span>
+              <span>WEEK {week.number}</span>
+              <span class="week-date">{week.date}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </CeefaxBlock>
+  <CeefaxBlock title="FIXTURES - 2ND HALF" number="500" color="magenta">
+    <ul class="week-list">
+      {
+        SECOND_HALF_WEEKS.map((week) => (
+          <li>
+            <a
+              class="week-link"
+              href={`${import.meta.env.BASE_URL}games/${week.number}`}
+            >
+              <span class="week-number">{500 + week.number}</span>
+              <span>WEEK {week.number}</span>
+              <span class="week-date">{week.date}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </CeefaxBlock>
+  <CeefaxBlock title="FORMAT" number="1" color="cyan">
+    <p>EVERY WEEK HAS 5 MATCHES.</p>
+    <p>EACH MATCH IS BEST OF THREE — ALL THREE GAMES PLAYED.</p>
+  </CeefaxBlock>
 </CeefaxLayout>
 
 <style>
-	.week-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 0.4rem;
-	}
+  .week-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
 
-	.week-link {
-		display: flex;
-		align-items: baseline;
-		gap: 0.6rem;
-		text-decoration: none;
-		color: var(--ceefax-white);
-	}
+  .week-link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--ceefax-white);
+  }
 
-	.week-link:hover {
-		color: var(--ceefax-cyan);
-	}
+  .week-link:hover {
+    color: var(--ceefax-cyan);
+  }
 
-	.week-number {
-		background: var(--ceefax-magenta);
-		color: var(--ceefax-black);
-		font-weight: 700;
-		padding: 0 0.35rem;
-	}
+  .week-number {
+    background: var(--ceefax-magenta);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    padding: 0 0.35rem;
+  }
 
-	.week-date {
-		color: var(--ceefax-cyan);
-	}
+  .week-date {
+    color: var(--ceefax-cyan);
+  }
 </style>

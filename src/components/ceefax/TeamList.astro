@@ -1,90 +1,96 @@
 ---
-import { POKEMON_TYPES, pokemonAnchor } from '../../data/pokemon';
-import { spriteFor } from '../../data/pokemon-sprites';
+import { POKEMON_TYPES, pokemonAnchor } from "../../data/pokemon";
+import { spriteFor } from "../../data/pokemon-sprites";
 
 interface Props {
-	team: string[];
-	/** Pokémon names that have a dossier section on this page; names outside it stay plain. */
-	dossier?: string[];
+  team: string[];
+  /** Pokémon names that have a dossier section on this page; names outside it stay plain. */
+  dossier?: string[];
 }
 
 const { team, dossier } = Astro.props;
 const anchorFor = (name: string) =>
-	dossier === undefined || dossier.includes(name) ? `#${pokemonAnchor(name)}` : undefined;
+  dossier === undefined || dossier.includes(name)
+    ? `#${pokemonAnchor(name)}`
+    : undefined;
 ---
 
 <ol class="trainer-team">
-	{team.map((pokemon) => {
-		const sprite = spriteFor(pokemon);
-		const anchor = anchorFor(pokemon);
-		return (
-			<li>
-				{sprite && (
-					<img
-						class="team-sprite"
-						src={sprite}
-						alt={pokemon}
-						width="40"
-						height="40"
-						loading="lazy"
-					/>
-				)}
-				{anchor ? (
-					<a class="team-link" href={anchor}>{pokemon}</a>
-				) : (
-					<span class="team-name">{pokemon}</span>
-				)}
-				{POKEMON_TYPES[pokemon] && (
-					<span class="type-chip">{POKEMON_TYPES[pokemon].join('/')}</span>
-				)}
-			</li>
-		);
-	})}
+  {
+    team.map((pokemon) => {
+      const sprite = spriteFor(pokemon);
+      const anchor = anchorFor(pokemon);
+      return (
+        <li>
+          {sprite && (
+            <img
+              class="team-sprite"
+              src={sprite}
+              alt={pokemon}
+              width="40"
+              height="40"
+              loading="lazy"
+            />
+          )}
+          {anchor ? (
+            <a class="team-link" href={anchor}>
+              {pokemon}
+            </a>
+          ) : (
+            <span class="team-name">{pokemon}</span>
+          )}
+          {POKEMON_TYPES[pokemon] && (
+            <span class="type-chip">{POKEMON_TYPES[pokemon].join("/")}</span>
+          )}
+        </li>
+      );
+    })
+  }
 </ol>
 
 <style>
-	.trainer-team {
-		margin: 0;
-		display: grid;
-		gap: 0.25rem;
-	}
+  .trainer-team {
+    margin: 0;
+    display: grid;
+    gap: 0.25rem;
+  }
 
-	.trainer-team li {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
+  .trainer-team li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 
-	.team-sprite {
-		width: 40px;
-		height: 40px;
-		object-fit: contain;
-		background: var(--ceefax-black);
-		border: 1px solid var(--ceefax-black);
-		image-rendering: pixelated;
-		flex-shrink: 0;
-	}
+  .team-sprite {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    background: var(--ceefax-black);
+    border: 1px solid var(--ceefax-black);
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
 
-	.team-name {
-		color: var(--ceefax-white);
-	}
+  .team-name {
+    color: var(--ceefax-white);
+  }
 
-	.team-link {
-		color: var(--ceefax-yellow);
-		text-decoration: none;
-	}
+  .team-link {
+    color: var(--ceefax-yellow);
+    text-decoration: none;
+  }
 
-	.team-link:hover {
-		color: var(--ceefax-cyan);
-		text-decoration: underline;
-	}
+  .team-link:hover {
+    color: var(--ceefax-cyan);
+    text-decoration: underline;
+  }
 
-	.type-chip {
-		background: var(--ceefax-black);
-		color: var(--ceefax-white);
-		border: 1px solid var(--ceefax-yellow);
-		padding: 0 0.3rem;
-		font-size: 0.75rem;
-		margin-left: 0.4rem;
-	}
+  .type-chip {
+    background: var(--ceefax-black);
+    color: var(--ceefax-white);
+    border: 1px solid var(--ceefax-yellow);
+    padding: 0 0.3rem;
+    font-size: 0.75rem;
+    margin-left: 0.4rem;
+  }
 </style>

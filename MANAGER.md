@@ -23,14 +23,14 @@ A football-manager style idle game for the Pokémon tournament site. The player 
 
 ## New pages (800s block)
 
-| Page | Content |
-|---|---|
-| **810 MANAGER** hub | currency, all humons + live status/countdowns, active actions, quick links, gate message if no HUMON |
-| **811 ROSTER** | owned/locked humons, levels, XP, caught teams (sprites + types), status |
-| **812 TRAVEL** | pick idle humon + hometown → shows catch pool + seeded chance → start trip (duration from map grid distance) |
-| **813 TRAINING** | pick humon → train (XP/level/currency) |
-| **814 GYMS** | 10 bosses: hometown, badge state, team, recommended level → challenge |
-| **815 UNLOCKS** | hidden-page visit tracker (000/123/404/666/999) + currency shop for Joak/Devil/Cop |
+| Page                | Content                                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **810 MANAGER** hub | currency, all humons + live status/countdowns, active actions, quick links, gate message if no HUMON         |
+| **811 ROSTER**      | owned/locked humons, levels, XP, caught teams (sprites + types), status                                      |
+| **812 TRAVEL**      | pick idle humon + hometown → shows catch pool + seeded chance → start trip (duration from map grid distance) |
+| **813 TRAINING**    | pick humon → train (XP/level/currency)                                                                       |
+| **814 GYMS**        | 10 bosses: hometown, badge state, team, recommended level → challenge                                        |
+| **815 UNLOCKS**     | hidden-page visit tracker (000/123/404/666/999) + currency shop for Joak/Devil/Cop                           |
 
 Plus new hidden pages **`666.astro` (DEVILMON)** and **`999.astro` (COPMON)**, and a purchase widget on **`123.astro`** ("BUY A JOAK BALL — $500").
 

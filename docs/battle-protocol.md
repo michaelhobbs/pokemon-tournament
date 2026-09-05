@@ -3,7 +3,6 @@ Simulator protocol
 
 Pokémon Showdown's simulator protocol is implemented as a newline-and-pipe-delimited text stream. For details on how to read to or write from the text stream, see [sim/SIMULATOR.md](./SIMULATOR.md).
 
-
 Receiving messages
 ------------------
 
@@ -232,7 +231,7 @@ followed by a few messages detailing what happens after the action occurs.
 Battle actions (especially minor actions) often come with tags such as
 `|[from] EFFECT|[of] SOURCE`. `EFFECT` will be an effect (move, ability,
 item, status, etc), and `SOURCE` will be a Pokémon. These can affect the
-message or animation displayed, but do not affect anything else. Other 
+message or animation displayed, but do not affect anything else. Other
 tags include `|[still]` (suppress animation) and `|[silent]` (suppress
 message).
 
@@ -245,7 +244,7 @@ message).
 >
 > If `|[miss]` is present, the move missed.
 >
-> If `|[still]` is present, the move should not animate 
+> If `|[still]` is present, the move should not animate
 >
 > `|[anim] MOVE2` tells the client to use the animation of `MOVE2` instead
 > of `MOVE` when displaying to the client.
@@ -271,12 +270,12 @@ message).
 > `switch` means it was intentional, while `drag` means it was unintentional
 > (forced by Whirlwind, Roar, etc).
 
-`|detailschange|POKEMON|DETAILS|HP STATUS` or 
+`|detailschange|POKEMON|DETAILS|HP STATUS` or
 `|-formechange|POKEMON|SPECIES|HP STATUS`
 
-> The specified Pokémon has changed formes (via Mega Evolution, ability, etc.) 
-> to `SPECIES`. If the forme change is permanent (Mega Evolution or a 
-> Shaymin-Sky that is frozen), then `detailschange` will appear; otherwise, 
+> The specified Pokémon has changed formes (via Mega Evolution, ability, etc.)
+> to `SPECIES`. If the forme change is permanent (Mega Evolution or a
+> Shaymin-Sky that is frozen), then `detailschange` will appear; otherwise,
 > the client will send `-formechange`.
 >
 > Syntax is the same as `|switch|` above.
@@ -364,7 +363,7 @@ stat boosts are minor actions.
 
 `|-cureteam|POKEMON`
 
-> The Pokémon `POKEMON` has used a move that cures its team of status effects, 
+> The Pokémon `POKEMON` has used a move that cures its team of status effects,
 > like Heal Bell.
 
 `|-boost|POKEMON|STAT|AMOUNT`
@@ -380,8 +379,8 @@ stat boosts are minor actions.
 
 `|-setboost|POKEMON|STAT|AMOUNT`
 
-> Same as `-boost` and `-unboost`, but `STAT` is *set* to `AMOUNT` instead of
-> boosted *by* `AMOUNT`. (For example: Anger Point, Belly Drum)
+> Same as `-boost` and `-unboost`, but `STAT` is _set_ to `AMOUNT` instead of
+> boosted _by_ `AMOUNT`. (For example: Anger Point, Belly Drum)
 
 `|-swapboost|SOURCE|TARGET|STATS`
 
@@ -455,7 +454,7 @@ stat boosts are minor actions.
 
 `|-start|POKEMON|EFFECT`
 
-> A [*volatile* status](https://bulbapedia.bulbagarden.net/wiki/Status_condition#Volatile_status)
+> A [_volatile_ status](https://bulbapedia.bulbagarden.net/wiki/Status_condition#Volatile_status)
 > has been inflicted on the `POKEMON` Pokémon by `EFFECT`. (For example:
 > confusion, Taunt, Substitute).
 
@@ -482,7 +481,7 @@ stat boosts are minor actions.
 
 `|-item|POKEMON|ITEM|[from]EFFECT`
 
-> The `ITEM` held by the `POKEMON` has been changed or revealed due to a move or 
+> The `ITEM` held by the `POKEMON` has been changed or revealed due to a move or
 > ability `EFFECT`.
 
 `|-item|POKEMON|ITEM`
@@ -557,8 +556,8 @@ stat boosts are minor actions.
 
 `|-activate|EFFECT`
 
-> A miscellaneous effect has activated. This is triggered whenever an effect could 
-> not be better described by one of the other minor messages: for example, healing 
+> A miscellaneous effect has activated. This is triggered whenever an effect could
+> not be better described by one of the other minor messages: for example, healing
 > abilities like Water Absorb simply use `-heal`.
 >
 > Items usually activate with `-end`, although items with two messages, like Berries
@@ -567,9 +566,9 @@ stat boosts are minor actions.
 
 `|-hint|MESSAGE`
 
-> Displays a message in parentheses to the client. Hint messages appear to explain and 
+> Displays a message in parentheses to the client. Hint messages appear to explain and
 > clarify why certain actions, such as Fake Out and Mat Block failing, have occurred,  
-> when there would normally be no in-game messages. 
+> when there would normally be no in-game messages.
 
 `|-center`
 
@@ -578,9 +577,9 @@ stat boosts are minor actions.
 
 `|-message|MESSAGE`
 
-> Displays a miscellaneous message to the client. These messages are primarily used 
-> for messages from game mods that aren't supported by the client, like rule clauses 
-> such as Sleep Clause, or other metagames with custom messages for specific scenarios. 
+> Displays a miscellaneous message to the client. These messages are primarily used
+> for messages from game mods that aren't supported by the client, like rule clauses
+> such as Sleep Clause, or other metagames with custom messages for specific scenarios.
 
 `|-combine`
 
@@ -592,6 +591,7 @@ stat boosts are minor actions.
 > (For example: Fire Pledge).
 
 `|-prepare|ATTACKER|MOVE`
+
 > The `ATTACKER` Pokémon is preparing to use a charge `MOVE` on an unknown target.
 > (For example: Dig, Fly).
 
@@ -622,7 +622,6 @@ stat boosts are minor actions.
 
 > The Pokémon `POKEMON` used move `MOVE` which causes a temporary effect lasting
 > the duration of the turn. (For example: Protect, Focus Punch, Roost).
-
 
 Sending decisions
 -----------------

@@ -1,42 +1,42 @@
 ---
-import CeefaxLayout from '../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
-import PixelArt from '../components/ceefax/PixelArt.astro';
-import SecretAwardBanner from '../components/ceefax/SecretAwardBanner.astro';
-import SecretQuote from '../components/ceefax/SecretQuote.astro';
-import { DEVIL_SPRITE } from '../data/hidden-humons';
+import CeefaxLayout from "../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../components/ceefax/CeefaxHeading.astro";
+import PixelArt from "../components/ceefax/PixelArt.astro";
+import SecretAwardBanner from "../components/ceefax/SecretAwardBanner.astro";
+import SecretQuote from "../components/ceefax/SecretQuote.astro";
+import { DEVIL_SPRITE } from "../data/hidden-humons";
 ---
 
 <CeefaxLayout title="DEVILMON" pageNumber="666">
-	<SecretQuote />
-	<div class="secret-block">
-		<PixelArt sprite={DEVIL_SPRITE} size="8rem" />
-		<CeefaxHeading text="DEVILMON" color="red" />
-		<CeefaxBlock title="THE GIBBERING HORROR" color="red">
-			<p>IT EMERGED FROM THE VOID BETWEEN PAGES.</p>
-			<p>IT KNOWS EVERY TYPE ADVANTAGE. ALL OF THEM.</p>
-			<p>RECRUIT IT TO YOUR HUMON MANAGER SQUAD FOR CURRENCY.</p>
-		</CeefaxBlock>
-		<div class="mgr-app" data-manager-secret="devil"></div>
-		<SecretAwardBanner />
-	</div>
+  <SecretQuote />
+  <div class="secret-block">
+    <PixelArt sprite={DEVIL_SPRITE} size="8rem" />
+    <CeefaxHeading text="DEVILMON" color="red" />
+    <CeefaxBlock title="THE GIBBERING HORROR" color="red">
+      <p>IT EMERGED FROM THE VOID BETWEEN PAGES.</p>
+      <p>IT KNOWS EVERY TYPE ADVANTAGE. ALL OF THEM.</p>
+      <p>RECRUIT IT TO YOUR HUMON MANAGER SQUAD FOR CURRENCY.</p>
+    </CeefaxBlock>
+    <div class="mgr-app" data-manager-secret="devil"></div>
+    <SecretAwardBanner />
+  </div>
 </CeefaxLayout>
 
 <style>
-	.secret-block {
-		grid-column: 1 / -1;
-		justify-self: center;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
-		width: fit-content;
-		max-width: 100%;
-	}
+  .secret-block {
+    grid-column: 1 / -1;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: fit-content;
+    max-width: 100%;
+  }
 
-	.secret-block :global(.ceefax-block) {
-		width: 100%;
-		max-width: 100%;
-	}
+  .secret-block :global(.ceefax-block) {
+    width: 100%;
+    max-width: 100%;
+  }
 </style>

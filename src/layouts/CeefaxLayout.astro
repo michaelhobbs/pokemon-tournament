@@ -1,222 +1,257 @@
 ---
-import '../styles/ceefax.css';
-import '../styles/manager.css';
-import '../styles/gym.css';
-import { ClientRouter } from 'astro:transitions';
-import CeefaxHeader from '../components/ceefax/CeefaxHeader.astro';
-import CeefaxFooter from '../components/ceefax/CeefaxFooter.astro';
-import { PAGES, ALL_PAGES, HELP_PAGE, type PageLink } from '../data/navigation';
+import "../styles/ceefax.css";
+import "../styles/manager.css";
+import "../styles/gym.css";
+import { ClientRouter } from "astro:transitions";
+import CeefaxHeader from "../components/ceefax/CeefaxHeader.astro";
+import CeefaxFooter from "../components/ceefax/CeefaxFooter.astro";
+import { PAGES, ALL_PAGES, HELP_PAGE, type PageLink } from "../data/navigation";
 
 interface Props {
-	title: string;
-	pageNumber?: string;
-	subtitle?: string;
-	nav?: PageLink[];
+  title: string;
+  pageNumber?: string;
+  subtitle?: string;
+  nav?: PageLink[];
 }
 
-const { title, pageNumber = '001', subtitle = 'POKEMON TOURNAMENT', nav = PAGES } = Astro.props;
+const {
+  title,
+  pageNumber = "001",
+  subtitle = "POKEMON TOURNAMENT",
+  nav = PAGES,
+} = Astro.props;
 const docTitle = `${title} | ${subtitle}`;
 const navData = {
-	pages: ALL_PAGES.map((page) => ({
-		number: page.number,
-		href: page.href,
-		hidden: page.hidden,
-	})),
-	current: pageNumber,
-	help: HELP_PAGE.href,
+  pages: ALL_PAGES.map((page) => ({
+    number: page.number,
+    href: page.href,
+    hidden: page.hidden,
+  })),
+  current: pageNumber,
+  help: HELP_PAGE.href,
 };
 const navJson = JSON.stringify(navData);
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
-		<link rel="icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{docTitle}</title>
-		{import.meta.env.PROD && (
-			<script
-				defer
-				src="https://cloud.umami.is/script.js"
-				data-website-id="b21889bd-d0a3-4047-b9e1-b85540933184"
-			></script>
-		)}
-		<ClientRouter />
-	</head>
-	<body data-ceefax-pages={navJson}>
-		<div class="ceefax">
-			<div class="ceefax-head" transition:animate="none">
-				<CeefaxHeader title={title} pageNumber={pageNumber} subtitle={subtitle} />
-				{
-					nav.length > 0 && (
-						<nav class="ceefax-nav" aria-label="Ceefax index" transition:animate="none">
-							{nav.map((item) => (
-								<a href={item.href}>{item.number} {item.label}</a>
-							))}
-						</nav>
-					)
-				}
-			</div>
-			<main class="ceefax-scroll" transition:animate="none">
-				<div class="ceefax-body">
-					<slot />
-				</div>
-			</main>
-			<CeefaxFooter pageNumber={pageNumber} />
-		</div>
-		<div class="ceefax-nav-buttons">
-			<button id="ceefax-prev" class="ceefax-nav-btn" type="button" aria-label="Previous page">
-				&larr;
-			</button>
-			<button id="ceefax-next" class="ceefax-nav-btn" type="button" aria-label="Next page">
-				&rarr;
-			</button>
-		</div>
-		<div class="ceefax-crt" transition:persist aria-hidden="true"></div>
-		<script>
-			import { initCeefaxNavigation } from '../scripts/ceefax-nav';
-			const navData = JSON.parse(document.body.dataset.ceefaxPages ?? '{}');
-			initCeefaxNavigation({
-				pages: navData.pages ?? [],
-				current: navData.current ?? '',
-				help: navData.help ?? '/help',
-			});
-		</script>
-		<script>
-			import { initManager } from '../scripts/manager';
-			initManager();
-		</script>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href={`${import.meta.env.BASE_URL}favicon.svg`}
+    />
+    <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{docTitle}</title>
+    {
+      import.meta.env.PROD && (
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="b21889bd-d0a3-4047-b9e1-b85540933184"
+        />
+      )
+    }
+    <ClientRouter />
+  </head>
+  <body data-ceefax-pages={navJson}>
+    <div class="ceefax">
+      <div class="ceefax-head" transition:animate="none">
+        <CeefaxHeader
+          title={title}
+          pageNumber={pageNumber}
+          subtitle={subtitle}
+        />
+        {
+          nav.length > 0 && (
+            <nav
+              class="ceefax-nav"
+              aria-label="Ceefax index"
+              transition:animate="none"
+            >
+              {nav.map((item) => (
+                <a href={item.href}>
+                  {item.number} {item.label}
+                </a>
+              ))}
+            </nav>
+          )
+        }
+      </div>
+      <main class="ceefax-scroll" transition:animate="none">
+        <div class="ceefax-body">
+          <slot />
+        </div>
+      </main>
+      <CeefaxFooter pageNumber={pageNumber} />
+    </div>
+    <div class="ceefax-nav-buttons">
+      <button
+        id="ceefax-prev"
+        class="ceefax-nav-btn"
+        type="button"
+        aria-label="Previous page"
+      >
+        &larr;
+      </button>
+      <button
+        id="ceefax-next"
+        class="ceefax-nav-btn"
+        type="button"
+        aria-label="Next page"
+      >
+        &rarr;
+      </button>
+    </div>
+    <div class="ceefax-crt" transition:persist aria-hidden="true"></div>
+    <script>
+      import { initCeefaxNavigation } from "../scripts/ceefax-nav";
+      const navData = JSON.parse(document.body.dataset.ceefaxPages ?? "{}");
+      initCeefaxNavigation({
+        pages: navData.pages ?? [],
+        current: navData.current ?? "",
+        help: navData.help ?? "/help",
+      });
+    </script>
+    <script>
+      import { initManager } from "../scripts/manager";
+      initManager();
+    </script>
+  </body>
 </html>
 
 <style>
-	.ceefax {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-		min-height: 100dvh;
-	}
+  .ceefax {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
 
-	.ceefax-head {
-		position: sticky;
-		top: 0;
-		z-index: 6;
-		flex-shrink: 0;
-		background: var(--ceefax-black);
-	}
+  .ceefax-head {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    flex-shrink: 0;
+    background: var(--ceefax-black);
+  }
 
-	:global(.ceefax-header),
-	:global(.ceefax-nav),
-	:global(.ceefax-footer) {
-		flex-shrink: 0;
-	}
+  :global(.ceefax-header),
+  :global(.ceefax-nav),
+  :global(.ceefax-footer) {
+    flex-shrink: 0;
+  }
 
-	.ceefax-nav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem 1.5rem;
-		padding: 0.4rem 0.75rem;
-		border-bottom: 2px solid var(--ceefax-cyan);
-	}
+  .ceefax-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 2px solid var(--ceefax-cyan);
+  }
 
-	.ceefax-nav a {
-		text-decoration: none;
-		color: var(--ceefax-white);
-	}
+  .ceefax-nav a {
+    text-decoration: none;
+    color: var(--ceefax-white);
+  }
 
-	.ceefax-nav a:hover {
-		color: var(--ceefax-cyan);
-	}
+  .ceefax-nav a:hover {
+    color: var(--ceefax-cyan);
+  }
 
-	/* Hide the nav row on small screens (mobile portrait: narrow; mobile landscape: short). */
-	@media (max-width: 767px), (max-height: 500px) {
-		.ceefax-nav {
-			display: none;
-		}
-	}
+  /* Hide the nav row on small screens (mobile portrait: narrow; mobile landscape: short). */
+  @media (max-width: 767px), (max-height: 500px) {
+    .ceefax-nav {
+      display: none;
+    }
+  }
 
-	.ceefax-scroll {
-		flex: 1 1 0;
-		width: 100%;
-	}
+  .ceefax-scroll {
+    flex: 1 1 0;
+    width: 100%;
+  }
 
-	:global(.ceefax-footer) {
-		position: sticky;
-		bottom: 0;
-		z-index: 6;
-	}
+  :global(.ceefax-footer) {
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+  }
 
-	.ceefax-body {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-		gap: 1.5rem;
-		align-content: start;
-		width: 100%;
-		max-width: 1100px;
-		margin: 0 auto;
-		padding: 1.5rem;
-	}
+  .ceefax-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    align-content: start;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
 
-	.ceefax-nav-buttons {
-		position: fixed;
-		left: 0;
-		right: 0;
-		bottom: 4rem;
-		z-index: 5;
-		display: flex;
-		justify-content: space-between;
-		padding: 0 1rem;
-		pointer-events: none;
-	}
+  .ceefax-nav-buttons {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 4rem;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    pointer-events: none;
+  }
 
-	.ceefax-nav-btn {
-		pointer-events: auto;
-		display: grid;
-		place-items: center;
-		width: 3.25rem;
-		height: 3.25rem;
-		border-radius: 50%;
-		border: 2px solid var(--ceefax-black);
-		background: var(--ceefax-cyan);
-		color: var(--ceefax-black);
-		font-size: 1.5rem;
-		font-weight: 700;
-		cursor: pointer;
-		opacity: 0.92;
-		-webkit-tap-highlight-color: transparent;
-	}
+  .ceefax-nav-btn {
+    pointer-events: auto;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    border: 2px solid var(--ceefax-black);
+    background: var(--ceefax-cyan);
+    color: var(--ceefax-black);
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    opacity: 0.92;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-	.ceefax-nav-btn:focus-visible {
-		outline: 2px solid var(--ceefax-white);
-		outline-offset: 3px;
-	}
+  .ceefax-nav-btn:focus-visible {
+    outline: 2px solid var(--ceefax-white);
+    outline-offset: 3px;
+  }
 
-	.ceefax-nav-btn:active {
-		opacity: 0.7;
-	}
+  .ceefax-nav-btn:active {
+    opacity: 0.7;
+  }
 
-	@media (min-width: 768px) {
-		.ceefax-nav-buttons {
-			display: none;
-		}
-	}
+  @media (min-width: 768px) {
+    .ceefax-nav-buttons {
+      display: none;
+    }
+  }
 
-	.ceefax-crt {
-		position: fixed;
-		inset: 0;
-		z-index: 10;
-		pointer-events: none;
-		background:
-			radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.35) 100%),
-			repeating-linear-gradient(
-				to bottom,
-				rgba(0, 0, 0, 0.15) 0,
-				rgba(0, 0, 0, 0.15) 1px,
-				transparent 1px,
-				transparent 3px
-			);
-	}
+  .ceefax-crt {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        ellipse at center,
+        transparent 60%,
+        rgba(0, 0, 0, 0.35) 100%
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.15) 0,
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+  }
 </style>

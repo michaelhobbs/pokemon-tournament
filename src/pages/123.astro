@@ -1,52 +1,50 @@
 ---
-import CeefaxLayout from '../layouts/CeefaxLayout.astro';
-import CeefaxBlock from '../components/ceefax/CeefaxBlock.astro';
-import CeefaxHeading from '../components/ceefax/CeefaxHeading.astro';
-import PixelArt from '../components/ceefax/PixelArt.astro';
-import SecretAwardBanner from '../components/ceefax/SecretAwardBanner.astro';
-import SecretQuote from '../components/ceefax/SecretQuote.astro';
-import { JOAk_SPRITE, JOAk_JOKES } from '../data/professor-joak';
+import CeefaxLayout from "../layouts/CeefaxLayout.astro";
+import CeefaxBlock from "../components/ceefax/CeefaxBlock.astro";
+import CeefaxHeading from "../components/ceefax/CeefaxHeading.astro";
+import PixelArt from "../components/ceefax/PixelArt.astro";
+import SecretAwardBanner from "../components/ceefax/SecretAwardBanner.astro";
+import SecretQuote from "../components/ceefax/SecretQuote.astro";
+import { JOAk_SPRITE, JOAk_JOKES } from "../data/professor-joak";
 ---
 
 <CeefaxLayout title="PROFESSOR JOAK" pageNumber="123">
-	<SecretQuote />
-	<div class="joak-block">
-		<PixelArt sprite={JOAk_SPRITE} size="8rem" label="Professor Joak sprite" />
-		<CeefaxHeading text="PROFESSOR JOAK" color="cyan" />
-		<p class="joak-tagline">POKEMON TRAINER TRAINER</p>
-		<CeefaxBlock title="A FEW JOKES" color="cyan">
-			{JOAk_JOKES.map((joke) => (
-				<p>{joke}</p>
-			))}
-		</CeefaxBlock>
-		<CeefaxBlock title="HUMON MANAGER" color="yellow">
-			<p>JOAK CAN JOIN YOUR HUMON MANAGER SQUAD.</p>
-			<p>BUY A JOAK BALL FOR $500 AND ENLIST THE PROFESSOR.</p>
-		</CeefaxBlock>
-		<div class="mgr-app" data-manager-secret="joak"></div>
-	</div>
-	<SecretAwardBanner />
+  <SecretQuote />
+  <div class="joak-block">
+    <PixelArt sprite={JOAk_SPRITE} size="8rem" label="Professor Joak sprite" />
+    <CeefaxHeading text="PROFESSOR JOAK" color="cyan" />
+    <p class="joak-tagline">POKEMON TRAINER TRAINER</p>
+    <CeefaxBlock title="A FEW JOKES" color="cyan">
+      {JOAk_JOKES.map((joke) => <p>{joke}</p>)}
+    </CeefaxBlock>
+    <CeefaxBlock title="HUMON MANAGER" color="yellow">
+      <p>JOAK CAN JOIN YOUR HUMON MANAGER SQUAD.</p>
+      <p>BUY A JOAK BALL FOR $500 AND ENLIST THE PROFESSOR.</p>
+    </CeefaxBlock>
+    <div class="mgr-app" data-manager-secret="joak"></div>
+  </div>
+  <SecretAwardBanner />
 </CeefaxLayout>
 
 <style>
-	.joak-block {
-		grid-column: 1 / -1;
-		justify-self: center;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
-		width: fit-content;
-		max-width: 100%;
-	}
+  .joak-block {
+    grid-column: 1 / -1;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: fit-content;
+    max-width: 100%;
+  }
 
-	.joak-block :global(.ceefax-block) {
-		width: fit-content;
-		max-width: 100%;
-	}
+  .joak-block :global(.ceefax-block) {
+    width: fit-content;
+    max-width: 100%;
+  }
 
-	.joak-tagline {
-		color: var(--ceefax-cyan);
-		letter-spacing: 0.05em;
-	}
+  .joak-tagline {
+    color: var(--ceefax-cyan);
+    letter-spacing: 0.05em;
+  }
 </style>

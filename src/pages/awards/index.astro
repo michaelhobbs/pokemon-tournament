@@ -1,128 +1,130 @@
 ---
-import CeefaxLayout from '../../layouts/CeefaxLayout.astro';
-import CeefaxHeading from '../../components/ceefax/CeefaxHeading.astro';
-import PixelArt from '../../components/ceefax/PixelArt.astro';
+import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
+import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
+import PixelArt from "../../components/ceefax/PixelArt.astro";
 import {
-	AWARDS,
-	awardDisplayName,
-	awardDisplayDescription,
-	awardDisplaySprite,
-} from '../../data/awards';
+  AWARDS,
+  awardDisplayName,
+  awardDisplayDescription,
+  awardDisplaySprite,
+} from "../../data/awards";
 ---
 
 <CeefaxLayout title="AWARDS" pageNumber="700">
-	<CeefaxHeading text="END OF SEASON AWARDS" color="yellow" />
-	<ul class="award-grid">
-		{AWARDS.map((award) => (
-			<li>
-				<a
-					class="award-card"
-					data-hidden={award.hidden}
-					href={`${import.meta.env.BASE_URL}awards/${award.number}`}
-				>
-					<span class="award-sprite">
-						<PixelArt sprite={awardDisplaySprite(award)} size="6rem" />
-					</span>
-					<span class="award-number">{award.number}</span>
-					<span class="award-name">{awardDisplayName(award)}</span>
-					<span class="award-desc">{awardDisplayDescription(award)}</span>
-				</a>
-			</li>
-		))}
-	</ul>
-	<p class="awards-note">WINNERS REVEALED AT THE END OF THE SEASON.</p>
+  <CeefaxHeading text="END OF SEASON AWARDS" color="yellow" />
+  <ul class="award-grid">
+    {
+      AWARDS.map((award) => (
+        <li>
+          <a
+            class="award-card"
+            data-hidden={award.hidden}
+            href={`${import.meta.env.BASE_URL}awards/${award.number}`}
+          >
+            <span class="award-sprite">
+              <PixelArt sprite={awardDisplaySprite(award)} size="6rem" />
+            </span>
+            <span class="award-number">{award.number}</span>
+            <span class="award-name">{awardDisplayName(award)}</span>
+            <span class="award-desc">{awardDisplayDescription(award)}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="awards-note">WINNERS REVEALED AT THE END OF THE SEASON.</p>
 </CeefaxLayout>
 
 <style>
-	.award-grid {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 0.75rem;
-		grid-column: 1 / -1;
-	}
+  .award-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    grid-column: 1 / -1;
+  }
 
-	@media (max-width: 48rem) {
-		.award-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
+  @media (max-width: 48rem) {
+    .award-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
 
-	@media (max-width: 30rem) {
-		.award-grid {
-			grid-template-columns: 1fr;
-		}
-	}
+  @media (max-width: 30rem) {
+    .award-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 
-	.award-card {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.35rem;
-		text-decoration: none;
-		border: 1px solid var(--ceefax-yellow);
-		padding: 0.75rem 0.5rem;
-		text-align: center;
-		height: 100%;
-		box-sizing: border-box;
-	}
+  .award-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    border: 1px solid var(--ceefax-yellow);
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    height: 100%;
+    box-sizing: border-box;
+  }
 
-	.award-card:hover {
-		background: var(--ceefax-yellow);
-	}
+  .award-card:hover {
+    background: var(--ceefax-yellow);
+  }
 
-	.award-card[data-hidden='true'] {
-		border-style: dashed;
-		border-color: var(--ceefax-magenta);
-	}
+  .award-card[data-hidden="true"] {
+    border-style: dashed;
+    border-color: var(--ceefax-magenta);
+  }
 
-	.award-card[data-hidden='true'] .award-number {
-		background: var(--ceefax-magenta);
-	}
+  .award-card[data-hidden="true"] .award-number {
+    background: var(--ceefax-magenta);
+  }
 
-	.award-card[data-hidden='true'] .award-name {
-		color: var(--ceefax-magenta);
-	}
+  .award-card[data-hidden="true"] .award-name {
+    color: var(--ceefax-magenta);
+  }
 
-	.award-card[data-hidden='true']:hover .award-name {
-		color: var(--ceefax-black);
-	}
+  .award-card[data-hidden="true"]:hover .award-name {
+    color: var(--ceefax-black);
+  }
 
-	.award-sprite {
-		display: block;
-	}
+  .award-sprite {
+    display: block;
+  }
 
-	.award-number {
-		background: var(--ceefax-black);
-		color: var(--ceefax-yellow);
-		font-weight: 700;
-		padding: 0 0.4rem;
-	}
+  .award-number {
+    background: var(--ceefax-black);
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+    padding: 0 0.4rem;
+  }
 
-	.award-name {
-		color: var(--ceefax-yellow);
-		font-weight: 700;
-	}
+  .award-name {
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+  }
 
-	.award-desc {
-		color: var(--ceefax-white);
-		font-size: 0.8rem;
-	}
+  .award-desc {
+    color: var(--ceefax-white);
+    font-size: 0.8rem;
+  }
 
-	.award-card:hover .award-desc {
-		color: var(--ceefax-black);
-	}
+  .award-card:hover .award-desc {
+    color: var(--ceefax-black);
+  }
 
-	.award-card:hover .award-name {
-		color: var(--ceefax-black);
-	}
+  .award-card:hover .award-name {
+    color: var(--ceefax-black);
+  }
 
-	.awards-note {
-		margin: 0.75rem 0 0;
-		color: var(--ceefax-yellow);
-		font-weight: 700;
-		grid-column: 1 / -1;
-	}
+  .awards-note {
+    margin: 0.75rem 0 0;
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+    grid-column: 1 / -1;
+  }
 </style>

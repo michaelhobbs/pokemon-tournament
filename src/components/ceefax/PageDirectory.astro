@@ -1,57 +1,59 @@
 ---
-import CeefaxBlock from './CeefaxBlock.astro';
-import type { PageLink } from '../../data/navigation';
+import CeefaxBlock from "./CeefaxBlock.astro";
+import type { PageLink } from "../../data/navigation";
 
-type CeefaxColor = 'cyan' | 'yellow' | 'magenta' | 'red' | 'green' | 'white';
+type CeefaxColor = "cyan" | "yellow" | "magenta" | "red" | "green" | "white";
 
 interface Props {
-	pages: PageLink[];
-	title?: string;
-	number?: string | number;
-	color?: CeefaxColor;
+  pages: PageLink[];
+  title?: string;
+  number?: string | number;
+  color?: CeefaxColor;
 }
 
-const { pages, title = 'INDEX', number = '100', color = 'cyan' } = Astro.props;
+const { pages, title = "INDEX", number = "100", color = "cyan" } = Astro.props;
 ---
 
 <CeefaxBlock title={title} number={number} color={color}>
-	<ul class="page-directory">
-		{pages.map((page) => (
-			<li class="page-directory-item">
-				<a class="page-directory-link" href={page.href}>
-					<span class="page-directory-number">{page.number}</span>
-					{page.label}
-				</a>
-			</li>
-		))}
-	</ul>
+  <ul class="page-directory">
+    {
+      pages.map((page) => (
+        <li class="page-directory-item">
+          <a class="page-directory-link" href={page.href}>
+            <span class="page-directory-number">{page.number}</span>
+            {page.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
 </CeefaxBlock>
 
 <style>
-	.page-directory {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 0.4rem;
-	}
+  .page-directory {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
 
-	.page-directory-link {
-		display: flex;
-		align-items: baseline;
-		gap: 0.6rem;
-		text-decoration: none;
-		color: var(--ceefax-white);
-	}
+  .page-directory-link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--ceefax-white);
+  }
 
-	.page-directory-link:hover {
-		color: var(--ceefax-cyan);
-	}
+  .page-directory-link:hover {
+    color: var(--ceefax-cyan);
+  }
 
-	.page-directory-number {
-		background: var(--ceefax-magenta);
-		color: var(--ceefax-black);
-		font-weight: 700;
-		padding: 0 0.35rem;
-	}
+  .page-directory-number {
+    background: var(--ceefax-magenta);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    padding: 0 0.35rem;
+  }
 </style>
