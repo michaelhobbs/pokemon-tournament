@@ -1040,6 +1040,7 @@ function onClick(event: Event): void {
 
 function handleAction(action: string, el: HTMLElement): void {
   if (!state) return;
+  const current = state;
   const mount = el.closest(
     "[data-manager-feature], [data-manager-secret]",
   ) as HTMLElement | null;
@@ -1080,11 +1081,11 @@ function handleAction(action: string, el: HTMLElement): void {
       el.textContent = "BATTLE IN PROGRESS...";
       startGymAction(state, humonId, boss).then((battleResult) => {
         if (!battleResult.ok) {
-          log(state, battleResult.error);
+          log(current, battleResult.error);
         } else {
           // Log the battle replay
           const winner = battleResult.win ? "WIN" : "LOSS";
-          log(state, `BATTLE RESULT: ${winner}`);
+          log(current, `BATTLE RESULT: ${winner}`);
           for (const line of battleResult.log) {
             if (line.startsWith("|move|")) {
               const parts = line.split("|");
@@ -1092,20 +1093,20 @@ function handleAction(action: string, el: HTMLElement): void {
               const move = parts[3] ?? "";
               const defender = parts[4] ?? "";
               if (attacker && move && defender) {
-                log(state, `${attacker} USED ${move} VS ${defender}`);
+                log(current, `${attacker} USED ${move} VS ${defender}`);
               }
             } else if (line.startsWith("|faint|")) {
               const parts = line.split("|");
               const fainted = parts[2] ?? "";
-              if (fainted) log(state, `${fainted} FAINTED!`);
+              if (fainted) log(current, `${fainted} FAINTED!`);
             } else if (line.startsWith("|-supereffective|")) {
               const parts = line.split("|");
               const target = parts[2] ?? "";
-              if (target) log(state, `SUPER EFFECTIVE ON ${target}!`);
+              if (target) log(current, `SUPER EFFECTIVE ON ${target}!`);
             }
           }
         }
-        saveState(state);
+        saveState(current);
         renderAll();
         startCountdown();
       });
@@ -1172,10 +1173,10 @@ function handleAction(action: string, el: HTMLElement): void {
       el.textContent = "BATTLE IN PROGRESS...";
       startGymAction(state, humonId, boss).then((battleResult) => {
         if (!battleResult.ok) {
-          log(state, battleResult.error);
+          log(current, battleResult.error);
         } else {
           const winner = battleResult.win ? "WIN" : "LOSS";
-          log(state, `DEBUG: BATTLE RESULT: ${winner}`);
+          log(current, `DEBUG: BATTLE RESULT: ${winner}`);
           for (const line of battleResult.log) {
             if (line.startsWith("|move|")) {
               const parts = line.split("|");
@@ -1183,21 +1184,21 @@ function handleAction(action: string, el: HTMLElement): void {
               const move = parts[3] ?? "";
               const defender = parts[4] ?? "";
               if (attacker && move && defender)
-                log(state, `${attacker} USED ${move} VS ${defender}`);
+                log(current, `${attacker} USED ${move} VS ${defender}`);
             } else if (line.startsWith("|faint|")) {
               const parts = line.split("|");
               const fainted = parts[2] ?? "";
-              if (fainted) log(state, `${fainted} FAINTED!`);
+              if (fainted) log(current, `${fainted} FAINTED!`);
             } else if (line.startsWith("|-supereffective|")) {
               const parts = line.split("|");
               const target = parts[2] ?? "";
-              if (target) log(state, `SUPER EFFECTIVE ON ${target}!`);
+              if (target) log(current, `SUPER EFFECTIVE ON ${target}!`);
             }
           }
-          forceResolveAll(state);
-          log(state, "DEBUG: GYM ACTION FORCE-RESOLVED");
+          forceResolveAll(current);
+          log(current, "DEBUG: GYM ACTION FORCE-RESOLVED");
         }
-        saveState(state);
+        saveState(current);
         renderAll();
         startCountdown();
       });
