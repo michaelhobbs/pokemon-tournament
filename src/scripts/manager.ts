@@ -12,36 +12,30 @@ import {
 import type { BattleTurn } from "../lib/battle-log";
 import { speciesToKey } from "../lib/battle";
 import {
-  type Action,
   type GameState,
   type Humon,
   loadState,
   saveState,
   markVisited,
-  resolveActions,
-  forceResolveAll,
   startAction,
   startGymAction,
+  advanceDay,
   unlockSecret,
   useRareCandy,
   log,
   humonName,
   humonSprite,
   kindLabel,
-  actionLabel,
-  actionRemaining,
   humonById,
   XP_PER_LEVEL,
   catchChance,
   recommendedLevel,
-  travelDurationMs,
+  staminaCost,
   townCatchPool,
   bossTeamFor,
   TOWN_PLAYER_NUMBERS,
   BOSS_PLAYER_NUMBERS,
   HIDDEN_PAGE_NUMBERS,
-  TRAIN_MS,
-  GYM_MS,
 } from "../data/manager";
 
 type Feature =
@@ -56,7 +50,6 @@ const managerWindow = window as ManagerWindow;
 const baseUrl = import.meta.env.BASE_URL;
 
 let state: GameState | null = null;
-let countdownTimer: number | undefined;
 let battleViewTurn = 0;
 let battleViewTurns: BattleTurn[] = [];
 
@@ -89,17 +82,14 @@ function refresh(): void {
   if (mounts.length === 0) return;
   if (!readCaught()) {
     state = null;
-    stopCountdown();
     for (const mount of mounts) renderGate(mount);
     return;
   }
   state = loadState();
   const page = currentPage();
   if (page) markVisited(state, page);
-  resolveActions(state);
   saveState(state);
   renderAll();
-  startCountdown();
 }
 
 function renderAll(): void {
@@ -138,7 +128,8 @@ function renderFeature(mount: HTMLElement, feature: Feature): void {
     renderGate(mount);
     return;
   }
-  mount.innerHTML = statusBarHtml(state) + featureHtml(state, feature);
+  mount.innerHTML =
+    statusBarHtml(state) + sleepHtml(state) + featureHtml(state, feature);
 }
 
 function renderSecret(mount: HTMLElement, key: SecretHumonKey): void {
@@ -162,6 +153,7 @@ function renderSecret(mount: HTMLElement, key: SecretHumonKey): void {
   mount.innerHTML = `
 		<div class="mgr-secret">
 			<div class="mgr-status">
+				<span class="mgr-status-item">DAY <strong>${state.day}</strong></span>
 				<span class="mgr-status-item">CASH <strong>$${state.currency}</strong></span>
 			</div>
 			${owned ? "" : `<p class="mgr-busy">REQUIRES PAGE ${spec.page}</p>`}
@@ -171,17 +163,44 @@ function renderSecret(mount: HTMLElement, key: SecretHumonKey): void {
 }
 
 function statusBarHtml(game: GameState): string {
-  const busy = game.humons.filter((humon) => humon.action).length;
   const badges = game.humons.filter((humon) => humon.kind === "boss").length;
+  const staminaTotal = game.humons.reduce((sum, h) => sum + h.stamina, 0);
+  const staminaMax = game.humons.reduce((sum, h) => sum + h.maxStamina, 0);
   return `
 		<div class="mgr-status">
+			<span class="mgr-status-item">DAY <strong>${game.day}</strong></span>
 			<span class="mgr-status-item">CASH <strong>$${game.currency}</strong></span>
 			<span class="mgr-status-item">SQUAD <strong>${game.humons.length}</strong></span>
-			<span class="mgr-status-item">BUSY <strong>${busy}</strong></span>
+			<span class="mgr-status-item">STAMINA <strong>${staminaTotal}/${staminaMax}</strong></span>
 			<span class="mgr-status-item">RARE CANDY <strong>${game.items["rare-candy"]}</strong></span>
 			<span class="mgr-status-item">MAX REPEL <strong>${game.items["max-repel"]}</strong></span>
 			<span class="mgr-status-item">BADGES <strong>${badges}</strong>/10</span>
 		</div>`;
+}
+
+function sleepHtml(game: GameState): string {
+  return `
+		<section class="mgr-section mgr-sleep">
+			<h2 class="mgr-section-title">NEXT DAY</h2>
+			<div class="mgr-section-body">
+				<p class="mgr-note">THE ROSTER SLEEPS AT THE HUMON CENTRE. FULL STAMINA BY MORNING.</p>
+				<div class="mgr-form">
+					<button class="mgr-btn mgr-btn-sleep" data-mgr-action="sleep">GO TO SLEEP - DAY ${game.day + 1}</button>
+				</div>
+			</div>
+		</section>`;
+}
+
+function victoryHtml(game: GameState): string {
+  if (game.wonDay === null) return "";
+  return `
+		<section class="mgr-section mgr-victory">
+			<h2 class="mgr-section-title">CHAMPION</h2>
+			<div class="mgr-section-body mgr-victory-text">
+				<p>ALL GYM LEADERS DEFEATED!</p>
+				<p class="mgr-victory-days">YOU WON IN ${game.wonDay} DAY${game.wonDay === 1 ? "" : "S"}</p>
+			</div>
+		</section>`;
 }
 
 function featureHtml(game: GameState, feature: Feature): string {
@@ -204,12 +223,17 @@ function featureHtml(game: GameState, feature: Feature): string {
 }
 
 function hubHtml(game: GameState): string {
-  const busy = game.humons.filter((humon) => humon.action);
+  const staminaReady = game.humons.filter(
+    (humon) => humon.stamina >= staminaCost("train"),
+  ).length;
   return `
+		${victoryHtml(game)}
 		<section class="mgr-section">
-			<h2 class="mgr-section-title">ACTIVE ACTIONS (${busy.length})</h2>
+			<h2 class="mgr-section-title">OBJECTIVE</h2>
 			<div class="mgr-section-body">
-				${busy.length === 0 ? '<p class="mgr-empty">ALL HUMONS ARE IDLE. GIVE THEM ORDERS.</p>' : busy.map(humonStatusCard).join("")}
+				<p class="mgr-note">BEAT ALL 10 GYM LEADERS IN THE FEWEST DAYS. ACTIONS ARE IMMEDIATE BUT COST STAMINA - SLEEP TO RESTORE.</p>
+				<p class="mgr-note">${game.wonDay === null ? `YOU ARE ON DAY ${game.day}.` : `CHAMPION! IT TOOK YOU ${game.wonDay} DAY${game.wonDay === 1 ? "" : "S"}.`}</p>
+				${staminaReady > 0 ? `<p class="mgr-note">${staminaReady} HUMON${staminaReady === 1 ? "" : "S"} HAVE ENOUGH STAMINA TO TRAIN TODAY.</p>` : '<p class="mgr-note">EVERYONE IS EXHAUSTED. GO TO SLEEP.</p>'}
 			</div>
 		</section>
 		<section class="mgr-section">
@@ -222,20 +246,6 @@ function hubHtml(game: GameState): string {
 			<h2 class="mgr-section-title">RECENT ACTIVITY</h2>
 			<div class="mgr-section-body">${logHtml(game)}</div>
 		</section>`;
-}
-
-function humonStatusCard(humon: Humon): string {
-  if (!humon.action) return "";
-  return `
-		<div class="mgr-card">
-			<div class="mgr-card-head">
-				${spriteHtml(humonSprite(humon), "2.5rem")}
-				<span class="mgr-name">${esc(humonName(humon))}</span>
-				<span class="mgr-lvl">LV ${humon.level}</span>
-				<span class="mgr-busy">${esc(actionLabel(humon.action))}</span>
-				${countdownHtml(humon.action)}
-			</div>
-		</div>`;
 }
 
 function humonCard(humon: Humon): string {
@@ -251,9 +261,7 @@ function humonCard(humon: Humon): string {
 				<span class="mgr-xp"> ${xpProgress(humon)}</span>
 				${xpBarHtml(humon)}
 			</div>
-			<div>
-				${humon.action ? `<span class="mgr-busy">${esc(actionLabel(humon.action))}</span> ${countdownHtml(humon.action)}` : '<span class="mgr-idle">IDLE</span>'}
-			</div>
+			${staminaHtml(humon)}
 			<div>${teamSummaryHtml(humon)}</div>
 		</div>`;
 }
@@ -275,7 +283,7 @@ function rosterCard(humon: Humon): string {
       : "";
   const teamHtml =
     humon.team.length === 0
-      ? '<span class="mgr-empty">NO TEAM YET - SEND TRAVELLING</span>'
+      ? '<span class="mgr-empty">NO TEAM YET - GO TRAVELLING</span>'
       : `<div class="mgr-team">${humon.team.map((name) => monHtml(name)).join("")}</div>`;
   return `
 		<div class="mgr-card">
@@ -289,9 +297,7 @@ function rosterCard(humon: Humon): string {
 				<span class="mgr-xp"> ${xpProgress(humon)}</span>
 				${xpBarHtml(humon)}
 			</div>
-			<div>
-				${humon.action ? `<span class="mgr-busy">${esc(actionLabel(humon.action))}</span> ${countdownHtml(humon.action)}` : '<span class="mgr-idle">IDLE</span>'}
-			</div>
+			${staminaHtml(humon)}
 			${teamHtml}
 			${candyButton}
 		</div>`;
@@ -309,6 +315,19 @@ function xpBarHtml(humon: Humon): string {
   return `<div class="mgr-xp-bar"><span class="mgr-xp-fill" style="width:${pct}%"></span></div>`;
 }
 
+function staminaHtml(humon: Humon): string {
+  const pct = Math.min(
+    100,
+    Math.floor((humon.stamina / humon.maxStamina) * 100),
+  );
+  const tone = pct === 0 ? "red" : pct <= 30 ? "yellow" : "green";
+  return `
+		<div class="mgr-stamina">
+			<span class="mgr-stamina-label" data-stamina-tone="${tone}">${humon.stamina}/${humon.maxStamina} STAMINA</span>
+			<div class="mgr-stamina-bar"><span class="mgr-stamina-fill" data-stamina-tone="${tone}" style="width:${pct}%"></span></div>
+		</div>`;
+}
+
 function teamSummaryHtml(humon: Humon): string {
   if (humon.team.length === 0)
     return '<span class="mgr-empty">NO TEAM YET</span>';
@@ -319,16 +338,18 @@ function travelHtml(game: GameState): string {
   const mount = document.querySelector<HTMLElement>(
     '[data-manager-feature="travel"]',
   );
-  const idle = game.humons.filter((humon) => !humon.action);
+  const ready = game.humons.filter(
+    (humon) => humon.stamina >= staminaCost("travel"),
+  );
   const currentHumon =
     mount?.querySelector<HTMLSelectElement>('[data-mgr-select="humon"]')
       ?.value ??
-    idle[0]?.id ??
+    ready[0]?.id ??
     "";
   const humonOpts =
-    idle.length === 0
-      ? '<option value="">NO IDLE HUMONS</option>'
-      : idle
+    ready.length === 0
+      ? '<option value="">NO HUMONS WITH ENOUGH STAMINA</option>'
+      : ready
           .map((humon) =>
             option(
               humon.id,
@@ -346,24 +367,17 @@ function travelHtml(game: GameState): string {
     const town = player?.hometown ?? "???";
     return option(String(number), town, number === currentTown);
   }).join("");
-  const trips = game.humons.filter((humon) => humon.action?.kind === "travel");
   return `
 		<section class="mgr-section">
 			<h2 class="mgr-section-title">SEND A HUMON TRAVELLING</h2>
 			<div class="mgr-section-body">
-				<p class="mgr-note">TRAVEL UNLOCKS THE TOWN'S CATCH POOL. RETURNING HUMONS TRY TO CATCH ONE POKEMON.</p>
+				<p class="mgr-note">TRAVEL COSTS ${staminaCost("travel")} STAMINA AND UNLOCKS THE TOWN'S CATCH POOL. THE HUMON TRIES TO CATCH ONE POKEMON ON THE SPOT.</p>
 				<div class="mgr-form">
 					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon">${humonOpts}</select></label>
 					<label class="mgr-label">TOWN <select class="mgr-select" data-mgr-select="town">${townOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="travel" ${idle.length ? "" : "disabled"}>TRAVEL</button>
+					<button class="mgr-btn" data-mgr-action="travel" ${ready.length ? "" : "disabled"}>TRAVEL (-${staminaCost("travel")} STAMINA)</button>
 				</div>
 				<div data-mgr-preview="travel">${travelPreviewHtml(game, mount)}</div>
-			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">CURRENT TRIPS (${trips.length})</h2>
-			<div class="mgr-section-body">
-				${trips.length === 0 ? '<p class="mgr-empty">NO HUMONS ON THE ROAD.</p>' : trips.map(humonStatusCard).join("")}
 			</div>
 		</section>`;
 }
@@ -384,11 +398,13 @@ function travelPreviewHtml(game: GameState, mount: HTMLElement | null): string {
   const humon = humonById(game, humonId);
   const player = findPlayer(town);
   const pool = townCatchPool(town);
-  const duration = travelDurationMs(town);
   const chance = humon ? Math.round(catchChance(humon.level) * 100) : 0;
+  const staminaLine = humon
+    ? `STAMINA AFTER TRIP: ${Math.max(0, humon.stamina - staminaCost("travel"))}/${humon.maxStamina}`
+    : "";
   return `
 		<p class="mgr-note">DESTINATION: ${esc(player?.hometown ?? "???")} (${esc(player?.name ?? "???")})</p>
-		<p class="mgr-note">TRIP DURATION: ${formatDuration(duration)}</p>
+		<p class="mgr-note">COST: ${staminaCost("travel")} STAMINA ${staminaLine ? `- ${staminaLine}` : ""}</p>
 		<p class="mgr-note">CATCH CHANCE: ${chance}%${humon ? ` (LV ${humon.level})` : ""}</p>
 		<div class="mgr-pool">
 			<span class="mgr-note">CATCH POOL:</span>
@@ -400,16 +416,18 @@ function trainingHtml(game: GameState): string {
   const mount = document.querySelector<HTMLElement>(
     '[data-manager-feature="training"]',
   );
-  const idle = game.humons.filter((humon) => !humon.action);
+  const ready = game.humons.filter(
+    (humon) => humon.stamina >= staminaCost("train"),
+  );
   const currentHumon =
     mount?.querySelector<HTMLSelectElement>('[data-mgr-select="humon"]')
       ?.value ??
-    idle[0]?.id ??
+    ready[0]?.id ??
     "";
   const humonOpts =
-    idle.length === 0
-      ? '<option value="">NO IDLE HUMONS</option>'
-      : idle
+    ready.length === 0
+      ? '<option value="">NO HUMONS WITH ENOUGH STAMINA</option>'
+      : ready
           .map((humon) =>
             option(
               humon.id,
@@ -422,10 +440,10 @@ function trainingHtml(game: GameState): string {
 		<section class="mgr-section">
 			<h2 class="mgr-section-title">TRAIN A HUMON</h2>
 			<div class="mgr-section-body">
-				<p class="mgr-note">TRAINING TAKES ${formatDuration(TRAIN_MS)} AND GRANTS XP AND CASH. RARE CANDIES DROP SOMETIMES.</p>
+				<p class="mgr-note">TRAINING IS IMMEDIATE, COSTS ${staminaCost("train")} STAMINA AND GRANTS XP AND CASH. RARE CANDIES DROP SOMETIMES.</p>
 				<div class="mgr-form">
 					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon">${humonOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="train" ${idle.length ? "" : "disabled"}>TRAIN</button>
+					<button class="mgr-btn" data-mgr-action="train" ${ready.length ? "" : "disabled"}>TRAIN (-${staminaCost("train")} STAMINA)</button>
 				</div>
 			</div>
 		</section>
@@ -441,14 +459,12 @@ function gymsHtml(game: GameState): string {
   const mount = document.querySelector<HTMLElement>(
     '[data-manager-feature="gyms"]',
   );
-  const idle = game.humons.filter((humon) => !humon.action);
+  const ready = game.humons.filter(
+    (humon) => humon.stamina >= staminaCost("gym"),
+  );
 
   const gymBattles = game.humons.filter(
-    (h) =>
-      (h.action?.kind === "gym" &&
-        h.action.battleTurns &&
-        h.action.battleTurns.length > 0) ||
-      (h.lastBattle && h.lastBattle.turns.length > 0),
+    (h) => h.lastBattle && h.lastBattle.turns.length > 0,
   );
   const viewerHtml =
     gymBattles.length > 0
@@ -465,12 +481,12 @@ function gymsHtml(game: GameState): string {
       mount?.querySelector<HTMLSelectElement>(
         `[data-mgr-select="humon"][data-boss="${number}"]`,
       )?.value ??
-      idle[0]?.id ??
+      ready[0]?.id ??
       "";
     const humonOpts =
-      idle.length === 0
-        ? '<option value="">NO IDLE HUMONS</option>'
-        : idle
+      ready.length === 0
+        ? '<option value="">NO HUMONS WITH ENOUGH STAMINA</option>'
+        : ready
             .map((humon) =>
               option(
                 humon.id,
@@ -495,16 +511,17 @@ function gymsHtml(game: GameState): string {
 				<p class="mgr-note">RECOMMENDED LV: ${rec}</p>
 				<div class="mgr-form">
 					<label class="mgr-label">CHALLENGER <select class="mgr-select" data-mgr-select="humon" data-boss="${number}">${humonOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="gym" data-boss="${number}" ${!idle.length || joined ? "disabled" : ""}>CHALLENGE</button>
+					<button class="mgr-btn" data-mgr-action="gym" data-boss="${number}" ${!ready.length || joined ? "disabled" : ""}>CHALLENGE (-${staminaCost("gym")} STAMINA)</button>
 				</div>
 			</div>`;
   }).join("");
   return `
+		${victoryHtml(game)}
 		${viewerHtml}
 		<section class="mgr-section">
 			<h2 class="mgr-section-title">GYM LEADERS (${game.humons.filter((humon) => humon.kind === "boss").length}/10 BEATEN)</h2>
 			<div class="mgr-section-body">
-				<p class="mgr-note">GYM BATTLES USE REAL SHOWDOWN SIMULATION. BEATING A LEADER ADDS THEM TO YOUR SQUAD.</p>
+				<p class="mgr-note">GYM BATTLES COST ${staminaCost("gym")} STAMINA AND RESOLVE IMMEDIATELY VIA REAL SHOWDOWN SIMULATION. BEATING A LEADER ADDS THEM TO YOUR SQUAD.</p>
 				<div class="mgr-grid">${bossCards}</div>
 			</div>
 		</section>`;
@@ -643,12 +660,9 @@ function battleFieldHtml(field: {
 }
 
 function battleViewerHtml(humon: Humon): string {
-  const action = humon.action;
-  const turns = action?.battleTurns ?? humon.lastBattle?.turns;
-  const win = action?.battleResult ?? humon.lastBattle?.win;
-  const opponent = action?.target
-    ? (findPlayer(action.target)?.name ?? "???")
-    : (humon.lastBattle?.opponent ?? "???");
+  const turns = humon.lastBattle?.turns;
+  const win = humon.lastBattle?.win;
+  const opponent = humon.lastBattle?.opponent ?? "???";
   if (!turns || turns.length === 0) return "";
   const totalTurns = turns.length;
   if (battleViewTurns !== turns) {
@@ -756,61 +770,54 @@ function battleViewerHtml(humon: Humon): string {
 }
 
 function debugHtml(game: GameState): string {
-  const busy = game.humons.filter((h) => h.action);
-  const idle = game.humons.filter((h) => !h.action);
   const humonOpts =
-    idle.length === 0
-      ? '<option value="">NO IDLE HUMONS</option>'
-      : idle
+    game.humons.length === 0
+      ? '<option value="">NO HUMONS</option>'
+      : game.humons
           .map((h) => option(h.id, `${humonName(h)} LV ${h.level}`, false))
           .join("");
+  const trainerOpts = TOWN_PLAYER_NUMBERS.map((n) => {
+    const p = findPlayer(n);
+    return option(String(n), p?.hometown ?? "???", false);
+  }).join("");
+  const bossOpts = BOSS_PLAYER_NUMBERS.map((n) => {
+    const p = findPlayer(n);
+    return option(String(n), p?.name ?? "???", false);
+  }).join("");
   return `
 		<section class="mgr-section">
-			<h2 class="mgr-section-title">DEBUG CONTROLS</h2>
+			<h2 class="mgr-section-title">DEBUG SANDBOX</h2>
 			<div class="mgr-section-body">
-				<p class="mgr-note">ALL ACTIONS RESOLVE IMMEDIATELY. NO TIMERS.</p>
-				<div class="mgr-form">
-					<button class="mgr-btn mgr-btn-danger" data-mgr-action="debug-resolve-all" ${busy.length === 0 ? "disabled" : ""}>RESOLVE ALL (${busy.length} PENDING)</button>
-				</div>
+				<p class="mgr-note">ALL DEBUG ACTIONS ARE FREE AND RESOLVE IMMEDIATELY. NO STAMINA COST.</p>
 			</div>
 		</section>
 		<section class="mgr-section">
-			<h2 class="mgr-section-title">INSTANT TRAIN</h2>
+			<h2 class="mgr-section-title">FREE TRAIN</h2>
 			<div class="mgr-section-body">
 				<div class="mgr-form">
 					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon">${humonOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="debug-train" ${idle.length === 0 ? "disabled" : ""}>TRAIN NOW</button>
+					<button class="mgr-btn" data-mgr-action="debug-train" ${game.humons.length === 0 ? "disabled" : ""}>TRAIN NOW</button>
 				</div>
 			</div>
 		</section>
 		<section class="mgr-section">
-			<h2 class="mgr-section-title">INSTANT TRAVEL</h2>
+			<h2 class="mgr-section-title">FREE TRAVEL</h2>
 			<div class="mgr-section-body">
 				<div class="mgr-form">
 					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon-travel">${humonOpts}</select></label>
-					<label class="mgr-label">TOWN <select class="mgr-select" data-mgr-select="town">${TOWN_PLAYER_NUMBERS.map(
-            (n) => {
-              const p = findPlayer(n);
-              return option(String(n), p?.hometown ?? "???", false);
-            },
-          ).join("")}</select></label>
-					<button class="mgr-btn" data-mgr-action="debug-travel" ${idle.length === 0 ? "disabled" : ""}>TRAVEL NOW</button>
+					<label class="mgr-label">TOWN <select class="mgr-select" data-mgr-select="town">${trainerOpts}</select></label>
+					<button class="mgr-btn" data-mgr-action="debug-travel" ${game.humons.length === 0 ? "disabled" : ""}>TRAVEL NOW</button>
 				</div>
 			</div>
 		</section>
 		<section class="mgr-section">
-			<h2 class="mgr-section-title">INSTANT GYM BATTLE</h2>
+			<h2 class="mgr-section-title">FREE GYM BATTLE</h2>
 			<div class="mgr-section-body">
-				<p class="mgr-note">RUNS REAL SHOWDOWN BATTLE, THEN RESOLVES IMMEDIATELY.</p>
+				<p class="mgr-note">RUNS REAL SHOWDOWN BATTLE, THEN RESOLVES IMMEDIATELY. WINNING THE 10TH GYM DECLARES THE CHAMPION.</p>
 				<div class="mgr-form">
 					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon-gym">${humonOpts}</select></label>
-					<label class="mgr-label">GYM <select class="mgr-select" data-mgr-select="boss">${BOSS_PLAYER_NUMBERS.map(
-            (n) => {
-              const p = findPlayer(n);
-              return option(String(n), p?.name ?? "???", false);
-            },
-          ).join("")}</select></label>
-					<button class="mgr-btn" data-mgr-action="debug-gym" ${idle.length === 0 ? "disabled" : ""}>BATTLE NOW</button>
+					<label class="mgr-label">GYM <select class="mgr-select" data-mgr-select="boss">${bossOpts}</select></label>
+					<button class="mgr-btn" data-mgr-action="debug-gym" ${game.humons.length === 0 ? "disabled" : ""}>BATTLE NOW</button>
 				</div>
 			</div>
 		</section>
@@ -876,12 +883,6 @@ function unlocksHtml(game: GameState): string {
 			<h2 class="mgr-section-title">SECRET HUMON SHOP</h2>
 			<div class="mgr-section-body mgr-grid">${shop}</div>
 		</section>`;
-}
-
-function countdownHtml(action: Action): string {
-  if (actionRemaining(action) <= 0)
-    return '<span class="mgr-busy">RESOLVING...</span>';
-  return `<span class="mgr-countdown" data-countdown data-countdown-start="${action.startedAt}" data-countdown-duration="${action.durationMs}">${formatDuration(actionRemaining(action))}</span>`;
 }
 
 function logHtml(game: GameState): string {
@@ -1007,15 +1008,6 @@ function option(value: string, label: string, selected: boolean): string {
   return `<option value="${value}"${selected ? " selected" : ""}>${esc(label)}</option>`;
 }
 
-function formatDuration(ms: number): string {
-  const total = Math.max(0, Math.ceil(ms / 1000));
-  const hours = Math.floor(total / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const seconds = total % 60;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-}
-
 function esc(value: string): string {
   return value.replace(/[&<>"']/g, (char) => {
     const map: Record<string, string> = {
@@ -1049,6 +1041,11 @@ function handleAction(action: string, el: HTMLElement): void {
       ?.value ?? "";
   let result: { ok: true } | { ok: false; error: string };
   switch (action) {
+    case "sleep": {
+      advanceDay(state);
+      result = { ok: true };
+      break;
+    }
     case "train": {
       const humonId = selectValue("humon");
       result = humonId
@@ -1079,36 +1076,12 @@ function handleAction(action: string, el: HTMLElement): void {
       // Disable the button while the battle runs
       el.setAttribute("disabled", "");
       el.textContent = "BATTLE IN PROGRESS...";
-      startGymAction(state, humonId, boss).then((battleResult) => {
+      startGymAction(current, humonId, boss).then((battleResult) => {
         if (!battleResult.ok) {
           log(current, battleResult.error);
-        } else {
-          // Log the battle replay
-          const winner = battleResult.win ? "WIN" : "LOSS";
-          log(current, `BATTLE RESULT: ${winner}`);
-          for (const line of battleResult.log) {
-            if (line.startsWith("|move|")) {
-              const parts = line.split("|");
-              const attacker = parts[2] ?? "";
-              const move = parts[3] ?? "";
-              const defender = parts[4] ?? "";
-              if (attacker && move && defender) {
-                log(current, `${attacker} USED ${move} VS ${defender}`);
-              }
-            } else if (line.startsWith("|faint|")) {
-              const parts = line.split("|");
-              const fainted = parts[2] ?? "";
-              if (fainted) log(current, `${fainted} FAINTED!`);
-            } else if (line.startsWith("|-supereffective|")) {
-              const parts = line.split("|");
-              const target = parts[2] ?? "";
-              if (target) log(current, `SUPER EFFECTIVE ON ${target}!`);
-            }
-          }
         }
         saveState(current);
         renderAll();
-        startCountdown();
       });
       return;
     }
@@ -1122,43 +1095,20 @@ function handleAction(action: string, el: HTMLElement): void {
       result = useRareCandy(state, humonId);
       break;
     }
-    case "debug-resolve-all": {
-      forceResolveAll(state);
-      log(state, "DEBUG: ALL ACTIONS FORCE-RESOLVED");
-      result = { ok: true };
-      break;
-    }
     case "debug-train": {
       const humonId = selectValue("humon");
-      if (!humonId) {
-        result = { ok: false, error: "PICK A HUMON" };
-        break;
-      }
-      const trainResult = startAction(state, humonId, "train");
-      if (!trainResult.ok) {
-        result = trainResult;
-        break;
-      }
-      forceResolveAll(state);
-      log(state, "DEBUG: TRAINING FORCE-RESOLVED");
-      result = { ok: true };
+      result = humonId
+        ? startAction(state, humonId, "train", undefined, { free: true })
+        : { ok: false, error: "PICK A HUMON" };
       break;
     }
     case "debug-travel": {
       const humonId = selectValue("humon-travel");
       const town = Number(selectValue("town"));
-      if (!humonId || Number.isNaN(town)) {
-        result = { ok: false, error: "PICK A HUMON AND A TOWN" };
-        break;
-      }
-      const travelResult = startAction(state, humonId, "travel", town);
-      if (!travelResult.ok) {
-        result = travelResult;
-        break;
-      }
-      forceResolveAll(state);
-      log(state, "DEBUG: TRAVEL FORCE-RESOLVED");
-      result = { ok: true };
+      result =
+        humonId && !Number.isNaN(town)
+          ? startAction(state, humonId, "travel", town, { free: true })
+          : { ok: false, error: "PICK A HUMON AND A TOWN" };
       break;
     }
     case "debug-gym": {
@@ -1171,37 +1121,15 @@ function handleAction(action: string, el: HTMLElement): void {
       result = { ok: true };
       el.setAttribute("disabled", "");
       el.textContent = "BATTLE IN PROGRESS...";
-      startGymAction(state, humonId, boss).then((battleResult) => {
-        if (!battleResult.ok) {
-          log(current, battleResult.error);
-        } else {
-          const winner = battleResult.win ? "WIN" : "LOSS";
-          log(current, `DEBUG: BATTLE RESULT: ${winner}`);
-          for (const line of battleResult.log) {
-            if (line.startsWith("|move|")) {
-              const parts = line.split("|");
-              const attacker = parts[2] ?? "";
-              const move = parts[3] ?? "";
-              const defender = parts[4] ?? "";
-              if (attacker && move && defender)
-                log(current, `${attacker} USED ${move} VS ${defender}`);
-            } else if (line.startsWith("|faint|")) {
-              const parts = line.split("|");
-              const fainted = parts[2] ?? "";
-              if (fainted) log(current, `${fainted} FAINTED!`);
-            } else if (line.startsWith("|-supereffective|")) {
-              const parts = line.split("|");
-              const target = parts[2] ?? "";
-              if (target) log(current, `SUPER EFFECTIVE ON ${target}!`);
-            }
+      startGymAction(current, humonId, boss, { free: true }).then(
+        (battleResult) => {
+          if (!battleResult.ok) {
+            log(current, battleResult.error);
           }
-          forceResolveAll(current);
-          log(current, "DEBUG: GYM ACTION FORCE-RESOLVED");
-        }
-        saveState(current);
-        renderAll();
-        startCountdown();
-      });
+          saveState(current);
+          renderAll();
+        },
+      );
       return;
     }
     case "bt-prev": {
@@ -1225,7 +1153,6 @@ function handleAction(action: string, el: HTMLElement): void {
   saveState(state);
   renderAll();
   triggerSpriteAnimations();
-  startCountdown();
 }
 
 function onChange(event: Event): void {
@@ -1244,33 +1171,5 @@ function onChange(event: Event): void {
       '[data-mgr-preview="travel"]',
     );
     if (preview) preview.innerHTML = travelPreviewHtml(state, mount);
-  }
-}
-
-function startCountdown(): void {
-  stopCountdown();
-  if (!state) return;
-  const tick = (): void => {
-    let needsResolve = false;
-    for (const el of document.querySelectorAll<HTMLElement>(
-      "[data-countdown]",
-    )) {
-      const started = Number(el.dataset.countdownStart);
-      const duration = Number(el.dataset.countdownDuration);
-      const remaining = Math.max(0, started + duration - Date.now());
-      el.textContent =
-        remaining > 0 ? formatDuration(remaining) : "RESOLVING...";
-      if (remaining <= 0) needsResolve = true;
-    }
-    if (needsResolve) refresh();
-  };
-  tick();
-  countdownTimer = window.setInterval(tick, 1000);
-}
-
-function stopCountdown(): void {
-  if (countdownTimer !== undefined) {
-    window.clearInterval(countdownTimer);
-    countdownTimer = undefined;
   }
 }

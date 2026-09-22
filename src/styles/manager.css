@@ -748,3 +748,95 @@
     filter: brightness(1) drop-shadow(0 0 0 transparent);
   }
 }
+
+/* === Stamina === */
+
+.mgr-stamina {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mgr-stamina-label {
+  font-weight: 700;
+  font-size: 0.85em;
+}
+
+.mgr-stamina-label[data-stamina-tone="green"] {
+  color: var(--ceefax-green);
+}
+
+.mgr-stamina-label[data-stamina-tone="yellow"] {
+  color: var(--ceefax-yellow);
+}
+
+.mgr-stamina-label[data-stamina-tone="red"] {
+  color: var(--ceefax-red);
+}
+
+.mgr-stamina-bar {
+  height: 0.7rem;
+  border: 1px solid var(--ceefax-white);
+  background: var(--ceefax-black);
+  overflow: hidden;
+}
+
+.mgr-stamina-fill {
+  display: block;
+  height: 100%;
+}
+
+.mgr-stamina-fill[data-stamina-tone="green"] {
+  background: var(--ceefax-green);
+}
+
+.mgr-stamina-fill[data-stamina-tone="yellow"] {
+  background: var(--ceefax-yellow);
+}
+
+.mgr-stamina-fill[data-stamina-tone="red"] {
+  background: var(--ceefax-red);
+}
+
+/* === Sleep / next day === */
+
+.mgr-sleep {
+  border-color: var(--ceefax-green);
+}
+
+.mgr-sleep .mgr-section-title {
+  background: var(--ceefax-green);
+  color: var(--ceefax-black);
+}
+
+.mgr-btn-sleep {
+  background: var(--ceefax-green);
+}
+
+.mgr-btn-sleep:hover {
+  background: var(--ceefax-cyan);
+}
+
+/* === Victory === */
+
+.mgr-victory {
+  border-width: 3px;
+  border-color: var(--ceefax-yellow);
+}
+
+.mgr-victory .mgr-section-title {
+  background: var(--ceefax-yellow);
+  color: var(--ceefax-black);
+}
+
+.mgr-victory-text {
+  text-align: center;
+  color: var(--ceefax-yellow);
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.mgr-victory-days {
+  color: var(--ceefax-white);
+  font-size: 1.4em;
+  animation: anim-sleep 2s ease-in-out infinite;
+}

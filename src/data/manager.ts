@@ -1,24 +1,25 @@
 import type { PixelArt } from "./trophy";
 import type { BattleTurn } from "../lib/battle-log";
+import type { BattleResult } from "../lib/battle";
 import { HUMON } from "./humon";
 import { PLAYERS, findPlayer } from "./players";
 import { spriteFor } from "./trainer-sprites";
 import { applySwaps, swapsFor } from "./midseason";
-import { HOMETOWN_MARKERS } from "./hometown-map";
 import { SECRET_HUMONS, type SecretHumonKey } from "./hidden-humons";
 
-export const MANAGER_STORAGE_KEY = "pkm:manager:v1";
+export const MANAGER_STORAGE_KEY = "pkm:manager:v2";
 
 export const MAX_TEAM_SIZE = 6;
 export const XP_PER_LEVEL = 100;
 export const RARE_CANDY_XP = 50;
 export const LOG_LIMIT = 8;
 
-export const TRAIN_MS = 2 * 60 * 60 * 1000;
-export const GYM_MS = 6 * 60 * 60 * 1000;
-export const TRAVEL_BASE_MS = 2 * 60 * 60 * 1000;
-export const TRAVEL_PER_UNIT_MS = 10 * 60 * 1000;
-export const TRAVEL_CAP_MS = 8 * 60 * 60 * 1000;
+export const STARTING_DAY = 1;
+export const BASE_STAMINA = 100;
+export const STAMINA_PER_LEVEL = 20;
+export const TRAIN_STAMINA = 20;
+export const TRAVEL_STAMINA = 40;
+export const GYM_STAMINA = 50;
 
 export const TRAIN_XP = 40;
 export const TRAVEL_XP = 25;
@@ -39,21 +40,7 @@ export const CURRENCY = {
 
 export type HumonKind = "starter" | "boss" | SecretHumonKey;
 export type ActionKind = "train" | "travel" | "gym";
-
-export interface Action {
-  kind: ActionKind;
-  startedAt: number;
-  durationMs: number;
-  seed: number;
-  /** Travel: town player number. Gym: boss player number. */
-  target?: number;
-  /** Pre-simulated gym battle result. true = humon won. */
-  battleResult?: boolean;
-  /** Human-readable battle log lines from @pkmn/sim. */
-  battleLog?: string[];
-  /** Parsed turn-by-turn battle data. */
-  battleTurns?: BattleTurn[];
-}
+export type NonBattleActionKind = Exclude<ActionKind, "gym">;
 
 export interface Humon {
   id: string;
@@ -61,7 +48,8 @@ export interface Humon {
   level: number;
   xp: number;
   team: string[];
-  action: Action | null;
+  stamina: number;
+  maxStamina: number;
   lastBattle?: { win: boolean; turns: BattleTurn[]; opponent: string };
 }
 
@@ -76,7 +64,10 @@ export interface Items {
 }
 
 export interface GameState {
-  version: 1;
+  version: 2;
+  day: number;
+  /** The day all gym leaders were beaten, or null while still playing. */
+  wonDay: number | null;
   currency: number;
   humons: Humon[];
   items: Items;
@@ -100,8 +91,6 @@ export const HIDDEN_PAGE_NUMBERS: string[] = [
   "666",
   "999",
 ];
-
-export const HOME_BASE = { col: 12, row: 14 };
 
 /** Deterministic PRNG (mulberry32). */
 export function mulberry32(seed: number): () => number {
@@ -131,13 +120,42 @@ export function levelFor(xp: number): number {
   return Math.floor(xp / XP_PER_LEVEL) + 1;
 }
 
+/** Maximum stamina for a humon of the given level (100 base, +20/level). */
+export function maxStaminaFor(level: number): number {
+  return BASE_STAMINA + (level - 1) * STAMINA_PER_LEVEL;
+}
+
+export function staminaCost(kind: ActionKind): number {
+  switch (kind) {
+    case "train":
+      return TRAIN_STAMINA;
+    case "travel":
+      return TRAVEL_STAMINA;
+    case "gym":
+      return GYM_STAMINA;
+  }
+}
+
 export function log(state: GameState, text: string): void {
   state.log.unshift({ at: Date.now(), text });
   if (state.log.length > LOG_LIMIT) state.log.length = LOG_LIMIT;
 }
 
 function makeHumon(kind: HumonKind, id: string): Humon {
-  return { id, kind, level: 1, xp: 0, team: [], action: null };
+  return {
+    id,
+    kind,
+    level: 1,
+    xp: 0,
+    team: [],
+    stamina: maxStaminaFor(1),
+    maxStamina: maxStaminaFor(1),
+  };
+}
+
+function recalcLevel(humon: Humon): void {
+  humon.level = levelFor(humon.xp);
+  humon.maxStamina = maxStaminaFor(humon.level);
 }
 
 export function humonById(state: GameState, id: string): Humon | undefined {
@@ -174,25 +192,11 @@ export function kindLabel(humon: Humon): string {
   return SECRET_HUMONS[humon.kind].title;
 }
 
-export function actionLabel(action: Action): string {
-  if (action.kind === "train") return "TRAINING";
-  const player = findPlayer(action.target ?? 0);
-  if (action.kind === "travel")
-    return `TRAVELLING TO ${player?.hometown ?? "???"}`;
-  return `GYM BATTLE VS ${player?.name ?? "???"}`;
-}
-
-export function actionRemaining(action: Action): number {
-  return Math.max(0, action.startedAt + action.durationMs - Date.now());
-}
-
-export function actionDone(action: Action): boolean {
-  return actionRemaining(action) <= 0;
-}
-
 export function defaultState(): GameState {
   const state: GameState = {
-    version: 1,
+    version: 2,
+    day: STARTING_DAY,
+    wonDay: null,
     currency: 0,
     humons: [],
     items: { "rare-candy": 0, "max-repel": 0 },
@@ -210,18 +214,42 @@ export function loadState(): GameState {
   try {
     const raw = localStorage.getItem(MANAGER_STORAGE_KEY);
     if (!raw) return defaultState();
-    const parsed = JSON.parse(raw) as GameState;
-    if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      (parsed as GameState).version !== 1
-    ) {
-      return defaultState();
-    }
+    const parsed = JSON.parse(raw) as Partial<GameState> & {
+      humons?: Array<Partial<Humon> & { id: string; kind: HumonKind }>;
+    };
+    if (!parsed || typeof parsed !== "object") return defaultState();
+    const humons = Array.isArray(parsed.humons)
+      ? parsed.humons.map((h): Humon => {
+          const level = typeof h.level === "number" ? h.level : 1;
+          const maxStamina =
+            typeof h.maxStamina === "number"
+              ? h.maxStamina
+              : maxStaminaFor(level);
+          return {
+            id: h.id,
+            kind: h.kind,
+            level,
+            xp: typeof h.xp === "number" ? h.xp : 0,
+            team: Array.isArray(h.team) ? h.team : [],
+            // v1 saves had no stamina fields; start fresh-levelled but at full.
+            stamina:
+              typeof h.stamina === "number"
+                ? Math.min(h.stamina, maxStamina)
+                : maxStamina,
+            maxStamina,
+            lastBattle: h.lastBattle,
+          };
+        })
+      : [];
     const state: GameState = {
-      version: 1,
+      version: 2,
+      day:
+        typeof parsed.day === "number" && parsed.day >= STARTING_DAY
+          ? parsed.day
+          : STARTING_DAY,
+      wonDay: typeof parsed.wonDay === "number" ? parsed.wonDay : null,
       currency: typeof parsed.currency === "number" ? parsed.currency : 0,
-      humons: Array.isArray(parsed.humons) ? parsed.humons : [],
+      humons,
       items: {
         "rare-candy":
           typeof parsed.items?.["rare-candy"] === "number"
@@ -259,17 +287,6 @@ export function markVisited(state: GameState, page: string): void {
   }
 }
 
-export function travelDurationMs(playerNumber: number): number {
-  const marker = HOMETOWN_MARKERS.find((m) => m.playerNumber === playerNumber);
-  if (!marker) return TRAVEL_BASE_MS;
-  const distance =
-    Math.abs(marker.col - HOME_BASE.col) + Math.abs(marker.row - HOME_BASE.row);
-  return Math.min(
-    TRAVEL_CAP_MS,
-    TRAVEL_BASE_MS + distance * TRAVEL_PER_UNIT_MS,
-  );
-}
-
 /** Hometown catch pool = the trainer's current team, mid-season swaps applied. */
 export function townCatchPool(playerNumber: number): string[] {
   const player = findPlayer(playerNumber);
@@ -294,73 +311,59 @@ function newSeed(): number {
   return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
 }
 
+function spendStamina(
+  humon: Humon,
+  kind: ActionKind,
+  free: boolean,
+): { ok: true } | { ok: false; error: string } {
+  const cost = staminaCost(kind);
+  if (!free && humon.stamina < cost) {
+    return { ok: false, error: `${humonName(humon)} NEEDS ${cost} STAMINA` };
+  }
+  if (!free) humon.stamina -= cost;
+  return { ok: true };
+}
+
+/** Perform a train or travel action immediately, consuming stamina. */
 export function startAction(
   state: GameState,
   humonId: string,
-  kind: ActionKind,
+  kind: NonBattleActionKind,
   target?: number,
+  opts?: { free?: boolean },
 ): { ok: true } | { ok: false; error: string } {
   const humon = humonById(state, humonId);
   if (!humon) return { ok: false, error: "HUMON NOT FOUND" };
-  if (humon.action) return { ok: false, error: `${humonName(humon)} IS BUSY` };
-  if (kind === "train") {
-    humon.action = {
-      kind,
-      startedAt: Date.now(),
-      durationMs: TRAIN_MS,
-      seed: newSeed(),
-    };
-    log(state, `${humonName(humon)} STARTS TRAINING`);
-    return { ok: true };
-  }
   if (kind === "travel") {
     if (target === undefined) return { ok: false, error: "PICK A TOWN FIRST" };
     const player = findPlayer(target);
     if (!player) return { ok: false, error: "UNKNOWN TOWN" };
-    humon.action = {
-      kind,
-      startedAt: Date.now(),
-      durationMs: travelDurationMs(target),
-      seed: newSeed(),
-      target,
-    };
-    log(state, `${humonName(humon)} HEADS TO ${player.hometown}`);
+  }
+  const spend = spendStamina(humon, kind, opts?.free ?? false);
+  if (!spend.ok) return spend;
+  if (kind === "train") {
+    resolveTrain(state, humon, newSeed());
     return { ok: true };
   }
-  if (kind === "gym") {
-    if (target === undefined) return { ok: false, error: "PICK A GYM FIRST" };
-    const player = findPlayer(target);
-    if (!player) return { ok: false, error: "UNKNOWN GYM" };
-    if (humon.team.length === 0)
-      return { ok: false, error: `${humonName(humon)} NEEDS A TEAM FIRST` };
-    const rec = recommendedLevel(target);
-    if (humon.level < rec)
-      return { ok: false, error: `GYM ${player.number} REQUIRES LV ${rec}` };
-    humon.action = {
-      kind,
-      startedAt: Date.now(),
-      durationMs: GYM_MS,
-      seed: newSeed(),
-      target,
-    };
-    log(state, `${humonName(humon)} CHALLENGES ${player.name}`);
-    return { ok: true };
-  }
-  return { ok: false, error: "UNKNOWN ACTION" };
+  resolveTravel(state, humon, newSeed(), target as number);
+  return { ok: true };
 }
 
-/** Validate and start a gym action, pre-simulating the battle via @pkmn/sim. */
+/**
+ * Challenge a gym leader, pre-simulating the battle via @pkmn/sim and
+ * resolving it immediately. Returns whether this win completed the game.
+ */
 export async function startGymAction(
   state: GameState,
   humonId: string,
   bossNumber: number,
+  opts?: { free?: boolean },
 ): Promise<
-  | { ok: true; win: boolean; log: string[]; turns: BattleTurn[] }
+  | { ok: true; win: boolean; log: string[]; turns: BattleTurn[]; won: boolean }
   | { ok: false; error: string }
 > {
   const humon = humonById(state, humonId);
   if (!humon) return { ok: false, error: "HUMON NOT FOUND" };
-  if (humon.action) return { ok: false, error: `${humonName(humon)} IS BUSY` };
   const player = findPlayer(bossNumber);
   if (!player) return { ok: false, error: "UNKNOWN GYM" };
   if (humon.team.length === 0)
@@ -368,57 +371,40 @@ export async function startGymAction(
   const rec = recommendedLevel(bossNumber);
   if (humon.level < rec)
     return { ok: false, error: `GYM ${player.number} REQUIRES LV ${rec}` };
+  const spend = spendStamina(humon, "gym", opts?.free ?? false);
+  if (!spend.ok) return spend;
 
   const { runBattle } = await import("../lib/battle");
   const { parseBattleLog } = await import("../lib/battle-log");
   const seed = newSeed();
-  const result = await runBattle(humon.team, bossTeamFor(bossNumber), seed);
+  let result: BattleResult;
+  try {
+    result = await runBattle(humon.team, bossTeamFor(bossNumber), seed);
+  } catch {
+    // Refund stamina if the simulation itself failed.
+    if (!opts?.free) humon.stamina += staminaCost("gym");
+    return { ok: false, error: "BATTLE SIMULATION FAILED" };
+  }
   const turns = parseBattleLog(result.log, result.items);
-
-  humon.action = {
-    kind: "gym",
-    startedAt: Date.now(),
-    durationMs: GYM_MS,
-    seed,
-    target: bossNumber,
-    battleResult: result.win,
-    battleLog: result.log,
-    battleTurns: turns,
-  };
-  log(state, `${humonName(humon)} CHALLENGES ${player.name}`);
-  return { ok: true, win: result.win, log: result.log, turns };
+  const won = resolveGym(state, humon, result.win, turns, bossNumber, seed);
+  return { ok: true, win: result.win, log: result.log, turns, won };
 }
 
-export function resolveActions(state: GameState): void {
+/** Advance to the next day. Full stamina for the whole roster. */
+export function advanceDay(state: GameState): number {
+  state.day += 1;
   for (const humon of state.humons) {
-    if (!humon.action) continue;
-    const action = humon.action;
-    if (Date.now() < action.startedAt + action.durationMs) continue;
-    humon.action = null;
-    if (action.kind === "train") resolveTrain(state, humon, action);
-    else if (action.kind === "travel") resolveTravel(state, humon, action);
-    else resolveGym(state, humon, action);
+    humon.maxStamina = maxStaminaFor(humon.level);
+    humon.stamina = humon.maxStamina;
   }
+  log(state, `DAY ${state.day} - ROSTER SLEPT. STAMINA RESTORED.`);
+  return state.day;
 }
 
-/** Debug: resolve all pending actions immediately, ignoring timers. */
-export function forceResolveAll(state: GameState): void {
-  for (const humon of state.humons) {
-    if (!humon.action) continue;
-    const action = humon.action;
-    humon.action = null;
-    if (action.kind === "train") resolveTrain(state, humon, action);
-    else if (action.kind === "travel") resolveTravel(state, humon, action);
-    else resolveGym(state, humon, action);
-  }
-}
-
-function resolveTrain(state: GameState, humon: Humon, action: Action): void {
-  const rand = mulberry32(
-    hashString(`${humon.id}:train:${action.startedAt}:${action.seed}`),
-  );
+function resolveTrain(state: GameState, humon: Humon, seed: number): void {
+  const rand = mulberry32(hashString(`${humon.id}:train:${seed}`));
   humon.xp += TRAIN_XP;
-  humon.level = levelFor(humon.xp);
+  recalcLevel(humon);
   const pay = randInt(rand, CURRENCY.train.min, CURRENCY.train.max);
   state.currency += pay;
   log(state, `${humonName(humon)} TRAINS. +${TRAIN_XP} XP +$${pay}`);
@@ -428,20 +414,22 @@ function resolveTrain(state: GameState, humon: Humon, action: Action): void {
   }
 }
 
-function resolveTravel(state: GameState, humon: Humon, action: Action): void {
-  const target = action.target ?? 0;
+function resolveTravel(
+  state: GameState,
+  humon: Humon,
+  seed: number,
+  target: number,
+): void {
   const player = findPlayer(target);
   const townName = player?.hometown ?? "???";
-  const rand = mulberry32(
-    hashString(`${humon.id}:travel:${action.startedAt}:${action.seed}`),
-  );
+  const rand = mulberry32(hashString(`${humon.id}:travel:${seed}`));
   humon.xp += TRAVEL_XP;
-  humon.level = levelFor(humon.xp);
+  recalcLevel(humon);
   const pay = randInt(rand, CURRENCY.travel.min, CURRENCY.travel.max);
   state.currency += pay;
   log(
     state,
-    `${humonName(humon)} RETURNS FROM ${townName}. +${TRAVEL_XP} XP +$${pay}`,
+    `${humonName(humon)} VISITS ${townName}. +${TRAVEL_XP} XP +$${pay}`,
   );
   if (rand() < MAX_REPEL_DROP) {
     state.items["max-repel"] += 1;
@@ -476,19 +464,23 @@ function resolveTravel(state: GameState, humon: Humon, action: Action): void {
   }
 }
 
-function resolveGym(state: GameState, humon: Humon, action: Action): void {
-  const target = action.target ?? 0;
+/** Resolve a gym battle. Returns true when this win completed the game. */
+function resolveGym(
+  state: GameState,
+  humon: Humon,
+  win: boolean,
+  turns: BattleTurn[],
+  target: number,
+  seed: number,
+): boolean {
   const player = findPlayer(target);
   const bossName = player?.name ?? "???";
-  const rand = mulberry32(
-    hashString(`${humon.id}:gym:${action.startedAt}:${action.seed}`),
-  );
-  const win = action.battleResult ?? false;
-  if (action.battleTurns && action.battleTurns.length > 0) {
-    humon.lastBattle = { win, turns: action.battleTurns, opponent: bossName };
+  const rand = mulberry32(hashString(`${humon.id}:gym:${target}:${seed}`));
+  if (turns && turns.length > 0) {
+    humon.lastBattle = { win, turns, opponent: bossName };
   }
   humon.xp += GYM_XP;
-  humon.level = levelFor(humon.xp);
+  recalcLevel(humon);
   if (win) {
     const pay = randInt(rand, CURRENCY.gym.min, CURRENCY.gym.max);
     state.currency += pay;
@@ -497,6 +489,7 @@ function resolveGym(state: GameState, humon: Humon, action: Action): void {
     if (!humonById(state, bossId)) {
       state.humons.push(makeHumon("boss", bossId));
       log(state, `${bossName} JOINS THE SQUAD!`);
+      recordVictoryIfComplete(state);
     } else {
       const bonus = CURRENCY.duplicate + Math.floor(rand() * 60);
       state.currency += bonus;
@@ -504,6 +497,19 @@ function resolveGym(state: GameState, humon: Humon, action: Action): void {
     }
   } else {
     log(state, `${humonName(humon)} IS DEFEATED BY ${bossName}.`);
+  }
+  return state.wonDay !== null;
+}
+
+/** Record the victory (wonDay) once all gym leaders are in the squad. */
+export function recordVictoryIfComplete(state: GameState): void {
+  const bosses = state.humons.filter((h) => h.kind === "boss").length;
+  if (bosses >= BOSS_PLAYER_NUMBERS.length && state.wonDay === null) {
+    state.wonDay = state.day;
+    log(
+      state,
+      `ALL GYM LEADERS DEFEATED IN ${state.wonDay} DAY${state.wonDay === 1 ? "" : "S"}!`,
+    );
   }
 }
 
@@ -535,7 +541,7 @@ export function useRareCandy(
     return { ok: false, error: "NO RARE CANDIES" };
   state.items["rare-candy"] -= 1;
   humon.xp += RARE_CANDY_XP;
-  humon.level = levelFor(humon.xp);
+  recalcLevel(humon);
   log(state, `${humonName(humon)} USES A RARE CANDY. +${RARE_CANDY_XP} XP`);
   return { ok: true };
 }
