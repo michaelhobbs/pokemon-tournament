@@ -1,5 +1,6 @@
 ---
-type CeefaxColor = "cyan" | "yellow" | "magenta" | "red" | "green" | "white";
+type CeefaxColor =
+  "cyan" | "yellow" | "magenta" | "red" | "green" | "blue" | "white";
 
 interface Props {
   text: string;
@@ -34,6 +35,10 @@ const Tag = `h${level}` as const;
 
   .ceefax-heading[data-color="green"] {
     --heading-color: var(--ceefax-green);
+  }
+
+  .ceefax-heading[data-color="blue"] {
+    --heading-color: var(--ceefax-blue);
   }
 
   .ceefax-heading[data-color="white"] {

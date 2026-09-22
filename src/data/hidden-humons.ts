@@ -68,6 +68,8 @@ export interface SecretHumonSpec {
   cost: number;
   sprite: PixelArt;
   blurb: string;
+  /** Shop copy describing the ball, not the humon. */
+  ballBlurb: string;
 }
 
 export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
@@ -79,6 +81,8 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
     cost: 500,
     sprite: JOAk_SPRITE,
     blurb: "THE PROFESSOR HIMSELF. IT IS TRAINERS ALL THE WAY DOWN.",
+    ballBlurb:
+      "THE PROFESSOR'S REGISTERED BALL. ONE THROW, ALL TRAINERS INSIDE.",
   },
   devil: {
     key: "devil",
@@ -88,6 +92,7 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
     cost: 750,
     sprite: DEVIL_SPRITE,
     blurb: "A WILD HUMON FROM THE VOID. IT KNOWS EVERY TYPE ADVANTAGE.",
+    ballBlurb: "A POCKET FROM THE VOID BETWEEN PAGES. EVERY ADVANTAGE INSIDE.",
   },
   cop: {
     key: "cop",
@@ -97,6 +102,7 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
     cost: 750,
     sprite: COP_SPRITE,
     blurb: "A HUMON WHO BECAME THE POLICE. STOP. DROP. TRADE.",
+    ballBlurb: "THE LAW'S OWN BALL. IT PUTS TYPE CHARTS IN THEIR PLACE.",
   },
 };
 
@@ -105,3 +111,41 @@ export const SECRET_HUMON_KEYS: SecretHumonKey[] = ["joak", "devil", "cop"];
 export function secretHumon(key: SecretHumonKey): SecretHumonSpec {
   return SECRET_HUMONS[key];
 }
+
+export const BALL_NAMES: Record<SecretHumonKey, string> = {
+  joak: "JOAKBALL",
+  devil: "DEVILBALL",
+  cop: "COPBALL",
+};
+
+const POKEBALL_MAP: string[] = [
+  "................",
+  "..BBBBBBBBBBBB..",
+  ".BRRRRRRRRRRRRB.",
+  ".BRRRRRRRRRRRRB.",
+  ".BRRRRRRRRRRRRB.",
+  ".BRRRRRRRRRRRRB.",
+  ".BRRRRRRRRRRRRB.",
+  ".BRRBBBBBBBBRRB.",
+  ".BBBBBBBBBBBBBB.",
+  ".BBBBBBWWBBBBBB.",
+  ".BBBBBBWWBBBBBB.",
+  ".BWWWWWWWWWWWWB.",
+  ".BWWWWWWWWWWWWB.",
+  ".BWWWWWWWWWWWWB.",
+  ".BBBBBBBBBBBBBB.",
+  "................",
+];
+
+function pokeball(top: string): PixelArt {
+  return {
+    map: POKEBALL_MAP,
+    palette: { B: "#000000", R: top, W: "#ffffff" },
+  };
+}
+
+export const BALL_SPRITES: Record<SecretHumonKey, PixelArt> = {
+  joak: pokeball("#e63232"),
+  devil: pokeball("#ff00ff"),
+  cop: pokeball("#3b6aff"),
+};

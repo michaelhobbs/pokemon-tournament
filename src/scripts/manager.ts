@@ -7,6 +7,8 @@ import { POKEMON_SETS } from "../data/pokemon-sets";
 import {
   SECRET_HUMONS,
   SECRET_HUMON_KEYS,
+  BALL_NAMES,
+  BALL_SPRITES,
   type SecretHumonKey,
 } from "../data/hidden-humons";
 import type { BattleTurn } from "../lib/battle-log";
@@ -20,7 +22,9 @@ import {
   startAction,
   startGymAction,
   advanceDay,
-  unlockSecret,
+  buyBall,
+  useBall,
+  ballItemFor,
   useRareCandy,
   log,
   humonName,
@@ -29,17 +33,15 @@ import {
   humonById,
   XP_PER_LEVEL,
   catchChance,
-  recommendedLevel,
   staminaCost,
   townCatchPool,
   bossTeamFor,
   TOWN_PLAYER_NUMBERS,
   BOSS_PLAYER_NUMBERS,
-  HIDDEN_PAGE_NUMBERS,
 } from "../data/manager";
+import { badgeFor } from "../data/badges";
 
-type Feature =
-  "hub" | "roster" | "travel" | "training" | "gyms" | "unlocks" | "debug";
+type Feature = "all";
 
 interface ManagerWindow extends Window {
   ceefaxManagerInstalled?: boolean;
@@ -52,14 +54,6 @@ const baseUrl = import.meta.env.BASE_URL;
 let state: GameState | null = null;
 let battleViewTurn = 0;
 let battleViewTurns: BattleTurn[] = [];
-
-const PAGE_LABELS: Record<string, string> = {
-  "000": "THE SECRET PAGE",
-  "123": "PROFESSOR JOAK",
-  "404": "PAGE NOT FOUND",
-  "666": "DEVILMON",
-  "999": "COPMON",
-};
 
 export function initManager(): void {
   if (!managerWindow.ceefaxManagerInstalled) {
@@ -128,8 +122,7 @@ function renderFeature(mount: HTMLElement, feature: Feature): void {
     renderGate(mount);
     return;
   }
-  mount.innerHTML =
-    statusBarHtml(state) + sleepHtml(state) + featureHtml(state, feature);
+  mount.innerHTML = statusBarHtml(state) + sleepHtml(state) + allHtml(state);
 }
 
 function renderSecret(mount: HTMLElement, key: SecretHumonKey): void {
@@ -139,41 +132,51 @@ function renderSecret(mount: HTMLElement, key: SecretHumonKey): void {
   }
   const spec = SECRET_HUMONS[key];
   const owned = state.unlocked.includes(key);
-  const found = state.visited.includes(spec.page);
-  const affordable = state.currency >= spec.cost;
-  const buyLabel = key === "joak" ? "BUY A JOAK BALL" : "ENLIST";
-  const button = owned
+  const count = state.items[ballItemFor(key)];
+  const shopLink = `<a href="${baseUrl}manager">PAGE 810</a>`;
+  const action = owned
     ? `<p class="mgr-idle">${esc(spec.name)} IS IN YOUR SQUAD</p>`
-    : `<button
+    : count > 0
+      ? `<button
 				class="mgr-btn ${key === "devil" || key === "cop" ? "mgr-btn-danger" : ""}"
-				data-mgr-action="unlock"
+				data-mgr-action="secret-catch"
 				data-mgr-key="${key}"
-				${!found || !affordable ? "disabled" : ""}
-			>${buyLabel} - $${spec.cost}</button>`;
+			>THROW A ${esc(BALL_NAMES[key])}</button>`
+      : `<p class="mgr-busy">YOU NEED A <strong>${esc(BALL_NAMES[key])}</strong>. BUY ONE AT THE POKESHOP ON ${shopLink}.</p>`;
   mount.innerHTML = `
 		<div class="mgr-secret">
 			<div class="mgr-status">
 				<span class="mgr-status-item">DAY <strong>${state.day}</strong></span>
-				<span class="mgr-status-item">CASH <strong>$${state.currency}</strong></span>
+				<span class="mgr-status-item">CASH <strong>¥${state.currency}</strong></span>
+				<span class="mgr-status-item">${esc(BALL_NAMES[key])} <strong>x${count}</strong></span>
 			</div>
-			${owned ? "" : `<p class="mgr-busy">REQUIRES PAGE ${spec.page}</p>`}
-			${owned ? "" : `<p class="mgr-busy">COST $${spec.cost}</p>`}
-			${button}
+			${action}
 		</div>`;
+  for (const slot of document.querySelectorAll<HTMLElement>(
+    `[data-secret-ball="${key}"]`,
+  )) {
+    slot.innerHTML =
+      count > 0
+        ? `<span class="mgr-secret-ball-vis">${spriteHtml(BALL_SPRITES[key], "3rem")}</span>`
+        : "";
+  }
 }
 
 function statusBarHtml(game: GameState): string {
-  const badges = game.humons.filter((humon) => humon.kind === "boss").length;
+  const badges = game.defeated.length;
   const staminaTotal = game.humons.reduce((sum, h) => sum + h.stamina, 0);
   const staminaMax = game.humons.reduce((sum, h) => sum + h.maxStamina, 0);
   return `
 		<div class="mgr-status">
 			<span class="mgr-status-item">DAY <strong>${game.day}</strong></span>
-			<span class="mgr-status-item">CASH <strong>$${game.currency}</strong></span>
+			<span class="mgr-status-item">CASH <strong>¥${game.currency}</strong></span>
 			<span class="mgr-status-item">SQUAD <strong>${game.humons.length}</strong></span>
 			<span class="mgr-status-item">STAMINA <strong>${staminaTotal}/${staminaMax}</strong></span>
 			<span class="mgr-status-item">RARE CANDY <strong>${game.items["rare-candy"]}</strong></span>
 			<span class="mgr-status-item">MAX REPEL <strong>${game.items["max-repel"]}</strong></span>
+			<span class="mgr-status-item">JOAKBALL <strong>${game.items["joak-ball"]}</strong></span>
+			<span class="mgr-status-item">DEVILBALL <strong>${game.items["devil-ball"]}</strong></span>
+			<span class="mgr-status-item">COPBALL <strong>${game.items["cop-ball"]}</strong></span>
 			<span class="mgr-status-item">BADGES <strong>${badges}</strong>/10</span>
 		</div>`;
 }
@@ -203,31 +206,26 @@ function victoryHtml(game: GameState): string {
 		</section>`;
 }
 
-function featureHtml(game: GameState, feature: Feature): string {
-  switch (feature) {
-    case "hub":
-      return hubHtml(game);
-    case "roster":
-      return rosterHtml(game);
-    case "travel":
-      return travelHtml(game);
-    case "training":
-      return trainingHtml(game);
-    case "gyms":
-      return gymsHtml(game);
-    case "unlocks":
-      return unlocksHtml(game);
-    case "debug":
-      return debugHtml(game);
-  }
+function allHtml(game: GameState): string {
+  return `
+		${victoryHtml(game)}
+		${objectiveHtml(game)}
+		${jumpBarHtml(game)}
+		${rosterSectionHtml(game)}
+		${trainFormHtml(game)}
+		${travelFormHtml(game)}
+		${gymsSectionHtml(game)}
+		${battleReplaysHtml(game)}
+		${shopHtml(game)}
+		${badgesSectionHtml(game)}
+		${logSectionHtml(game)}`;
 }
 
-function hubHtml(game: GameState): string {
+function objectiveHtml(game: GameState): string {
   const staminaReady = game.humons.filter(
     (humon) => humon.stamina >= staminaCost("train"),
   ).length;
   return `
-		${victoryHtml(game)}
 		<section class="mgr-section">
 			<h2 class="mgr-section-title">OBJECTIVE</h2>
 			<div class="mgr-section-body">
@@ -235,16 +233,35 @@ function hubHtml(game: GameState): string {
 				<p class="mgr-note">${game.wonDay === null ? `YOU ARE ON DAY ${game.day}.` : `CHAMPION! IT TOOK YOU ${game.wonDay} DAY${game.wonDay === 1 ? "" : "S"}.`}</p>
 				${staminaReady > 0 ? `<p class="mgr-note">${staminaReady} HUMON${staminaReady === 1 ? "" : "S"} HAVE ENOUGH STAMINA TO TRAIN TODAY.</p>` : '<p class="mgr-note">EVERYONE IS EXHAUSTED. GO TO SLEEP.</p>'}
 			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">SQUAD (${game.humons.length})</h2>
-			<div class="mgr-section-body mgr-grid">
-				${game.humons.map(humonCard).join("")}
+		</section>`;
+}
+
+function jumpBarHtml(game: GameState): string {
+  const hasReplays = game.humons.some(
+    (h) => h.lastBattle && h.lastBattle.turns.length > 0,
+  );
+  const replaysSection: [string, string] = ["replays", "REPLAYS"];
+  const sections: Array<[string, string]> = [
+    ["roster", "ROSTER"],
+    ["train", "TRAIN"],
+    ["travel", "TRAVEL"],
+    ["gyms", "GYMS"],
+    ...(hasReplays ? [replaysSection] : []),
+    ["shop", "SHOP"],
+    ["badges", "BADGES"],
+    ["log", "ACTIVITY"],
+  ];
+  return `
+		<section class="mgr-section mgr-jump">
+			<h2 class="mgr-section-title">QUICK JUMP</h2>
+			<div class="mgr-section-body mgr-jump-bar">
+				${sections
+          .map(
+            ([id, label]) =>
+              `<button class="mgr-btn" data-mgr-action="jump" data-mgr-scroll="${id}">${label}</button>`,
+          )
+          .join("")}
 			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">RECENT ACTIVITY</h2>
-			<div class="mgr-section-body">${logHtml(game)}</div>
 		</section>`;
 }
 
@@ -266,9 +283,9 @@ function humonCard(humon: Humon): string {
 		</div>`;
 }
 
-function rosterHtml(game: GameState): string {
+function rosterSectionHtml(game: GameState): string {
   return `
-		<section class="mgr-section">
+		<section class="mgr-section" id="mgr-roster">
 			<h2 class="mgr-section-title">ROSTER (${game.humons.length})</h2>
 			<div class="mgr-section-body mgr-grid">
 				${game.humons.map(rosterCard).join("")}
@@ -334,65 +351,49 @@ function teamSummaryHtml(humon: Humon): string {
   return `<span class="mgr-note">${humon.team.map((name) => esc(name)).join(", ")}</span>`;
 }
 
-function travelHtml(game: GameState): string {
-  const mount = document.querySelector<HTMLElement>(
-    '[data-manager-feature="travel"]',
-  );
+function travelFormHtml(game: GameState): string {
   const ready = game.humons.filter(
     (humon) => humon.stamina >= staminaCost("travel"),
   );
-  const currentHumon =
-    mount?.querySelector<HTMLSelectElement>('[data-mgr-select="humon"]')
-      ?.value ??
-    ready[0]?.id ??
-    "";
   const humonOpts =
     ready.length === 0
       ? '<option value="">NO HUMONS WITH ENOUGH STAMINA</option>'
       : ready
           .map((humon) =>
-            option(
-              humon.id,
-              `${humonName(humon)} LV ${humon.level}`,
-              humon.id === currentHumon,
-            ),
+            option(humon.id, `${humonName(humon)} LV ${humon.level}`, false),
           )
           .join("");
-  const currentTown = Number(
-    mount?.querySelector<HTMLSelectElement>('[data-mgr-select="town"]')
-      ?.value ?? TOWN_PLAYER_NUMBERS[0],
-  );
   const townOpts = TOWN_PLAYER_NUMBERS.map((number) => {
     const player = findPlayer(number);
     const town = player?.hometown ?? "???";
-    return option(String(number), town, number === currentTown);
+    return option(String(number), town, false);
   }).join("");
   return `
-		<section class="mgr-section">
+		<section class="mgr-section" id="mgr-travel">
 			<h2 class="mgr-section-title">SEND A HUMON TRAVELLING</h2>
 			<div class="mgr-section-body">
 				<p class="mgr-note">TRAVEL COSTS ${staminaCost("travel")} STAMINA AND UNLOCKS THE TOWN'S CATCH POOL. THE HUMON TRIES TO CATCH ONE POKEMON ON THE SPOT.</p>
 				<div class="mgr-form">
-					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon">${humonOpts}</select></label>
-					<label class="mgr-label">TOWN <select class="mgr-select" data-mgr-select="town">${townOpts}</select></label>
+					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="travel-humon">${humonOpts}</select></label>
+					<label class="mgr-label">TOWN <select class="mgr-select" data-mgr-select="travel-town">${townOpts}</select></label>
 					<button class="mgr-btn" data-mgr-action="travel" ${ready.length ? "" : "disabled"}>TRAVEL (-${staminaCost("travel")} STAMINA)</button>
 				</div>
-				<div data-mgr-preview="travel">${travelPreviewHtml(game, mount)}</div>
+				<div data-mgr-preview="travel">${travelPreviewHtml(game)}</div>
 			</div>
 		</section>`;
 }
 
-function travelPreviewHtml(game: GameState, mount: HTMLElement | null): string {
-  const scope =
-    mount ??
-    document.querySelector<HTMLElement>('[data-manager-feature="travel"]');
+function travelPreviewHtml(game: GameState): string {
+  const mount = document.querySelector<HTMLElement>(
+    '[data-manager-feature="all"]',
+  );
   const humonId =
-    scope?.querySelector<HTMLSelectElement>('[data-mgr-select="humon"]')
+    mount?.querySelector<HTMLSelectElement>('[data-mgr-select="travel-humon"]')
       ?.value ??
     game.humons[0]?.id ??
     "";
   const town = Number(
-    scope?.querySelector<HTMLSelectElement>('[data-mgr-select="town"]')
+    mount?.querySelector<HTMLSelectElement>('[data-mgr-select="travel-town"]')
       ?.value ?? TOWN_PLAYER_NUMBERS[0],
   );
   const humon = humonById(game, humonId);
@@ -412,119 +413,94 @@ function travelPreviewHtml(game: GameState, mount: HTMLElement | null): string {
 		</div>`;
 }
 
-function trainingHtml(game: GameState): string {
-  const mount = document.querySelector<HTMLElement>(
-    '[data-manager-feature="training"]',
-  );
+function trainFormHtml(game: GameState): string {
   const ready = game.humons.filter(
     (humon) => humon.stamina >= staminaCost("train"),
   );
-  const currentHumon =
-    mount?.querySelector<HTMLSelectElement>('[data-mgr-select="humon"]')
-      ?.value ??
-    ready[0]?.id ??
-    "";
   const humonOpts =
     ready.length === 0
       ? '<option value="">NO HUMONS WITH ENOUGH STAMINA</option>'
       : ready
           .map((humon) =>
-            option(
-              humon.id,
-              `${humonName(humon)} LV ${humon.level}`,
-              humon.id === currentHumon,
-            ),
+            option(humon.id, `${humonName(humon)} LV ${humon.level}`, false),
           )
           .join("");
   return `
-		<section class="mgr-section">
+		<section class="mgr-section" id="mgr-train">
 			<h2 class="mgr-section-title">TRAIN A HUMON</h2>
 			<div class="mgr-section-body">
 				<p class="mgr-note">TRAINING IS IMMEDIATE, COSTS ${staminaCost("train")} STAMINA AND GRANTS XP AND CASH. RARE CANDIES DROP SOMETIMES.</p>
 				<div class="mgr-form">
-					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon">${humonOpts}</select></label>
+					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="train-humon">${humonOpts}</select></label>
 					<button class="mgr-btn" data-mgr-action="train" ${ready.length ? "" : "disabled"}>TRAIN (-${staminaCost("train")} STAMINA)</button>
 				</div>
-			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">SQUAD STATUS</h2>
-			<div class="mgr-section-body mgr-grid">
-				${game.humons.map(humonCard).join("")}
 			</div>
 		</section>`;
 }
 
-function gymsHtml(game: GameState): string {
-  const mount = document.querySelector<HTMLElement>(
-    '[data-manager-feature="gyms"]',
-  );
+function gymsSectionHtml(game: GameState): string {
   const ready = game.humons.filter(
     (humon) => humon.stamina >= staminaCost("gym"),
   );
 
-  const gymBattles = game.humons.filter(
-    (h) => h.lastBattle && h.lastBattle.turns.length > 0,
-  );
-  const viewerHtml =
-    gymBattles.length > 0
-      ? gymBattles.map((h) => battleViewerHtml(h)).join("")
-      : "";
-
   const bossCards = BOSS_PLAYER_NUMBERS.map((number) => {
     const player = findPlayer(number);
     if (!player) return "";
-    const joined = !!humonById(game, `boss-${number}`);
+    const defeated = game.defeated.includes(number);
     const team = bossTeamFor(number);
-    const rec = recommendedLevel(number);
-    const currentHumon =
-      mount?.querySelector<HTMLSelectElement>(
-        `[data-mgr-select="humon"][data-boss="${number}"]`,
-      )?.value ??
-      ready[0]?.id ??
-      "";
+    const selectedHumon =
+      ready.length > 0
+        ? (humonById(game, ready[0].id) ?? undefined)
+        : undefined;
+    const needsTeam = !!selectedHumon && selectedHumon.team.length === 0;
     const humonOpts =
       ready.length === 0
         ? '<option value="">NO HUMONS WITH ENOUGH STAMINA</option>'
         : ready
             .map((humon) =>
-              option(
-                humon.id,
-                `${humonName(humon)} LV ${humon.level}`,
-                humon.id === currentHumon,
-              ),
+              option(humon.id, `${humonName(humon)} LV ${humon.level}`, false),
             )
             .join("");
+    const teamHint =
+      needsTeam && selectedHumon
+        ? `<p class="mgr-note mgr-team-hint" data-mgr-team-hint="${number}">${esc(humonName(selectedHumon))} NEEDS A TEAM FIRST</p>`
+        : `<p class="mgr-note mgr-team-hint" data-mgr-team-hint="${number}" hidden></p>`;
     return `
-			<div class="mgr-card" ${joined ? 'data-dim="true"' : ""}>
+			<div class="mgr-card" ${defeated ? 'data-dim="true"' : ""}>
 				<div class="mgr-card-head">
 					${spriteHtml(spriteFor(number), "3rem")}
 					<span class="mgr-name">${esc(player.name)}</span>
 					<span class="mgr-tag">GYM ${player.number}</span>
-					<span class="mgr-tag">${joined ? "JOINED" : "UNBEATEN"}</span>
+					<span class="mgr-tag">${defeated ? "DEFEATED" : "UNBEATEN"}</span>
 				</div>
 				<p class="mgr-note">HOMETOWN: ${esc(player.hometown)}</p>
 				<div class="mgr-pool">
 					<span class="mgr-note">TEAM:</span>
 					${team.map((name) => monHtml(name)).join("")}
 				</div>
-				<p class="mgr-note">RECOMMENDED LV: ${rec}</p>
 				<div class="mgr-form">
-					<label class="mgr-label">CHALLENGER <select class="mgr-select" data-mgr-select="humon" data-boss="${number}">${humonOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="gym" data-boss="${number}" ${!ready.length || joined ? "disabled" : ""}>CHALLENGE (-${staminaCost("gym")} STAMINA)</button>
+					<label class="mgr-label">CHALLENGER <select class="mgr-select" data-mgr-select="gym-humon" data-boss="${number}">${humonOpts}</select></label>
+					<button class="mgr-btn" data-mgr-action="gym" data-boss="${number}" ${!ready.length || defeated || needsTeam ? "disabled" : ""}>CHALLENGE (-${staminaCost("gym")} STAMINA)</button>
+					${teamHint}
 				</div>
 			</div>`;
   }).join("");
   return `
-		${victoryHtml(game)}
-		${viewerHtml}
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">GYM LEADERS (${game.humons.filter((humon) => humon.kind === "boss").length}/10 BEATEN)</h2>
+		<section class="mgr-section" id="mgr-gyms">
+			<h2 class="mgr-section-title">GYM LEADERS (${game.defeated.length}/10 BEATEN)</h2>
 			<div class="mgr-section-body">
-				<p class="mgr-note">GYM BATTLES COST ${staminaCost("gym")} STAMINA AND RESOLVE IMMEDIATELY VIA REAL SHOWDOWN SIMULATION. BEATING A LEADER ADDS THEM TO YOUR SQUAD.</p>
+				<p class="mgr-note">GYM BATTLES COST ${staminaCost("gym")} STAMINA AND RESOLVE IMMEDIATELY VIA REAL SHOWDOWN SIMULATION. BEATING A LEADER EARNS A BADGE.</p>
 				<div class="mgr-grid">${bossCards}</div>
 			</div>
 		</section>`;
+}
+
+function battleReplaysHtml(game: GameState): string {
+  const gymBattles = game.humons.filter(
+    (h) => h.lastBattle && h.lastBattle.turns.length > 0,
+  );
+  if (gymBattles.length === 0) return "";
+  return `<div id="mgr-replays" class="mgr-replays">${gymBattles.map((h) => battleViewerHtml(h)).join("")}</div>`;
 }
 
 function battleMemberHtml(m: {
@@ -769,119 +745,65 @@ function battleViewerHtml(humon: Humon): string {
 		</section>`;
 }
 
-function debugHtml(game: GameState): string {
-  const humonOpts =
-    game.humons.length === 0
-      ? '<option value="">NO HUMONS</option>'
-      : game.humons
-          .map((h) => option(h.id, `${humonName(h)} LV ${h.level}`, false))
-          .join("");
-  const trainerOpts = TOWN_PLAYER_NUMBERS.map((n) => {
-    const p = findPlayer(n);
-    return option(String(n), p?.hometown ?? "???", false);
-  }).join("");
-  const bossOpts = BOSS_PLAYER_NUMBERS.map((n) => {
-    const p = findPlayer(n);
-    return option(String(n), p?.name ?? "???", false);
+function shopHtml(game: GameState): string {
+  const shop = SECRET_HUMON_KEYS.map((key) => {
+    const spec = SECRET_HUMONS[key];
+    const count = game.items[ballItemFor(key)];
+    const caught = game.unlocked.includes(key);
+    const owned = count >= 1;
+    const affordable = game.currency >= spec.cost;
+    const label = caught
+      ? "CAUGHT"
+      : owned
+        ? "ALREADY OWNED"
+        : affordable
+          ? `BUY ${BALL_NAMES[key]} - ¥${spec.cost}`
+          : `NEED ¥${spec.cost}`;
+    return `
+			<div class="mgr-card" ${caught ? 'data-dim="true"' : ""}>
+				<div class="mgr-card-head">
+					${spriteHtml(BALL_SPRITES[key], "3rem")}
+					<span class="mgr-name">${BALL_NAMES[key]}</span>
+					<span class="mgr-tag">¥${spec.cost}</span>
+				</div>
+				<p class="mgr-note">${esc(spec.ballBlurb)}</p>
+				<button class="mgr-btn" data-mgr-action="buy" data-mgr-key="${key}" ${caught || owned || !affordable ? "disabled" : ""}>${label}</button>
+			</div>`;
   }).join("");
   return `
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">DEBUG SANDBOX</h2>
-			<div class="mgr-section-body">
-				<p class="mgr-note">ALL DEBUG ACTIONS ARE FREE AND RESOLVE IMMEDIATELY. NO STAMINA COST.</p>
-			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">FREE TRAIN</h2>
-			<div class="mgr-section-body">
-				<div class="mgr-form">
-					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon">${humonOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="debug-train" ${game.humons.length === 0 ? "disabled" : ""}>TRAIN NOW</button>
-				</div>
-			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">FREE TRAVEL</h2>
-			<div class="mgr-section-body">
-				<div class="mgr-form">
-					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon-travel">${humonOpts}</select></label>
-					<label class="mgr-label">TOWN <select class="mgr-select" data-mgr-select="town">${trainerOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="debug-travel" ${game.humons.length === 0 ? "disabled" : ""}>TRAVEL NOW</button>
-				</div>
-			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">FREE GYM BATTLE</h2>
-			<div class="mgr-section-body">
-				<p class="mgr-note">RUNS REAL SHOWDOWN BATTLE, THEN RESOLVES IMMEDIATELY. WINNING THE 10TH GYM DECLARES THE CHAMPION.</p>
-				<div class="mgr-form">
-					<label class="mgr-label">HUMON <select class="mgr-select" data-mgr-select="humon-gym">${humonOpts}</select></label>
-					<label class="mgr-label">GYM <select class="mgr-select" data-mgr-select="boss">${bossOpts}</select></label>
-					<button class="mgr-btn" data-mgr-action="debug-gym" ${game.humons.length === 0 ? "disabled" : ""}>BATTLE NOW</button>
-				</div>
-			</div>
-		</section>
-		${game.humons
-      .filter((h) => h.lastBattle && h.lastBattle.turns.length > 0)
-      .map((h) => battleViewerHtml(h))
-      .join("")}
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">ALL HUMONS (${game.humons.length})</h2>
-			<div class="mgr-section-body mgr-grid">
-				${game.humons.map(humonCard).join("")}
-			</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">RECENT ACTIVITY</h2>
-			<div class="mgr-section-body">${logHtml(game)}</div>
+		<section class="mgr-section" id="mgr-shop">
+			<h2 class="mgr-section-title">POKESHOP</h2>
+			<div class="mgr-section-body mgr-grid">${shop}</div>
 		</section>`;
 }
 
-function unlocksHtml(game: GameState): string {
-  const visitRows = HIDDEN_PAGE_NUMBERS.map((page) => {
-    const visited = game.visited.includes(page);
+function badgesSectionHtml(game: GameState): string {
+  const slots = BOSS_PLAYER_NUMBERS.map((number) => {
+    const badge = badgeFor(number);
+    const owned = game.defeated.includes(number);
+    const name = owned && badge ? badge.name : "???";
+    const inner =
+      owned && badge
+        ? spriteHtml(badge.sprite, "2.5rem")
+        : '<span class="mgr-badge-empty">?</span>';
     return `
-			<div class="mgr-visit-row">
-				<span class="mgr-visit-num">${page}</span>
-				<span>${PAGE_LABELS[page] ?? "???"}</span>
-				<span class="mgr-visit-state ${visited ? "mgr-visit-ok" : "mgr-visit-miss"}">${visited ? "VISITED" : "NOT FOUND"}</span>
-			</div>`;
-  }).join("");
-  const shop = SECRET_HUMON_KEYS.map((key) => {
-    const spec = SECRET_HUMONS[key];
-    const owned = game.unlocked.includes(key);
-    const found = game.visited.includes(spec.page);
-    const affordable = game.currency >= spec.cost;
-    const disabled = owned || !found || !affordable;
-    const label = owned
-      ? "IN SQUAD"
-      : !found
-        ? `FIND PAGE ${spec.page}`
-        : !affordable
-          ? `NEED $${spec.cost}`
-          : key === "joak"
-            ? "BUY JOAK BALL"
-            : "ENLIST";
-    return `
-			<div class="mgr-card" ${owned ? 'data-dim="true"' : ""}>
-				<div class="mgr-card-head">
-					${spriteHtml(spec.sprite, "3rem")}
-					<span class="mgr-name">${esc(spec.name)}</span>
-					<span class="mgr-tag">$${spec.cost}</span>
-				</div>
-				<p class="mgr-note">${esc(spec.blurb)}</p>
-				<p class="mgr-note">FOUND ON PAGE ${spec.page}</p>
-				<button class="mgr-btn" data-mgr-action="unlock" data-mgr-key="${key}" ${disabled ? "disabled" : ""}>${label}</button>
+			<div class="mgr-badge-slot" ${owned ? "" : 'data-dim="true"'}>
+				${inner}
+				<span class="mgr-badge-name">${esc(name)}</span>
 			</div>`;
   }).join("");
   return `
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">VISITED PAGES</h2>
-			<div class="mgr-section-body">${visitRows}</div>
-		</section>
-		<section class="mgr-section">
-			<h2 class="mgr-section-title">SECRET HUMON SHOP</h2>
-			<div class="mgr-section-body mgr-grid">${shop}</div>
+		<section class="mgr-section" id="mgr-badges">
+			<h2 class="mgr-section-title">BADGE RACK (${game.defeated.length}/${BOSS_PLAYER_NUMBERS.length})</h2>
+			<div class="mgr-section-body mgr-badge-rack">${slots}</div>
+		</section>`;
+}
+
+function logSectionHtml(game: GameState): string {
+  return `
+		<section class="mgr-section" id="mgr-log">
+			<h2 class="mgr-section-title">RECENT ACTIVITY</h2>
+			<div class="mgr-section-body">${logHtml(game)}</div>
 		</section>`;
 }
 
@@ -1047,15 +969,15 @@ function handleAction(action: string, el: HTMLElement): void {
       break;
     }
     case "train": {
-      const humonId = selectValue("humon");
+      const humonId = selectValue("train-humon");
       result = humonId
         ? startAction(state, humonId, "train")
         : { ok: false, error: "PICK A HUMON" };
       break;
     }
     case "travel": {
-      const humonId = selectValue("humon");
-      const town = Number(selectValue("town"));
+      const humonId = selectValue("travel-humon");
+      const town = Number(selectValue("travel-town"));
       result =
         humonId && !Number.isNaN(town)
           ? startAction(state, humonId, "travel", town)
@@ -1066,7 +988,7 @@ function handleAction(action: string, el: HTMLElement): void {
       const boss = Number(el.dataset.boss);
       const humonId =
         mount?.querySelector<HTMLSelectElement>(
-          `[data-mgr-select="humon"][data-boss="${boss}"]`,
+          `[data-mgr-select="gym-humon"][data-boss="${boss}"]`,
         )?.value ?? "";
       if (!humonId) {
         result = { ok: false, error: "PICK A HUMON" };
@@ -1085,9 +1007,14 @@ function handleAction(action: string, el: HTMLElement): void {
       });
       return;
     }
-    case "unlock": {
+    case "buy": {
       const key = el.dataset.mgrKey as SecretHumonKey;
-      result = unlockSecret(state, key);
+      result = buyBall(state, key);
+      break;
+    }
+    case "secret-catch": {
+      const key = el.dataset.mgrKey as SecretHumonKey;
+      result = useBall(state, key);
       break;
     }
     case "use-rare-candy": {
@@ -1095,42 +1022,15 @@ function handleAction(action: string, el: HTMLElement): void {
       result = useRareCandy(state, humonId);
       break;
     }
-    case "debug-train": {
-      const humonId = selectValue("humon");
-      result = humonId
-        ? startAction(state, humonId, "train", undefined, { free: true })
-        : { ok: false, error: "PICK A HUMON" };
-      break;
-    }
-    case "debug-travel": {
-      const humonId = selectValue("humon-travel");
-      const town = Number(selectValue("town"));
-      result =
-        humonId && !Number.isNaN(town)
-          ? startAction(state, humonId, "travel", town, { free: true })
-          : { ok: false, error: "PICK A HUMON AND A TOWN" };
-      break;
-    }
-    case "debug-gym": {
-      const humonId = selectValue("humon-gym");
-      const boss = Number(selectValue("boss"));
-      if (!humonId || Number.isNaN(boss)) {
-        result = { ok: false, error: "PICK A HUMON AND A GYM" };
-        break;
+    case "jump": {
+      const id = el.dataset.mgrScroll;
+      if (id) {
+        const target = document.getElementById(`mgr-${id}`);
+        if (target)
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
       }
       result = { ok: true };
-      el.setAttribute("disabled", "");
-      el.textContent = "BATTLE IN PROGRESS...";
-      startGymAction(current, humonId, boss, { free: true }).then(
-        (battleResult) => {
-          if (!battleResult.ok) {
-            log(current, battleResult.error);
-          }
-          saveState(current);
-          renderAll();
-        },
-      );
-      return;
+      break;
     }
     case "bt-prev": {
       if (battleViewTurn > 0) battleViewTurn--;
@@ -1155,21 +1055,46 @@ function handleAction(action: string, el: HTMLElement): void {
   triggerSpriteAnimations();
 }
 
+function syncGymCard(select: HTMLSelectElement): void {
+  if (!state) return;
+  const card = select.closest(".mgr-card") as HTMLElement | null;
+  if (!card) return;
+  const boss = Number(select.dataset.boss);
+  const humon = humonById(state, select.value);
+  const button = card.querySelector<HTMLButtonElement>(
+    'button[data-mgr-action="gym"]',
+  );
+  if (button) {
+    button.disabled =
+      state.defeated.includes(boss) || !humon || humon.team.length === 0;
+  }
+  const hint = card.querySelector<HTMLElement>(
+    `[data-mgr-team-hint="${boss}"]`,
+  );
+  if (hint) {
+    hint.hidden = !humon || humon.team.length > 0;
+    if (humon) hint.textContent = `${humonName(humon)} NEEDS A TEAM FIRST`;
+  }
+}
+
 function onChange(event: Event): void {
   const target = event.target as HTMLSelectElement | null;
   if (
     !target ||
     typeof target.matches !== "function" ||
-    !target.matches("[data-mgr-select]")
+    !target.matches(
+      '[data-mgr-select="travel-humon"], [data-mgr-select="travel-town"], [data-mgr-select="gym-humon"]',
+    )
   )
     return;
   const mount = target.closest("[data-manager-feature]") as HTMLElement | null;
   if (!mount || !state) return;
-  const feature = mount.dataset.managerFeature as Feature | undefined;
-  if (feature === "travel") {
-    const preview = mount.querySelector<HTMLElement>(
-      '[data-mgr-preview="travel"]',
-    );
-    if (preview) preview.innerHTML = travelPreviewHtml(state, mount);
+  if (target.matches('[data-mgr-select="gym-humon"]')) {
+    syncGymCard(target);
+    return;
   }
+  const preview = mount.querySelector<HTMLElement>(
+    '[data-mgr-preview="travel"]',
+  );
+  if (preview) preview.innerHTML = travelPreviewHtml(state);
 }

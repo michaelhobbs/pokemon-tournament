@@ -89,36 +89,6 @@ export const MANAGER_PAGE: PageLink = {
   href: `${base}manager`,
   hidden: true,
 };
-export const ROSTER_PAGE: PageLink = {
-  number: "811",
-  label: "ROSTER",
-  href: `${base}manager/roster`,
-  hidden: true,
-};
-export const TRAVEL_PAGE: PageLink = {
-  number: "812",
-  label: "TRAVEL",
-  href: `${base}manager/travel`,
-  hidden: true,
-};
-export const TRAINING_PAGE: PageLink = {
-  number: "813",
-  label: "TRAINING",
-  href: `${base}manager/training`,
-  hidden: true,
-};
-export const GYMS_PAGE: PageLink = {
-  number: "814",
-  label: "GYMS",
-  href: `${base}manager/gyms`,
-  hidden: true,
-};
-export const UNLOCKS_PAGE: PageLink = {
-  number: "815",
-  label: "UNLOCKS",
-  href: `${base}manager/unlocks`,
-  hidden: true,
-};
 export const MONS_DIRECTORY_PAGE: PageLink = {
   number: "900",
   label: "POKEDEX",
@@ -164,15 +134,6 @@ export const COPMON_PAGE: PageLink = {
   href: `${base}999`,
   hidden: true,
 };
-
-/** Child pages of the manager group, in ascending page-number order. */
-export const MANAGER_CHILD_PAGES: PageLink[] = [
-  ROSTER_PAGE,
-  TRAVEL_PAGE,
-  TRAINING_PAGE,
-  GYMS_PAGE,
-  UNLOCKS_PAGE,
-];
 
 export const PAGES: PageLink[] = [
   HOME_PAGE,
@@ -250,7 +211,6 @@ export const ALL_PAGES: PageLink[] = [
   ...AWARD_PAGES,
   HOMETOWNS_PAGE,
   MANAGER_PAGE,
-  ...MANAGER_CHILD_PAGES,
   GYM_PAGE,
   MONS_DIRECTORY_PAGE,
   MONS_PAGE,

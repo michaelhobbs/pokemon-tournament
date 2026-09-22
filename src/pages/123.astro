@@ -10,24 +10,31 @@ import { JOAk_SPRITE, JOAk_JOKES } from "../data/professor-joak";
 
 <CeefaxLayout title="PROFESSOR JOAK" pageNumber="123">
   <SecretQuote />
-  <div class="joak-block">
-    <PixelArt sprite={JOAk_SPRITE} size="8rem" label="Professor Joak sprite" />
+  <div class="secret-block">
+    <div class="secret-sprite-row">
+      <PixelArt
+        sprite={JOAk_SPRITE}
+        size="8rem"
+        label="Professor Joak sprite"
+      />
+      <span class="mgr-secret-ball" data-secret-ball="joak"></span>
+    </div>
     <CeefaxHeading text="PROFESSOR JOAK" color="cyan" />
     <p class="joak-tagline">POKEMON TRAINER TRAINER</p>
     <CeefaxBlock title="A FEW JOKES" color="cyan">
       {JOAk_JOKES.map((joke) => <p>{joke}</p>)}
     </CeefaxBlock>
     <CeefaxBlock title="HUMON MANAGER" color="yellow">
-      <p>JOAK CAN JOIN YOUR HUMON MANAGER SQUAD.</p>
-      <p>BUY A JOAK BALL FOR $500 AND ENLIST THE PROFESSOR.</p>
+      <p>JOAK CAN BE CAUGHT WITH A JOAKBALL.</p>
+      <p>JOAKBALLS ARE SOLD AT THE POKESHOP ON PAGE 810.</p>
     </CeefaxBlock>
     <div class="mgr-app" data-manager-secret="joak"></div>
+    <SecretAwardBanner />
   </div>
-  <SecretAwardBanner />
 </CeefaxLayout>
 
 <style>
-  .joak-block {
+  .secret-block {
     grid-column: 1 / -1;
     justify-self: center;
     display: flex;
@@ -38,7 +45,7 @@ import { JOAk_SPRITE, JOAk_JOKES } from "../data/professor-joak";
     max-width: 100%;
   }
 
-  .joak-block :global(.ceefax-block) {
+  .secret-block :global(.ceefax-block) {
     width: fit-content;
     max-width: 100%;
   }

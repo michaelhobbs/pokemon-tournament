@@ -5,7 +5,11 @@ import { HUMON } from "./humon";
 import { PLAYERS, findPlayer } from "./players";
 import { spriteFor } from "./trainer-sprites";
 import { applySwaps, swapsFor } from "./midseason";
-import { SECRET_HUMONS, type SecretHumonKey } from "./hidden-humons";
+import {
+  SECRET_HUMONS,
+  BALL_NAMES,
+  type SecretHumonKey,
+} from "./hidden-humons";
 
 export const MANAGER_STORAGE_KEY = "pkm:manager:v2";
 
@@ -61,6 +65,17 @@ export interface LogEntry {
 export interface Items {
   "rare-candy": number;
   "max-repel": number;
+  "joak-ball": number;
+  "devil-ball": number;
+  "cop-ball": number;
+}
+
+export type BallItem = "joak-ball" | "devil-ball" | "cop-ball";
+
+export function ballItemFor(key: SecretHumonKey): BallItem {
+  if (key === "joak") return "joak-ball";
+  if (key === "devil") return "devil-ball";
+  return "cop-ball";
 }
 
 export interface GameState {
@@ -68,6 +83,8 @@ export interface GameState {
   day: number;
   /** The day all gym leaders were beaten, or null while still playing. */
   wonDay: number | null;
+  /** Gym leader numbers that have been defeated (badges). */
+  defeated: number[];
   currency: number;
   humons: Humon[];
   items: Items;
@@ -197,9 +214,16 @@ export function defaultState(): GameState {
     version: 2,
     day: STARTING_DAY,
     wonDay: null,
+    defeated: [],
     currency: 0,
     humons: [],
-    items: { "rare-candy": 0, "max-repel": 0 },
+    items: {
+      "rare-candy": 0,
+      "max-repel": 0,
+      "joak-ball": 0,
+      "devil-ball": 0,
+      "cop-ball": 0,
+    },
     visited: [],
     unlocked: [],
     log: [],
@@ -250,6 +274,20 @@ export function loadState(): GameState {
       wonDay: typeof parsed.wonDay === "number" ? parsed.wonDay : null,
       currency: typeof parsed.currency === "number" ? parsed.currency : 0,
       humons,
+      defeated: (() => {
+        const seen = new Set(
+          Array.isArray(parsed.defeated)
+            ? parsed.defeated.filter((n): n is number => typeof n === "number")
+            : [],
+        );
+        for (const h of humons) {
+          if (h.kind === "boss") {
+            const n = Number(h.id.split("-")[1]);
+            if (!Number.isNaN(n)) seen.add(n);
+          }
+        }
+        return [...seen];
+      })(),
       items: {
         "rare-candy":
           typeof parsed.items?.["rare-candy"] === "number"
@@ -258,6 +296,18 @@ export function loadState(): GameState {
         "max-repel":
           typeof parsed.items?.["max-repel"] === "number"
             ? parsed.items["max-repel"]
+            : 0,
+        "joak-ball":
+          typeof parsed.items?.["joak-ball"] === "number"
+            ? parsed.items["joak-ball"]
+            : 0,
+        "devil-ball":
+          typeof parsed.items?.["devil-ball"] === "number"
+            ? parsed.items["devil-ball"]
+            : 0,
+        "cop-ball":
+          typeof parsed.items?.["cop-ball"] === "number"
+            ? parsed.items["cop-ball"]
             : 0,
       },
       visited: Array.isArray(parsed.visited) ? parsed.visited : [],
@@ -407,7 +457,7 @@ function resolveTrain(state: GameState, humon: Humon, seed: number): void {
   recalcLevel(humon);
   const pay = randInt(rand, CURRENCY.train.min, CURRENCY.train.max);
   state.currency += pay;
-  log(state, `${humonName(humon)} TRAINS. +${TRAIN_XP} XP +$${pay}`);
+  log(state, `${humonName(humon)} TRAINS. +${TRAIN_XP} XP +¥${pay}`);
   if (rand() < RARE_CANDY_DROP) {
     state.items["rare-candy"] += 1;
     log(state, "RARE CANDY FOUND!");
@@ -429,7 +479,7 @@ function resolveTravel(
   state.currency += pay;
   log(
     state,
-    `${humonName(humon)} VISITS ${townName}. +${TRAVEL_XP} XP +$${pay}`,
+    `${humonName(humon)} VISITS ${townName}. +${TRAVEL_XP} XP +¥${pay}`,
   );
   if (rand() < MAX_REPEL_DROP) {
     state.items["max-repel"] += 1;
@@ -457,7 +507,7 @@ function resolveTravel(
   if (have.has(pick) || humon.team.length >= MAX_TEAM_SIZE) {
     const bonus = CURRENCY.duplicate + Math.floor(rand() * 30);
     state.currency += bonus;
-    log(state, `${pick} DUPED OR TEAM FULL - SOLD FOR $${bonus}`);
+    log(state, `${pick} DUPED OR TEAM FULL - SOLD FOR ¥${bonus}`);
   } else {
     humon.team.push(pick);
     log(state, `${humonName(humon)} CAUGHT ${pick} IN ${townName}!`);
@@ -484,16 +534,15 @@ function resolveGym(
   if (win) {
     const pay = randInt(rand, CURRENCY.gym.min, CURRENCY.gym.max);
     state.currency += pay;
-    log(state, `${humonName(humon)} BEATS ${bossName}! +${GYM_XP} XP +$${pay}`);
-    const bossId = `boss-${target}`;
-    if (!humonById(state, bossId)) {
-      state.humons.push(makeHumon("boss", bossId));
-      log(state, `${bossName} JOINS THE SQUAD!`);
+    log(state, `${humonName(humon)} BEATS ${bossName}! +${GYM_XP} XP +¥${pay}`);
+    if (!state.defeated.includes(target)) {
+      state.defeated.push(target);
+      log(state, `${bossName} IS DEFEATED. BADGE EARNED!`);
       recordVictoryIfComplete(state);
     } else {
       const bonus = CURRENCY.duplicate + Math.floor(rand() * 60);
       state.currency += bonus;
-      log(state, `${bossName} ALREADY JOINED - +$${bonus}`);
+      log(state, `${bossName} ALREADY DEFEATED - +¥${bonus}`);
     }
   } else {
     log(state, `${humonName(humon)} IS DEFEATED BY ${bossName}.`);
@@ -501,10 +550,10 @@ function resolveGym(
   return state.wonDay !== null;
 }
 
-/** Record the victory (wonDay) once all gym leaders are in the squad. */
+/** Record the victory (wonDay) once every gym leader has been beaten. */
 export function recordVictoryIfComplete(state: GameState): void {
-  const bosses = state.humons.filter((h) => h.kind === "boss").length;
-  if (bosses >= BOSS_PLAYER_NUMBERS.length && state.wonDay === null) {
+  const defeated = state.defeated.length;
+  if (defeated >= BOSS_PLAYER_NUMBERS.length && state.wonDay === null) {
     state.wonDay = state.day;
     log(
       state,
@@ -513,18 +562,33 @@ export function recordVictoryIfComplete(state: GameState): void {
   }
 }
 
-export function unlockSecret(
+export function buyBall(
   state: GameState,
   key: SecretHumonKey,
 ): { ok: true } | { ok: false; error: string } {
   const spec = SECRET_HUMONS[key];
+  const item = ballItemFor(key);
+  if (state.items[item] >= 1)
+    return { ok: false, error: `YOU ALREADY OWN A ${BALL_NAMES[key]}` };
+  if (state.currency < spec.cost)
+    return { ok: false, error: `NOT ENOUGH CURRENCY (NEED ¥${spec.cost})` };
+  state.currency -= spec.cost;
+  state.items[item] += 1;
+  log(state, `${BALL_NAMES[key]} PURCHASED FOR ¥${spec.cost}`);
+  return { ok: true };
+}
+
+export function useBall(
+  state: GameState,
+  key: SecretHumonKey,
+): { ok: true } | { ok: false; error: string } {
+  const spec = SECRET_HUMONS[key];
+  const item = ballItemFor(key);
   if (state.unlocked.includes(key))
     return { ok: false, error: `${spec.name} IS ALREADY IN THE SQUAD` };
-  if (!state.visited.includes(spec.page))
-    return { ok: false, error: `FIND PAGE ${spec.page} FIRST` };
-  if (state.currency < spec.cost)
-    return { ok: false, error: `NOT ENOUGH CURRENCY (NEED $${spec.cost})` };
-  state.currency -= spec.cost;
+  if (state.items[item] <= 0)
+    return { ok: false, error: `NO ${BALL_NAMES[key]} IN YOUR BAG` };
+  state.items[item] -= 1;
   state.unlocked.push(key);
   state.humons.push(makeHumon(key, key));
   log(state, `${spec.name} JOINS THE SQUAD!`);

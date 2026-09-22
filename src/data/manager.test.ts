@@ -27,6 +27,8 @@ import {
   GYM_STAMINA,
   TRAIN_XP,
   BOSS_PLAYER_NUMBERS,
+  buyBall,
+  useBall,
 } from "./manager";
 
 describe("mulberry32", () => {
@@ -230,20 +232,10 @@ describe("advanceDay", () => {
 });
 
 describe("recordVictoryIfComplete", () => {
-  it("records the current day once all gym leaders are in the squad", () => {
+  it("records the current day once all gym leaders are defeated", () => {
     const state = defaultState();
     state.day = 7;
-    for (const number of BOSS_PLAYER_NUMBERS) {
-      state.humons.push({
-        id: `boss-${number}`,
-        kind: "boss",
-        level: 1,
-        xp: 0,
-        team: [],
-        stamina: maxStaminaFor(1),
-        maxStamina: maxStaminaFor(1),
-      });
-    }
+    state.defeated = [...BOSS_PLAYER_NUMBERS];
     recordVictoryIfComplete(state);
     expect(state.wonDay).toBe(7);
   });
@@ -252,17 +244,7 @@ describe("recordVictoryIfComplete", () => {
     const state = defaultState();
     state.day = 7;
     state.wonDay = 5;
-    for (const number of BOSS_PLAYER_NUMBERS) {
-      state.humons.push({
-        id: `boss-${number}`,
-        kind: "boss",
-        level: 1,
-        xp: 0,
-        team: [],
-        stamina: maxStaminaFor(1),
-        maxStamina: maxStaminaFor(1),
-      });
-    }
+    state.defeated = [...BOSS_PLAYER_NUMBERS];
     recordVictoryIfComplete(state);
     expect(state.wonDay).toBe(5);
   });
@@ -270,17 +252,14 @@ describe("recordVictoryIfComplete", () => {
   it("does nothing before all gym leaders are beaten", () => {
     const state = defaultState();
     state.day = 4;
-    state.humons.push({
-      id: "boss-1",
-      kind: "boss",
-      level: 1,
-      xp: 0,
-      team: [],
-      stamina: maxStaminaFor(1),
-      maxStamina: maxStaminaFor(1),
-    });
+    state.defeated = [1];
     recordVictoryIfComplete(state);
     expect(state.wonDay).toBeNull();
+  });
+
+  it("starts with no defeated gyms", () => {
+    const state = defaultState();
+    expect(state.defeated).toEqual([]);
   });
 });
 
@@ -318,6 +297,9 @@ describe("defaultState", () => {
     const state = defaultState();
     expect(state.items["rare-candy"]).toBe(0);
     expect(state.items["max-repel"]).toBe(0);
+    expect(state.items["joak-ball"]).toBe(0);
+    expect(state.items["devil-ball"]).toBe(0);
+    expect(state.items["cop-ball"]).toBe(0);
   });
 
   it("has a log entry", () => {
@@ -395,5 +377,52 @@ describe("humonById", () => {
 describe("MAX_TEAM_SIZE", () => {
   it("is 6", () => {
     expect(MAX_TEAM_SIZE).toBe(6);
+  });
+});
+
+describe("balls", () => {
+  it("buyBall deducts currency and adds a ball", () => {
+    const state = defaultState();
+    state.currency = 500;
+    const result = buyBall(state, "joak");
+    expect(result.ok).toBe(true);
+    expect(state.currency).toBe(0);
+    expect(state.items["joak-ball"]).toBe(1);
+  });
+
+  it("buyBall fails without enough currency", () => {
+    const state = defaultState();
+    state.currency = 499;
+    const result = buyBall(state, "joak");
+    expect(result.ok).toBe(false);
+    expect(state.items["joak-ball"]).toBe(0);
+  });
+
+  it("buyBall rejects a second ball of the same type", () => {
+    const state = defaultState();
+    state.currency = 1000;
+    buyBall(state, "joak");
+    const result = buyBall(state, "joak");
+    expect(result.ok).toBe(false);
+    expect(state.items["joak-ball"]).toBe(1);
+  });
+
+  it("useBall consumes a ball and catches the humon", () => {
+    const state = defaultState();
+    state.currency = 500;
+    buyBall(state, "joak");
+    const before = state.humons.length;
+    const result = useBall(state, "joak");
+    expect(result.ok).toBe(true);
+    expect(state.items["joak-ball"]).toBe(0);
+    expect(state.unlocked).toContain("joak");
+    expect(state.humons.length).toBe(before + 1);
+  });
+
+  it("useBall fails when missing the ball", () => {
+    const state = defaultState();
+    const result = useBall(state, "devil");
+    expect(result.ok).toBe(false);
+    expect(state.unlocked).not.toContain("devil");
   });
 });

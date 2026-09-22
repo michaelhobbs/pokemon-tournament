@@ -284,6 +284,54 @@
   gap: 0.75rem;
 }
 
+.mgr-badge-rack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.75rem;
+}
+
+.mgr-badge-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.5rem;
+  border: 1px solid var(--ceefax-yellow);
+}
+
+.mgr-badge-slot[data-dim="true"] {
+  border-style: dashed;
+  opacity: 0.45;
+}
+
+.mgr-badge-empty {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--ceefax-white);
+  line-height: 1;
+}
+
+.mgr-badge-name {
+  font-size: 0.7em;
+  color: var(--ceefax-yellow);
+  letter-spacing: 0.05em;
+}
+
+.mgr-jump {
+  border-color: var(--ceefax-yellow);
+}
+
+.mgr-jump .mgr-section-title {
+  background: var(--ceefax-yellow);
+  color: var(--ceefax-black);
+}
+
+.mgr-jump-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .mgr-pool {
   display: flex;
   flex-wrap: wrap;
@@ -296,6 +344,11 @@
   font-size: 0.85em;
 }
 
+.mgr-team-hint {
+  color: var(--ceefax-red);
+  margin-top: 0.5rem;
+}
+
 .mgr-power {
   color: var(--ceefax-cyan);
   font-size: 0.85em;
@@ -306,6 +359,18 @@
   gap: 0.75rem;
   justify-items: center;
   text-align: center;
+}
+
+.secret-sprite-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.mgr-secret-ball {
+  display: inline-flex;
+  align-items: center;
 }
 
 .mgr-visit-row {
