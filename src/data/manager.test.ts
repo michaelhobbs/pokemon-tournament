@@ -34,7 +34,13 @@ import {
   transferBetweenHumons,
   sellFromStorage,
   CURRENCY,
+  SHINY_BASE,
+  SHINY_PER_LEVEL,
+  SHINY_CAP,
+  shinyChance,
+  SHINY_SELL_MULTIPLIER,
 } from "./manager";
+import type { CaughtMon } from "./manager";
 
 describe("mulberry32", () => {
   it("returns a function", () => {
@@ -119,6 +125,24 @@ describe("catchChance", () => {
 
   it("increases by CATCH_PER_LEVEL per level", () => {
     expect(catchChance(1)).toBeCloseTo(CATCH_BASE + CATCH_PER_LEVEL);
+  });
+});
+
+describe("shinyChance", () => {
+  it("grows with level", () => {
+    expect(shinyChance(5)).toBeGreaterThan(shinyChance(0));
+  });
+
+  it("grows by SHINY_PER_LEVEL per level", () => {
+    expect(shinyChance(1)).toBeCloseTo(SHINY_BASE + SHINY_PER_LEVEL);
+  });
+
+  it("caps at SHINY_CAP", () => {
+    expect(shinyChance(100)).toBe(SHINY_CAP);
+  });
+
+  it("never exceeds SHINY_CAP", () => {
+    expect(shinyChance(10_000)).toBeLessThanOrEqual(SHINY_CAP);
   });
 });
 
@@ -269,8 +293,8 @@ describe("recordVictoryIfComplete", () => {
 });
 
 describe("defaultState", () => {
-  it("has version 2", () => {
-    expect(defaultState().version).toBe(2);
+  it("has version 3", () => {
+    expect(defaultState().version).toBe(3);
   });
 
   it("starts on day 1", () => {
@@ -437,33 +461,43 @@ describe("balls", () => {
   });
 });
 
+const norm = (species: string): CaughtMon => ({ species, shiny: false });
+const shiny = (species: string): CaughtMon => ({ species, shiny: true });
+const mons = (...species: string[]): CaughtMon[] =>
+  species.map((s) => ({ species: s, shiny: false }));
+const fullTeam = (): CaughtMon[] =>
+  Array.from({ length: MAX_TEAM_SIZE }, (_, i) => ({
+    species: `Mon${i}`,
+    shiny: false,
+  }));
+
 describe("pokeputer", () => {
   it("depositToStorage moves a mon off a team", () => {
     const state = defaultState();
     const humon = humonById(state, "starter");
     if (!humon) return;
-    humon.team = ["Pikachu", "Charizard"];
+    humon.team = mons("Pikachu", "Charizard");
     expect(state.storage).toEqual([]);
-    const result = depositToStorage(state, "starter", "Pikachu");
+    const result = depositToStorage(state, "starter", norm("Pikachu"));
     expect(result.ok).toBe(true);
-    expect(humon.team).toEqual(["Charizard"]);
-    expect(state.storage).toEqual(["Pikachu"]);
+    expect(humon.team).toEqual(mons("Charizard"));
+    expect(state.storage).toEqual(mons("Pikachu"));
   });
 
   it("depositToStorage rejects a mon not on the team", () => {
     const state = defaultState();
     const humon = humonById(state, "starter");
     if (!humon) return;
-    humon.team = ["Pikachu"];
-    const result = depositToStorage(state, "starter", "Charizard");
+    humon.team = mons("Pikachu");
+    const result = depositToStorage(state, "starter", norm("Charizard"));
     expect(result.ok).toBe(false);
     expect(state.storage).toEqual([]);
-    expect(humon.team).toEqual(["Pikachu"]);
+    expect(humon.team).toEqual(mons("Pikachu"));
   });
 
   it("depositToStorage rejects an unknown humon", () => {
     const state = defaultState();
-    const result = depositToStorage(state, "nope", "Pikachu");
+    const result = depositToStorage(state, "nope", norm("Pikachu"));
     expect(result.ok).toBe(false);
   });
 
@@ -471,38 +505,38 @@ describe("pokeputer", () => {
     const state = defaultState();
     const humon = humonById(state, "starter");
     if (!humon) return;
-    state.storage = ["Pikachu"];
-    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    state.storage = mons("Pikachu");
+    const result = withdrawFromStorage(state, "starter", norm("Pikachu"));
     expect(result.ok).toBe(true);
     expect(state.storage).toEqual([]);
-    expect(humon.team).toEqual(["Pikachu"]);
+    expect(humon.team).toEqual(mons("Pikachu"));
   });
 
   it("withdrawFromStorage rejects a full team", () => {
     const state = defaultState();
     const humon = humonById(state, "starter");
     if (!humon) return;
-    humon.team = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => `Mon${i}`);
-    state.storage = ["Pikachu"];
-    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    humon.team = fullTeam();
+    state.storage = mons("Pikachu");
+    const result = withdrawFromStorage(state, "starter", norm("Pikachu"));
     expect(result.ok).toBe(false);
-    expect(state.storage).toEqual(["Pikachu"]);
+    expect(state.storage).toEqual(mons("Pikachu"));
   });
 
   it("withdrawFromStorage rejects a species already on the team", () => {
     const state = defaultState();
     const humon = humonById(state, "starter");
     if (!humon) return;
-    humon.team = ["Pikachu"];
-    state.storage = ["Pikachu", "Charizard"];
-    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    humon.team = mons("Pikachu");
+    state.storage = mons("Pikachu", "Charizard");
+    const result = withdrawFromStorage(state, "starter", norm("Pikachu"));
     expect(result.ok).toBe(false);
-    expect(state.storage).toEqual(["Pikachu", "Charizard"]);
+    expect(state.storage).toEqual(mons("Pikachu", "Charizard"));
   });
 
   it("withdrawFromStorage rejects a mon not boxed", () => {
     const state = defaultState();
-    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    const result = withdrawFromStorage(state, "starter", norm("Pikachu"));
     expect(result.ok).toBe(false);
   });
 
@@ -519,11 +553,16 @@ describe("pokeputer", () => {
       stamina: BASE_STAMINA,
       maxStamina: BASE_STAMINA,
     });
-    starter.team = ["Pikachu", "Charizard"];
-    const result = transferBetweenHumons(state, "starter", "second", "Pikachu");
+    starter.team = mons("Pikachu", "Charizard");
+    const result = transferBetweenHumons(
+      state,
+      "starter",
+      "second",
+      norm("Pikachu"),
+    );
     expect(result.ok).toBe(true);
-    expect(starter.team).toEqual(["Charizard"]);
-    expect(humonById(state, "second")?.team).toEqual(["Pikachu"]);
+    expect(starter.team).toEqual(mons("Charizard"));
+    expect(humonById(state, "second")?.team).toEqual(mons("Pikachu"));
   });
 
   it("transferBetweenHumons rejects moving to the same humon", () => {
@@ -532,7 +571,7 @@ describe("pokeputer", () => {
       state,
       "starter",
       "starter",
-      "Pikachu",
+      norm("Pikachu"),
     );
     expect(result.ok).toBe(false);
   });
@@ -546,30 +585,120 @@ describe("pokeputer", () => {
       kind: "boss",
       level: 1,
       xp: 0,
-      team: Array.from({ length: MAX_TEAM_SIZE }, (_, i) => `Mon${i}`),
+      team: fullTeam(),
       stamina: BASE_STAMINA,
       maxStamina: BASE_STAMINA,
     });
-    starter.team = ["Pikachu"];
-    const result = transferBetweenHumons(state, "starter", "second", "Pikachu");
+    starter.team = mons("Pikachu");
+    const result = transferBetweenHumons(
+      state,
+      "starter",
+      "second",
+      norm("Pikachu"),
+    );
     expect(result.ok).toBe(false);
   });
 
   it("sellFromStorage pays CURRENCY.duplicate and removes a copy", () => {
     const state = defaultState();
     state.currency = 100;
-    state.storage = ["Pikachu", "Charizard"];
-    const result = sellFromStorage(state, "Pikachu");
+    state.storage = mons("Pikachu", "Charizard");
+    const result = sellFromStorage(state, norm("Pikachu"));
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.price).toBe(CURRENCY.duplicate);
     expect(state.currency).toBe(100 + CURRENCY.duplicate);
-    expect(state.storage).toEqual(["Charizard"]);
+    expect(state.storage).toEqual(mons("Charizard"));
   });
 
   it("sellFromStorage rejects a mon not boxed", () => {
     const state = defaultState();
-    const result = sellFromStorage(state, "Pikachu");
+    const result = sellFromStorage(state, norm("Pikachu"));
     expect(result.ok).toBe(false);
     expect(state.currency).toBe(0);
+  });
+});
+
+describe("shiny", () => {
+  it("shiny flag survives deposit and withdraw", () => {
+    const state = defaultState();
+    const humon = humonById(state, "starter");
+    if (!humon) return;
+    humon.team = [shiny("Pikachu")];
+    const deposited = depositToStorage(state, "starter", shiny("Pikachu"));
+    expect(deposited.ok).toBe(true);
+    expect(state.storage).toEqual([shiny("Pikachu")]);
+    const withdrawn = withdrawFromStorage(state, "starter", shiny("Pikachu"));
+    expect(withdrawn.ok).toBe(true);
+    expect(humon.team).toEqual([shiny("Pikachu")]);
+    expect(state.storage).toEqual([]);
+  });
+
+  it("shiny and normal copies of the same species coexist in the box", () => {
+    const state = defaultState();
+    state.storage = [norm("Pikachu"), shiny("Pikachu")];
+    const result = withdrawFromStorage(state, "starter", norm("Pikachu"));
+    expect(result.ok).toBe(true);
+    expect(humonById(state, "starter")?.team).toEqual([norm("Pikachu")]);
+    expect(state.storage).toEqual([shiny("Pikachu")]);
+  });
+
+  it("withdrawFromStorage picks the right copy (shiny vs normal)", () => {
+    const state = defaultState();
+    state.storage = [norm("Pikachu"), shiny("Pikachu")];
+    const result = withdrawFromStorage(state, "starter", shiny("Pikachu"));
+    expect(result.ok).toBe(true);
+    expect(humonById(state, "starter")?.team).toEqual([shiny("Pikachu")]);
+    expect(state.storage).toEqual([norm("Pikachu")]);
+  });
+
+  it("shiny flag survives transfer between humons", () => {
+    const state = defaultState();
+    const starter = humonById(state, "starter");
+    if (!starter) return;
+    state.humons.push({
+      id: "second",
+      kind: "boss",
+      level: 1,
+      xp: 0,
+      team: [],
+      stamina: BASE_STAMINA,
+      maxStamina: BASE_STAMINA,
+    });
+    starter.team = [shiny("Pikachu")];
+    const result = transferBetweenHumons(
+      state,
+      "starter",
+      "second",
+      shiny("Pikachu"),
+    );
+    expect(result.ok).toBe(true);
+    expect(starter.team).toEqual([]);
+    expect(humonById(state, "second")?.team).toEqual([shiny("Pikachu")]);
+  });
+
+  it("sellFromStorage pays double for a shiny", () => {
+    const state = defaultState();
+    state.currency = 100;
+    state.storage = [shiny("Pikachu")];
+    const result = sellFromStorage(state, shiny("Pikachu"));
+    expect(result.ok).toBe(true);
+    if (result.ok)
+      expect(result.price).toBe(CURRENCY.duplicate * SHINY_SELL_MULTIPLIER);
+    expect(state.currency).toBe(
+      100 + CURRENCY.duplicate * SHINY_SELL_MULTIPLIER,
+    );
+    expect(state.storage).toEqual([]);
+  });
+
+  it("sells the matching copy for its own price", () => {
+    const state = defaultState();
+    state.currency = 0;
+    state.storage = [norm("Pikachu"), shiny("Pikachu")];
+    sellFromStorage(state, norm("Pikachu"));
+    sellFromStorage(state, shiny("Pikachu"));
+    expect(state.currency).toBe(
+      CURRENCY.duplicate * (1 + SHINY_SELL_MULTIPLIER),
+    );
+    expect(state.storage).toEqual([]);
   });
 });

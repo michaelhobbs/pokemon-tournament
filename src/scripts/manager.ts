@@ -43,6 +43,9 @@ import {
   bossTeamFor,
   TOWN_PLAYER_NUMBERS,
   BOSS_PLAYER_NUMBERS,
+  shinyChance,
+  SHINY_SELL_MULTIPLIER,
+  type CaughtMon,
 } from "../data/manager";
 import { badgeFor } from "../data/badges";
 
@@ -309,7 +312,7 @@ function rosterCard(humon: Humon): string {
   const teamHtml =
     humon.team.length === 0
       ? '<span class="mgr-empty">NO TEAM YET - GO TRAVELLING</span>'
-      : `<div class="mgr-team">${humon.team.map((name) => monHtml(name)).join("")}</div>`;
+      : `<div class="mgr-team">${humon.team.map((m) => monHtml(m.species, m.shiny)).join("")}</div>`;
   return `
 		<div class="mgr-card">
 			<div class="mgr-card-head">
@@ -356,7 +359,7 @@ function staminaHtml(humon: Humon): string {
 function teamSummaryHtml(humon: Humon): string {
   if (humon.team.length === 0)
     return '<span class="mgr-empty">NO TEAM YET</span>';
-  return `<span class="mgr-note">${humon.team.map((name) => esc(name)).join(", ")}</span>`;
+  return `<span class="mgr-note">${humon.team.map((m) => `${m.shiny ? "★ " : ""}${esc(m.species)}`).join(", ")}</span>`;
 }
 
 function travelFormHtml(game: GameState): string {
@@ -408,6 +411,9 @@ function travelPreviewHtml(game: GameState): string {
   const player = findPlayer(town);
   const pool = townCatchPool(town);
   const chance = humon ? Math.round(catchChance(humon.level) * 100) : 0;
+  const shinyLine = humon
+    ? `SHINY ODDS: ${Math.round(shinyChance(humon.level) * 1000) / 10}% (LV ${humon.level})`
+    : "";
   const staminaLine = humon
     ? `STAMINA AFTER TRIP: ${Math.max(0, humon.stamina - staminaCost("travel"))}/${humon.maxStamina}`
     : "";
@@ -415,6 +421,7 @@ function travelPreviewHtml(game: GameState): string {
 		<p class="mgr-note">DESTINATION: ${esc(player?.hometown ?? "???")} (${esc(player?.name ?? "???")})</p>
 		<p class="mgr-note">COST: ${staminaCost("travel")} STAMINA ${staminaLine ? `- ${staminaLine}` : ""}</p>
 		<p class="mgr-note">CATCH CHANCE: ${chance}%${humon ? ` (LV ${humon.level})` : ""}</p>
+		${shinyLine ? `<p class="mgr-note">${shinyLine}</p>` : ""}
 		<div class="mgr-pool">
 			<span class="mgr-note">CATCH POOL:</span>
 			${pool.map((name) => monHtml(name)).join("")}
@@ -511,16 +518,19 @@ function battleReplaysHtml(game: GameState): string {
   return `<div id="mgr-replays" class="mgr-replays">${gymBattles.map((h) => battleViewerHtml(h)).join("")}</div>`;
 }
 
-function battleMemberHtml(m: {
-  species: string;
-  nickname: string;
-  hp: number;
-  maxHp: number;
-  status: string;
-  hpPct: number;
-  item: string | null;
-  condition: string | null;
-}): string {
+function battleMemberHtml(
+  m: {
+    species: string;
+    nickname: string;
+    hp: number;
+    maxHp: number;
+    status: string;
+    hpPct: number;
+    item: string | null;
+    condition: string | null;
+  },
+  shiny = false,
+): string {
   const statusIcon =
     m.status === "active" ? "▶" : m.status === "fainted" ? "✕" : "·";
   const statusCls =
@@ -584,7 +594,7 @@ function battleMemberHtml(m: {
     : "";
   return `<div class="mgr-bm ${statusCls}">
 		<span class="mgr-bm-icon">${statusIcon}</span>
-		<span class="mgr-bm-name">${esc(m.species)}${itemHtml}${condHtml}</span>
+		<span class="mgr-bm-name">${shiny ? "★ " : ""}${esc(m.species)}${itemHtml}${condHtml}</span>
 		<span class="mgr-bm-info">${typesHtml}${abilityHtml}</span>
 		<span class="mgr-bm-hp" style="color:${hpColor}">${hpLabel}</span>
 	</div>`;
@@ -688,15 +698,21 @@ function battleViewerHtml(humon: Humon): string {
       return `<div class="mgr-bt-event ${cls}">${esc(e.text)}</div>`;
     })
     .join("");
-  const p1Html = (turn.p1 ?? []).map(battleMemberHtml).join("");
-  const p2Html = (turn.p2 ?? []).map(battleMemberHtml).join("");
+  const shinySpecies = new Set(
+    humon.team.filter((m) => m.shiny).map((m) => m.species),
+  );
+  const isP1Shiny = (species: string): boolean => shinySpecies.has(species);
+  const p1Html = (turn.p1 ?? [])
+    .map((m) => battleMemberHtml(m, isP1Shiny(m.species)))
+    .join("");
+  const p2Html = (turn.p2 ?? []).map((m) => battleMemberHtml(m)).join("");
   const fieldHtml = battleFieldHtml(
     turn.field ?? { weather: null, terrain: null, room: null },
   );
   const p1Active = (turn.p1 ?? []).find((m) => m.status === "active");
   const p2Active = (turn.p2 ?? []).find((m) => m.status === "active");
   const p1SpriteHtml = p1Active
-    ? pokemonSpriteHtml(p1Active.species, "p1")
+    ? pokemonSpriteHtml(p1Active.species, "p1", isP1Shiny(p1Active.species))
     : "";
   const p2SpriteHtml = p2Active
     ? pokemonSpriteHtml(p2Active.species, "p2")
@@ -757,7 +773,7 @@ function pokeputerSectionHtml(game: GameState): string {
   const boxedRows =
     game.storage.length === 0
       ? '<span class="mgr-empty">POKEPUTER IS EMPTY</span>'
-      : game.storage.map((mon) => boxedMonRowHtml(game, mon)).join("");
+      : game.storage.map((mon, i) => boxedMonRowHtml(game, mon, i)).join("");
   return `
 		<section class="mgr-section" id="mgr-puter">
 			<h2 class="mgr-section-title">POKEPUTER (${game.storage.length})</h2>
@@ -772,16 +788,23 @@ function pokeputerSectionHtml(game: GameState): string {
 		</section>`;
 }
 
-function boxedMonRowHtml(game: GameState, mon: string): string {
+function boxedMonRowHtml(
+  game: GameState,
+  mon: CaughtMon,
+  index: number,
+): string {
   const humonOpts = game.humons
     .map((humon) => option(humon.id, `${humonName(humon)}`, false))
     .join("");
+  const price = mon.shiny
+    ? CURRENCY.duplicate * SHINY_SELL_MULTIPLIER
+    : CURRENCY.duplicate;
   return `
-		<span class="mgr-box-row">
-			${monHtml(mon)}
+		<span class="mgr-box-row" data-put-index="${index}">
+			${monHtml(mon.species, mon.shiny)}
 			<select class="mgr-select" data-mgr-select="puter-humon">${humonOpts}</select>
-			<button class="mgr-btn" data-mgr-action="withdraw-put" data-mon="${esc(mon)}">BOX OUT TO HUMON</button>
-			<button class="mgr-btn" data-mgr-action="sell-put" data-mon="${esc(mon)}">SELL ¥${CURRENCY.duplicate}</button>
+			<button class="mgr-btn" data-mgr-action="withdraw-put" data-put-index="${index}">BOX OUT TO HUMON</button>
+			<button class="mgr-btn" data-mgr-action="sell-put" data-put-index="${index}">SELL ¥${price}</button>
 		</span>`;
 }
 
@@ -816,7 +839,11 @@ function transferMonOpts(game: GameState, source: string): string {
   const mons =
     source === "puter" ? game.storage : (humonById(game, source)?.team ?? []);
   if (mons.length === 0) return '<option value="">NOTHING HERE</option>';
-  return mons.map((mon) => option(mon, mon, false)).join("");
+  return mons
+    .map((mon, i) =>
+      option(String(i), `${mon.shiny ? "★ " : ""}${mon.species}`, false),
+    )
+    .join("");
 }
 
 function shopHtml(game: GameState): string {
@@ -909,11 +936,11 @@ function spriteHtml(
   return `<span class="mgr-sprite" style="--mgr-cols:${cols};--mgr-size:${size}">${cells}</span>`;
 }
 
-function monHtml(name: string): string {
+function monHtml(name: string, shiny = false): string {
   const sprite = POKEMON_SPRITES[name];
   const types = POKEMON_TYPES[name];
   const img = sprite
-    ? `<img class="mgr-mon-img" src="${sprite}" alt="" loading="lazy">`
+    ? `<span class="mgr-mon-foil"><img class="mgr-mon-img" src="${sprite}" alt="" loading="lazy"></span>`
     : "";
   const typeHtml = types
     ? types
@@ -923,14 +950,19 @@ function monHtml(name: string): string {
         )
         .join("")
     : "";
-  return `<span class="mgr-mon">${img}<span class="mgr-mon-name">${esc(name)}</span><span class="mgr-mon-types">${typeHtml}</span></span>`;
+  const shinyTag = shiny ? '<span class="mgr-shiny-tag">SHINY</span>' : "";
+  return `<span class="mgr-mon ${shiny ? "mgr-shiny" : ""}">${img}<span class="mgr-mon-name">${esc(name)}</span>${shinyTag}<span class="mgr-mon-types">${typeHtml}</span></span>`;
 }
 
-function pokemonSpriteHtml(species: string, side: string): string {
+function pokemonSpriteHtml(
+  species: string,
+  side: string,
+  shiny = false,
+): string {
   const key = speciesToKey(species);
   const sprite = POKEMON_SPRITES[key];
   if (!sprite) return "";
-  return `<div class="mgr-bt-sprite" data-bt-side="${esc(side)}"><img src="${sprite}" alt="${esc(species)}" loading="lazy" /></div>`;
+  return `<div class="mgr-bt-sprite ${shiny ? "mgr-shiny" : ""}" data-bt-side="${esc(side)}"><span class="mgr-bt-foil"><img src="${sprite}" alt="${esc(species)}" loading="lazy" /></span></div>`;
 }
 
 function triggerSpriteAnimations(): void {
@@ -1108,29 +1140,43 @@ function handleAction(action: string, el: HTMLElement): void {
         result = { ok: false, error: "PICK TWO DIFFERENT PLACES" };
         break;
       }
+      const sourceMons =
+        source === "puter"
+          ? state.storage
+          : (humonById(state, source)?.team ?? []);
+      const monItem = sourceMons[Number(mon)];
+      if (!monItem) {
+        result = { ok: false, error: "POKEMON NOT FOUND" };
+        break;
+      }
       if (source === "puter") {
-        result = withdrawFromStorage(state, dest, mon);
+        result = withdrawFromStorage(state, dest, monItem);
       } else if (dest === "puter") {
-        result = depositToStorage(state, source, mon);
+        result = depositToStorage(state, source, monItem);
       } else {
-        result = transferBetweenHumons(state, source, dest, mon);
+        result = transferBetweenHumons(state, source, dest, monItem);
       }
       break;
     }
     case "withdraw-put": {
-      const mon = el.dataset.mon ?? "";
+      const index = Number(el.dataset.putIndex);
+      const monItem = state.storage[index];
       const row = el.closest(".mgr-box-row") as HTMLElement | null;
       const humonId =
         row?.querySelector<HTMLSelectElement>('[data-mgr-select="puter-humon"]')
           ?.value ?? "";
-      result = humonId
-        ? withdrawFromStorage(state, humonId, mon)
-        : { ok: false, error: "PICK A HUMON" };
+      result =
+        monItem && humonId
+          ? withdrawFromStorage(state, humonId, monItem)
+          : { ok: false, error: "PICK A HUMON" };
       break;
     }
     case "sell-put": {
-      const mon = el.dataset.mon ?? "";
-      result = sellFromStorage(state, mon);
+      const index = Number(el.dataset.putIndex);
+      const monItem = state.storage[index];
+      result = monItem
+        ? sellFromStorage(state, monItem)
+        : { ok: false, error: "POKEMON NOT FOUND" };
       break;
     }
     case "jump": {

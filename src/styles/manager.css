@@ -208,6 +208,94 @@
   color: var(--ceefax-white);
 }
 
+.mgr-mon-foil {
+  position: relative;
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+}
+
+.mgr-mon-foil .mgr-mon-img {
+  display: block;
+}
+
+.mgr-mon.mgr-shiny {
+  border-color: var(--ceefax-yellow);
+}
+
+.mgr-shiny-tag {
+  background: var(--ceefax-yellow);
+  color: var(--ceefax-black);
+  font-size: 0.6em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0 0.25rem;
+}
+
+.mgr-bt-foil {
+  position: relative;
+  display: inline-block;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+}
+
+.mgr-bt-foil img {
+  display: block;
+}
+
+@keyframes mgr-holo-shift {
+  from {
+    filter: hue-rotate(0deg);
+    background-position:
+      0% 50%,
+      0% 0%;
+  }
+  to {
+    filter: hue-rotate(360deg);
+    background-position:
+      300% 50%,
+      200% 200%;
+  }
+}
+
+.mgr-mon.mgr-shiny .mgr-mon-foil::after,
+.mgr-bt-sprite.mgr-shiny .mgr-bt-foil::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255, 0, 0, 0.4),
+      rgba(255, 255, 0, 0.4),
+      rgba(0, 255, 0, 0.4),
+      rgba(0, 255, 255, 0.4),
+      rgba(0, 0, 255, 0.4),
+      rgba(255, 0, 255, 0.4)
+    ),
+    linear-gradient(
+      115deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.85) 50%,
+      transparent 60%
+    );
+  background-size:
+    300% 100%,
+    200% 100%;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: mgr-holo-shift 3.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mgr-mon.mgr-shiny .mgr-mon-foil::after,
+  .mgr-bt-sprite.mgr-shiny .mgr-bt-foil::after {
+    animation: none;
+  }
+}
+
 .mgr-btn {
   background: var(--ceefax-yellow);
   color: var(--ceefax-black);

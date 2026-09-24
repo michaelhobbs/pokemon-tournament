@@ -35,6 +35,11 @@ export const CATCH_CAP = 0.9;
 export const RARE_CANDY_DROP = 0.08;
 export const MAX_REPEL_DROP = 0.07;
 
+export const SHINY_BASE = 0.005;
+export const SHINY_PER_LEVEL = 0.001;
+export const SHINY_CAP = 0.05;
+export const SHINY_SELL_MULTIPLIER = 2;
+
 export const CURRENCY = {
   train: { min: 20, max: 40 },
   travel: { min: 30, max: 80 },
@@ -46,12 +51,18 @@ export type HumonKind = "starter" | "boss" | SecretHumonKey;
 export type ActionKind = "train" | "travel" | "gym";
 export type NonBattleActionKind = Exclude<ActionKind, "gym">;
 
+/** A single caught pokémon instance, tracked so shininess follows the individual. */
+export interface CaughtMon {
+  species: string;
+  shiny: boolean;
+}
+
 export interface Humon {
   id: string;
   kind: HumonKind;
   level: number;
   xp: number;
-  team: string[];
+  team: CaughtMon[];
   stamina: number;
   maxStamina: number;
   lastBattle?: { win: boolean; turns: BattleTurn[]; opponent: string };
@@ -79,7 +90,7 @@ export function ballItemFor(key: SecretHumonKey): BallItem {
 }
 
 export interface GameState {
-  version: 2;
+  version: 3;
   day: number;
   /** The day all gym leaders were beaten, or null while still playing. */
   wonDay: number | null;
@@ -88,7 +99,7 @@ export interface GameState {
   currency: number;
   humons: Humon[];
   /** Boxed pokémon (duplicates / overflow from travel catches), unlimited. */
-  storage: string[];
+  storage: CaughtMon[];
   items: Items;
   visited: string[];
   unlocked: SecretHumonKey[];
@@ -213,7 +224,7 @@ export function kindLabel(humon: Humon): string {
 
 export function defaultState(): GameState {
   const state: GameState = {
-    version: 2,
+    version: 3,
     day: STARTING_DAY,
     wonDay: null,
     defeated: [],
@@ -237,6 +248,27 @@ export function defaultState(): GameState {
   return state;
 }
 
+/** Normalize raw save entries (v2 strings or v3 objects) into CaughtMon[]. */
+function toCaughtMons(raw: unknown): CaughtMon[] {
+  if (!Array.isArray(raw)) return [];
+  const mons: CaughtMon[] = [];
+  for (const entry of raw) {
+    if (typeof entry === "string") {
+      mons.push({ species: entry, shiny: false });
+    } else if (
+      entry &&
+      typeof entry === "object" &&
+      typeof (entry as { species?: unknown }).species === "string"
+    ) {
+      mons.push({
+        species: (entry as { species: string }).species,
+        shiny: (entry as { shiny?: unknown }).shiny === true,
+      });
+    }
+  }
+  return mons;
+}
+
 export function loadState(): GameState {
   try {
     const raw = localStorage.getItem(MANAGER_STORAGE_KEY);
@@ -257,7 +289,7 @@ export function loadState(): GameState {
             kind: h.kind,
             level,
             xp: typeof h.xp === "number" ? h.xp : 0,
-            team: Array.isArray(h.team) ? h.team : [],
+            team: toCaughtMons(h.team),
             // v1 saves had no stamina fields; start fresh-levelled but at full.
             stamina:
               typeof h.stamina === "number"
@@ -269,7 +301,7 @@ export function loadState(): GameState {
         })
       : [];
     const state: GameState = {
-      version: 2,
+      version: 3,
       day:
         typeof parsed.day === "number" && parsed.day >= STARTING_DAY
           ? parsed.day
@@ -277,11 +309,7 @@ export function loadState(): GameState {
       wonDay: typeof parsed.wonDay === "number" ? parsed.wonDay : null,
       currency: typeof parsed.currency === "number" ? parsed.currency : 0,
       humons,
-      storage: Array.isArray(parsed.storage)
-        ? parsed.storage.filter(
-            (name): name is string => typeof name === "string",
-          )
-        : [],
+      storage: toCaughtMons(parsed.storage),
       defeated: (() => {
         const seen = new Set(
           Array.isArray(parsed.defeated)
@@ -365,6 +393,10 @@ export function catchChance(level: number): number {
   return Math.min(CATCH_CAP, CATCH_BASE + level * CATCH_PER_LEVEL);
 }
 
+export function shinyChance(level: number): number {
+  return Math.min(SHINY_CAP, SHINY_BASE + level * SHINY_PER_LEVEL);
+}
+
 function newSeed(): number {
   return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
 }
@@ -437,7 +469,11 @@ export async function startGymAction(
   const seed = newSeed();
   let result: BattleResult;
   try {
-    result = await runBattle(humon.team, bossTeamFor(bossNumber), seed);
+    result = await runBattle(
+      humon.team.map((m) => m.species),
+      bossTeamFor(bossNumber),
+      seed,
+    );
   } catch {
     // Refund stamina if the simulation itself failed.
     if (!opts?.free) humon.stamina += staminaCost("gym");
@@ -506,17 +542,20 @@ function resolveTravel(
     log(state, `NO LUCK CATCHING IN ${townName}`);
     return;
   }
-  const have = new Set(humon.team);
+  const have = new Set(humon.team.map((m) => m.species));
   const unowned = pool.filter((name) => !have.has(name));
   const pick =
     unowned.length > 0
       ? unowned[Math.floor(rand() * unowned.length)]
       : pool[Math.floor(rand() * pool.length)];
+  const shiny = rand() < shinyChance(humon.level);
+  if (shiny) log(state, "SHINY!");
+  const mon: CaughtMon = { species: pick, shiny };
   if (have.has(pick) || humon.team.length >= MAX_TEAM_SIZE) {
-    state.storage.push(pick);
+    state.storage.push(mon);
     log(state, `${pick} DUPED OR TEAM FULL - BOXED IN THE POKEPUTER`);
   } else {
-    humon.team.push(pick);
+    humon.team.push(mon);
     log(state, `${humonName(humon)} CAUGHT ${pick} IN ${townName}!`);
   }
 }
@@ -621,16 +660,16 @@ export function useRareCandy(
 export function depositToStorage(
   state: GameState,
   humonId: string,
-  mon: string,
+  mon: CaughtMon,
 ): { ok: true } | { ok: false; error: string } {
   const humon = humonById(state, humonId);
   if (!humon) return { ok: false, error: "HUMON NOT FOUND" };
-  const index = humon.team.indexOf(mon);
+  const index = humon.team.findIndex((m) => m.species === mon.species);
   if (index === -1)
-    return { ok: false, error: `${mon} IS NOT ON ${humonName(humon)}` };
+    return { ok: false, error: `${mon.species} IS NOT ON ${humonName(humon)}` };
   humon.team.splice(index, 1);
   state.storage.push(mon);
-  log(state, `${mon} MOVED FROM ${humonName(humon)} TO THE POKEPUTER`);
+  log(state, `${mon.species} MOVED FROM ${humonName(humon)} TO THE POKEPUTER`);
   return { ok: true };
 }
 
@@ -638,20 +677,25 @@ export function depositToStorage(
 export function withdrawFromStorage(
   state: GameState,
   humonId: string,
-  mon: string,
+  mon: CaughtMon,
 ): { ok: true } | { ok: false; error: string } {
   const humon = humonById(state, humonId);
   if (!humon) return { ok: false, error: "HUMON NOT FOUND" };
-  const index = state.storage.indexOf(mon);
+  const index = state.storage.findIndex(
+    (m) => m.species === mon.species && m.shiny === mon.shiny,
+  );
   if (index === -1)
-    return { ok: false, error: `${mon} IS NOT IN THE POKEPUTER` };
+    return { ok: false, error: `${mon.species} IS NOT IN THE POKEPUTER` };
   if (humon.team.length >= MAX_TEAM_SIZE)
     return { ok: false, error: `${humonName(humon)} HAS A FULL TEAM` };
-  if (humon.team.includes(mon))
-    return { ok: false, error: `${humonName(humon)} ALREADY OWNS ${mon}` };
+  if (humon.team.some((m) => m.species === mon.species))
+    return {
+      ok: false,
+      error: `${humonName(humon)} ALREADY OWNS ${mon.species}`,
+    };
   state.storage.splice(index, 1);
   humon.team.push(mon);
-  log(state, `${mon} MOVED FROM THE POKEPUTER TO ${humonName(humon)}`);
+  log(state, `${mon.species} MOVED FROM THE POKEPUTER TO ${humonName(humon)}`);
   return { ok: true };
 }
 
@@ -660,36 +704,44 @@ export function transferBetweenHumons(
   state: GameState,
   fromHumonId: string,
   toHumonId: string,
-  mon: string,
+  mon: CaughtMon,
 ): { ok: true } | { ok: false; error: string } {
   if (fromHumonId === toHumonId)
     return { ok: false, error: "PICK TWO DIFFERENT HUMONS" };
   const from = humonById(state, fromHumonId);
   const to = humonById(state, toHumonId);
   if (!from || !to) return { ok: false, error: "HUMON NOT FOUND" };
-  const index = from.team.indexOf(mon);
+  const index = from.team.findIndex((m) => m.species === mon.species);
   if (index === -1)
-    return { ok: false, error: `${mon} IS NOT ON ${humonName(from)}` };
+    return { ok: false, error: `${mon.species} IS NOT ON ${humonName(from)}` };
   if (to.team.length >= MAX_TEAM_SIZE)
     return { ok: false, error: `${humonName(to)} HAS A FULL TEAM` };
-  if (to.team.includes(mon))
-    return { ok: false, error: `${humonName(to)} ALREADY OWNS ${mon}` };
+  if (to.team.some((m) => m.species === mon.species))
+    return { ok: false, error: `${humonName(to)} ALREADY OWNS ${mon.species}` };
   from.team.splice(index, 1);
   to.team.push(mon);
-  log(state, `${mon} MOVED FROM ${humonName(from)} TO ${humonName(to)}`);
+  log(
+    state,
+    `${mon.species} MOVED FROM ${humonName(from)} TO ${humonName(to)}`,
+  );
   return { ok: true };
 }
 
-/** Sell one boxed pokémon for CURRENCY.duplicate. */
+/** Sell one boxed pokémon for CURRENCY.duplicate (double when shiny). */
 export function sellFromStorage(
   state: GameState,
-  mon: string,
+  mon: CaughtMon,
 ): { ok: true; price: number } | { ok: false; error: string } {
-  const index = state.storage.indexOf(mon);
+  const index = state.storage.findIndex(
+    (m) => m.species === mon.species && m.shiny === mon.shiny,
+  );
   if (index === -1)
-    return { ok: false, error: `${mon} IS NOT IN THE POKEPUTER` };
+    return { ok: false, error: `${mon.species} IS NOT IN THE POKEPUTER` };
+  const price = mon.shiny
+    ? CURRENCY.duplicate * SHINY_SELL_MULTIPLIER
+    : CURRENCY.duplicate;
   state.storage.splice(index, 1);
-  state.currency += CURRENCY.duplicate;
-  log(state, `${mon} SOLD FROM THE POKEPUTER FOR ¥${CURRENCY.duplicate}`);
-  return { ok: true, price: CURRENCY.duplicate };
+  state.currency += price;
+  log(state, `${mon.species} SOLD FROM THE POKEPUTER FOR ¥${price}`);
+  return { ok: true, price };
 }
