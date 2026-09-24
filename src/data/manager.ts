@@ -16,6 +16,7 @@ export const MANAGER_STORAGE_KEY = "pkm:manager:v2";
 export const MAX_TEAM_SIZE = 6;
 export const XP_PER_LEVEL = 100;
 export const RARE_CANDY_XP = 50;
+export const RARE_CANDY_PRICE = 150;
 export const LOG_LIMIT = 8;
 
 export const STARTING_DAY = 1;
@@ -39,6 +40,29 @@ export const SHINY_BASE = 0.005;
 export const SHINY_PER_LEVEL = 0.001;
 export const SHINY_CAP = 0.05;
 export const SHINY_SELL_MULTIPLIER = 2;
+
+/** POKESHOP shelf art for a Rare Candy (a pink lozenge). */
+export const RARE_CANDY_SPRITE: PixelArt = {
+  map: [
+    "................",
+    "...RRRRRRRRRR...",
+    ".RRHHHHRRRRRRRR.",
+    ".RRHHHHRRRRRRRR.",
+    ".RRHHHHRRRRRRRR.",
+    ".RRRRRRRRRRRRRR.",
+    ".RRRRRRRRRRRRRR.",
+    ".RRRRRRRRRRRRRR.",
+    ".RRRRRRRRRRRRRR.",
+    ".RRRRRRRRRRRRRR.",
+    ".RRHHHHRRRRRRRR.",
+    ".RRHHHHRRRRRRRR.",
+    ".RRHHHHRRRRRRRR.",
+    "...RRRRRRRRRR...",
+    "................",
+    "................",
+  ],
+  palette: { R: "#ff5c9a", H: "#ffc2d9" },
+};
 
 export const CURRENCY = {
   train: { min: 20, max: 40 },
@@ -90,7 +114,7 @@ export function ballItemFor(key: SecretHumonKey): BallItem {
 }
 
 export interface GameState {
-  version: 3;
+  version: 4;
   day: number;
   /** The day all gym leaders were beaten, or null while still playing. */
   wonDay: number | null;
@@ -224,7 +248,7 @@ export function kindLabel(humon: Humon): string {
 
 export function defaultState(): GameState {
   const state: GameState = {
-    version: 3,
+    version: 4,
     day: STARTING_DAY,
     wonDay: null,
     defeated: [],
@@ -301,7 +325,7 @@ export function loadState(): GameState {
         })
       : [];
     const state: GameState = {
-      version: 3,
+      version: 4,
       day:
         typeof parsed.day === "number" && parsed.day >= STARTING_DAY
           ? parsed.day
@@ -353,9 +377,22 @@ export function loadState(): GameState {
         typeof parsed.createdAt === "number" ? parsed.createdAt : Date.now(),
     };
     ensureStarter(state);
+    if (typeof parsed.version !== "number" || parsed.version < 4) {
+      ensureSecretTeams(state);
+    }
     return state;
   } catch {
     return defaultState();
+  }
+}
+
+/** Backfill the themed 6-pokémon team on any secret humon caught before it shipped (v<4 saves). */
+function ensureSecretTeams(state: GameState): void {
+  for (const humon of state.humons) {
+    if (humon.kind === "starter" || humon.kind === "boss") continue;
+    const spec = SECRET_HUMONS[humon.kind];
+    if (!spec || humon.team.length > 0) continue;
+    humon.team = spec.team.map((species) => ({ species, shiny: false }));
   }
 }
 
@@ -624,6 +661,20 @@ export function buyBall(
   return { ok: true };
 }
 
+export function buyRareCandy(
+  state: GameState,
+): { ok: true } | { ok: false; error: string } {
+  if (state.currency < RARE_CANDY_PRICE)
+    return {
+      ok: false,
+      error: `NOT ENOUGH CURRENCY (NEED ¥${RARE_CANDY_PRICE})`,
+    };
+  state.currency -= RARE_CANDY_PRICE;
+  state.items["rare-candy"] += 1;
+  log(state, `RARE CANDY PURCHASED FOR ¥${RARE_CANDY_PRICE}`);
+  return { ok: true };
+}
+
 export function useBall(
   state: GameState,
   key: SecretHumonKey,
@@ -636,7 +687,10 @@ export function useBall(
     return { ok: false, error: `NO ${BALL_NAMES[key]} IN YOUR BAG` };
   state.items[item] -= 1;
   state.unlocked.push(key);
-  state.humons.push(makeHumon(key, key));
+  state.humons.push({
+    ...makeHumon(key, key),
+    team: spec.team.map((species) => ({ species, shiny: false })),
+  });
   log(state, `${spec.name} JOINS THE SQUAD!`);
   return { ok: true };
 }

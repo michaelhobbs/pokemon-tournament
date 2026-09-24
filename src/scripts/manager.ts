@@ -23,6 +23,7 @@ import {
   startGymAction,
   advanceDay,
   buyBall,
+  buyRareCandy,
   useBall,
   ballItemFor,
   useRareCandy,
@@ -45,6 +46,9 @@ import {
   BOSS_PLAYER_NUMBERS,
   shinyChance,
   SHINY_SELL_MULTIPLIER,
+  RARE_CANDY_PRICE,
+  RARE_CANDY_SPRITE,
+  RARE_CANDY_XP,
   type CaughtMon,
 } from "../data/manager";
 import { badgeFor } from "../data/badges";
@@ -871,10 +875,25 @@ function shopHtml(game: GameState): string {
 				<button class="mgr-btn" data-mgr-action="buy" data-mgr-key="${key}" ${caught || owned || !affordable ? "disabled" : ""}>${label}</button>
 			</div>`;
   }).join("");
+  const candyCount = game.items["rare-candy"];
+  const candyAffordable = game.currency >= RARE_CANDY_PRICE;
+  const candyLabel = candyAffordable
+    ? `BUY RARE CANDY - ¥${RARE_CANDY_PRICE}`
+    : `NEED ¥${RARE_CANDY_PRICE}`;
+  const candyCard = `
+			<div class="mgr-card">
+				<div class="mgr-card-head">
+					${spriteHtml(RARE_CANDY_SPRITE, "3rem")}
+					<span class="mgr-name">RARE CANDY</span>
+					<span class="mgr-tag">¥${RARE_CANDY_PRICE}</span>
+				</div>
+				<p class="mgr-note">OWNED: <strong>${candyCount}</strong>. ONE CANDY GRANTS +${RARE_CANDY_XP} XP TO A HUMON OF YOUR CHOICE.</p>
+				<button class="mgr-btn" data-mgr-action="buy-candy" ${candyAffordable ? "" : "disabled"}>${candyLabel}</button>
+			</div>`;
   return `
 		<section class="mgr-section" id="mgr-shop">
 			<h2 class="mgr-section-title">POKESHOP</h2>
-			<div class="mgr-section-body mgr-grid">${shop}</div>
+			<div class="mgr-section-body mgr-grid">${shop}${candyCard}</div>
 		</section>`;
 }
 
@@ -1116,6 +1135,10 @@ function handleAction(action: string, el: HTMLElement): void {
     case "buy": {
       const key = el.dataset.mgrKey as SecretHumonKey;
       result = buyBall(state, key);
+      break;
+    }
+    case "buy-candy": {
+      result = buyRareCandy(state);
       break;
     }
     case "secret-catch": {

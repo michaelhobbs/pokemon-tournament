@@ -70,6 +70,8 @@ export interface SecretHumonSpec {
   blurb: string;
   /** Shop copy describing the ball, not the humon. */
   ballBlurb: string;
+  /** Full 6-pokémon team the humon joins the squad with. */
+  team: string[];
 }
 
 export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
@@ -83,6 +85,14 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
     blurb: "THE PROFESSOR HIMSELF. IT IS TRAINERS ALL THE WAY DOWN.",
     ballBlurb:
       "THE PROFESSOR'S REGISTERED BALL. ONE THROW, ALL TRAINERS INSIDE.",
+    team: [
+      "Dragonite",
+      "Garchomp",
+      "Salamence",
+      "Metagross",
+      "Tyranitar",
+      "Hydreigon",
+    ],
   },
   devil: {
     key: "devil",
@@ -93,6 +103,14 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
     sprite: DEVIL_SPRITE,
     blurb: "A WILD HUMON FROM THE VOID. IT KNOWS EVERY TYPE ADVANTAGE.",
     ballBlurb: "A POCKET FROM THE VOID BETWEEN PAGES. EVERY ADVANTAGE INSIDE.",
+    team: [
+      "Hisuian Typhlosion",
+      "Torkoal",
+      "Charizard",
+      "Blaziken",
+      "Chandelure",
+      "Talonflame",
+    ],
   },
   cop: {
     key: "cop",
@@ -103,6 +121,14 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
     sprite: COP_SPRITE,
     blurb: "A HUMON WHO BECAME THE POLICE. STOP. DROP. TRADE.",
     ballBlurb: "THE LAW'S OWN BALL. IT PUTS TYPE CHARTS IN THEIR PLACE.",
+    team: [
+      "Alolan Ninetales",
+      "Cloyster",
+      "Mamoswine",
+      "Lapras",
+      "Arcanine",
+      "Lucario",
+    ],
   },
 };
 

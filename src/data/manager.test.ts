@@ -29,6 +29,7 @@ import {
   BOSS_PLAYER_NUMBERS,
   buyBall,
   useBall,
+  buyRareCandy,
   depositToStorage,
   withdrawFromStorage,
   transferBetweenHumons,
@@ -39,7 +40,14 @@ import {
   SHINY_CAP,
   shinyChance,
   SHINY_SELL_MULTIPLIER,
+  RARE_CANDY_PRICE,
+  loadState,
+  MANAGER_STORAGE_KEY,
+  TOWN_PLAYER_NUMBERS,
 } from "./manager";
+import { SECRET_HUMONS, SECRET_HUMON_KEYS } from "./hidden-humons";
+import { POKEMON_TYPES } from "./pokemon";
+import { POKEMON_STATS } from "./pokemon-stats";
 import type { CaughtMon } from "./manager";
 
 describe("mulberry32", () => {
@@ -293,8 +301,8 @@ describe("recordVictoryIfComplete", () => {
 });
 
 describe("defaultState", () => {
-  it("has version 3", () => {
-    expect(defaultState().version).toBe(3);
+  it("has version 4", () => {
+    expect(defaultState().version).toBe(4);
   });
 
   it("starts on day 1", () => {
@@ -453,11 +461,214 @@ describe("balls", () => {
     expect(state.humons.length).toBe(before + 1);
   });
 
+  it("useBall gives the caught humon its full themed team", () => {
+    const state = defaultState();
+    state.currency = 2000;
+    buyBall(state, "joak");
+    buyBall(state, "devil");
+    useBall(state, "joak");
+    const joak = humonById(state, "joak");
+    expect(joak?.team.map((m) => m.species)).toEqual(SECRET_HUMONS.joak.team);
+    expect(joak?.team.every((m) => !m.shiny)).toBe(true);
+    useBall(state, "devil");
+    const devil = humonById(state, "devil");
+    expect(devil?.team.map((m) => m.species)).toEqual(SECRET_HUMONS.devil.team);
+  });
+
   it("useBall fails when missing the ball", () => {
     const state = defaultState();
     const result = useBall(state, "devil");
     expect(result.ok).toBe(false);
     expect(state.unlocked).not.toContain("devil");
+  });
+
+  it("buyRareCandy sells a candy for the listed price", () => {
+    expect(RARE_CANDY_PRICE).toBe(150);
+    const state = defaultState();
+    state.currency = 150;
+    const result = buyRareCandy(state);
+    expect(result.ok).toBe(true);
+    expect(state.currency).toBe(0);
+    expect(state.items["rare-candy"]).toBe(1);
+  });
+
+  it("buyRareCandy fails without enough currency (and can be tried again)", () => {
+    const state = defaultState();
+    state.currency = 149;
+    const result = buyRareCandy(state);
+    expect(result.ok).toBe(false);
+    expect(state.items["rare-candy"]).toBe(0);
+    state.currency = 300;
+    buyRareCandy(state);
+    buyRareCandy(state);
+    expect(state.items["rare-candy"]).toBe(2);
+    expect(state.currency).toBe(0);
+  });
+});
+
+describe("secret humon teams", () => {
+  const pool = [
+    ...new Set(TOWN_PLAYER_NUMBERS.flatMap((n) => townCatchPool(n))),
+  ];
+  const bst = (species: string): number => {
+    const stats = POKEMON_STATS[species];
+    if (!stats) return NaN;
+    return (
+      stats.HP.base +
+      stats.Attack.base +
+      stats.Defense.base +
+      stats["Sp. Atk"].base +
+      stats["Sp. Def"].base +
+      stats.Speed.base
+    );
+  };
+
+  it("gives every secret humon 6 unique pokémon from the tournament pool", () => {
+    for (const key of SECRET_HUMON_KEYS) {
+      const team = SECRET_HUMONS[key].team;
+      expect(team).toHaveLength(MAX_TEAM_SIZE);
+      expect(new Set(team).size).toBe(team.length);
+      for (const species of team) expect(pool).toContain(species);
+    }
+  });
+
+  it("does not share any pokémon between secret humon teams", () => {
+    const seen = new Set<string>();
+    for (const key of SECRET_HUMON_KEYS) {
+      for (const species of SECRET_HUMONS[key].team) {
+        expect(seen.has(species)).toBe(false);
+        seen.add(species);
+      }
+    }
+  });
+
+  it("devilmon is all fire", () => {
+    for (const species of SECRET_HUMONS.devil.team) {
+      expect(POKEMON_TYPES[species]).toContain("Fire");
+    }
+  });
+
+  it("copmon carries every ice pokémon in the pool plus police picks", () => {
+    const icePool = pool.filter((species) =>
+      POKEMON_TYPES[species].includes("Ice"),
+    );
+    expect(icePool).toHaveLength(4);
+    for (const species of icePool) {
+      expect(SECRET_HUMONS.cop.team).toContain(species);
+    }
+    expect(SECRET_HUMONS.cop.team).toContain("Arcanine");
+    expect(SECRET_HUMONS.cop.team).toContain("Lucario");
+  });
+
+  it("joak gets the top-tier powerhouses of the pool, minus the Truant trap", () => {
+    const maxTier = Math.max(...pool.map(bst));
+    expect(maxTier).toBe(700);
+    for (const species of SECRET_HUMONS.joak.team) {
+      expect(bst(species)).toBeGreaterThanOrEqual(600);
+    }
+    for (const species of pool.filter((s) => bst(s) === maxTier)) {
+      expect(SECRET_HUMONS.joak.team).toContain(species);
+    }
+    expect(SECRET_HUMONS.joak.team).not.toContain("Slaking");
+  });
+});
+
+describe("loadState migration (v3 -> v4)", () => {
+  const setLocalStorage = (json: string): void => {
+    const store = new Map<string, string>();
+    store.set(MANAGER_STORAGE_KEY, json);
+    (globalThis as { localStorage?: unknown }).localStorage = {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        store.set(k, v);
+      },
+      removeItem: (k: string) => {
+        store.delete(k);
+      },
+      clear: () => {
+        store.clear();
+      },
+      key: (i: number) => [...store.keys()][i] ?? null,
+      get length() {
+        return store.size;
+      },
+    };
+  };
+  const baseSave = {
+    version: 3,
+    day: 5,
+    wonDay: null,
+    defeated: [],
+    currency: 0,
+    storage: [],
+    items: {
+      "rare-candy": 0,
+      "max-repel": 0,
+      "joak-ball": 0,
+      "devil-ball": 0,
+      "cop-ball": 0,
+    },
+    visited: ["810"],
+    unlocked: ["joak", "devil", "cop"],
+    log: [],
+    createdAt: 1,
+  };
+
+  it("backfills the themed team on pre-existing secret humons", () => {
+    setLocalStorage(
+      JSON.stringify({
+        ...baseSave,
+        humons: [
+          {
+            id: "joak",
+            kind: "joak",
+            level: 3,
+            xp: 200,
+            team: [],
+            stamina: 100,
+            maxStamina: 140,
+          },
+          {
+            id: "cop",
+            kind: "cop",
+            level: 2,
+            xp: 100,
+            team: [],
+            stamina: 80,
+            maxStamina: 120,
+          },
+        ],
+      }),
+    );
+    const state = loadState();
+    expect(state.version).toBe(4);
+    const joak = humonById(state, "joak");
+    const cop = humonById(state, "cop");
+    expect(joak?.team.map((m) => m.species)).toEqual(SECRET_HUMONS.joak.team);
+    expect(cop?.team.map((m) => m.species)).toEqual(SECRET_HUMONS.cop.team);
+    expect(joak?.team.every((m) => !m.shiny)).toBe(true);
+  });
+
+  it("leaves a deliberately emptied secret team alone on v4 saves", () => {
+    setLocalStorage(
+      JSON.stringify({
+        ...baseSave,
+        version: 4,
+        humons: [
+          {
+            id: "joak",
+            kind: "joak",
+            level: 3,
+            xp: 200,
+            team: [],
+            stamina: 100,
+            maxStamina: 140,
+          },
+        ],
+      }),
+    );
+    const state = loadState();
+    expect(humonById(state, "joak")?.team).toEqual([]);
   });
 });
 
