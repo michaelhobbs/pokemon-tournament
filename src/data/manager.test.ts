@@ -48,6 +48,8 @@ import {
 import { SECRET_HUMONS, SECRET_HUMON_KEYS } from "./hidden-humons";
 import { POKEMON_TYPES } from "./pokemon";
 import { POKEMON_STATS } from "./pokemon-stats";
+import { badgeFor } from "./badges";
+import { HOMETOWN_MARKERS } from "./hometown-map";
 import type { CaughtMon } from "./manager";
 
 describe("mulberry32", () => {
@@ -503,6 +505,21 @@ describe("balls", () => {
     buyRareCandy(state);
     expect(state.items["rare-candy"]).toBe(2);
     expect(state.currency).toBe(0);
+  });
+});
+
+describe("gym leader badges & hometown markers", () => {
+  it("gives every gym leader a badge", () => {
+    for (const number of BOSS_PLAYER_NUMBERS) {
+      expect(badgeFor(number)).toBeDefined();
+    }
+  });
+
+  it("gives every gym leader a marker on the hometown map", () => {
+    const markerNumbers = HOMETOWN_MARKERS.map((m) => m.playerNumber);
+    for (const number of BOSS_PLAYER_NUMBERS) {
+      expect(markerNumbers).toContain(number);
+    }
   });
 });
 

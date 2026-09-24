@@ -13,7 +13,7 @@ const base = import.meta.env.BASE_URL;
 <CeefaxLayout title="HOMETOWNS" pageNumber="800">
   <CeefaxHeading text="HOMETOWN MAP" color="green" />
   <div class="map-stage">
-    <div class="map-wrap">
+    <div class="map-wrap" data-manager-map>
       <PixelArt sprite={HOMETOWN_MAP} size="42rem" />
       {
         HOMETOWN_MARKERS.map((marker) => {
@@ -26,6 +26,7 @@ const base = import.meta.env.BASE_URL;
               class="map-marker"
               href={`${base}trainers/${player.number}`}
               style={`left: ${left}%; top: ${top}%;`}
+              data-number={player.number}
               title={`${player.name} — ${player.hometown}`}
             >
               {player.number}
@@ -92,6 +93,15 @@ const base = import.meta.env.BASE_URL;
     background: var(--ceefax-yellow);
     color: var(--ceefax-black);
     border-color: var(--ceefax-black);
+  }
+
+  .map-marker-badge {
+    border-color: var(--ceefax-yellow);
+  }
+
+  .map-marker-badge:hover {
+    background: var(--ceefax-black);
+    border-color: var(--ceefax-yellow);
   }
 
   .map-legend {

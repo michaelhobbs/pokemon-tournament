@@ -60,18 +60,18 @@ export const BADGES: Badge[] = [
   badge(1, "THUNDER", "cyan", ["..CC....", "...CC...", ".C..CC..", "CC..C..."]),
   badge(2, "ROCK", "magenta", ["...CC...", "..CCCC..", ".CCCCCC.", "..CCCC.."]),
   badge(3, "FLAME", "red", ["...CC...", "..CCCC..", "..CC.CC.", ".CCCCCC."]),
-  badge(4, "LEAF", "green", [".CC.....", ".CCCC...", ".CC.CC..", "..C..C.."]),
-  badge(5, "TIDE", "blue", ["CCCCCCCC", "..C....C", "CCCCCCCC", ".C....C."]),
-  badge(6, "PSYCHE", "magenta", [
+  badge(5, "LEAF", "green", [".CC.....", ".CCCC...", ".CC.CC..", "..C..C.."]),
+  badge(6, "TIDE", "blue", ["CCCCCCCC", "..C....C", "CCCCCCCC", ".C....C."]),
+  badge(7, "PSYCHE", "magenta", [
     "..CCCC..",
     ".CCC..C.",
     "CC..CCC.",
     "CCCC....",
   ]),
-  badge(7, "FROST", "cyan", ["C..CC..C", ".C.CC.C.", "..CCCC..", ".C.CC.C."]),
-  badge(8, "BELL", "white", ["..CCCC..", "...CC...", "..CCCC..", ".CCCCCC."]),
-  badge(9, "TOXIC", "green", [".CCCCCC.", "C..CC..C", "C......C", "CCCCCCCC"]),
-  badge(10, "SUNNY", "red", [".C.CC.C.", ".CCCCCC.", ".CCCCCC.", ".C.CC.C."]),
+  badge(8, "FROST", "cyan", ["C..CC..C", ".C.CC.C.", "..CCCC..", ".C.CC.C."]),
+  badge(9, "BELL", "white", ["..CCCC..", "...CC...", "..CCCC..", ".CCCCCC."]),
+  badge(10, "TOXIC", "green", [".CCCCCC.", "C..CC..C", "C......C", "CCCCCCCC"]),
+  badge(11, "SUNNY", "red", [".C.CC.C.", ".CCCCCC.", ".CCCCCC.", ".C.CC.C."]),
 ];
 
 /** Badge for a gym leader player number, or undefined if none. */

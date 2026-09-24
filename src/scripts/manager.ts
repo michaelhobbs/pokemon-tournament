@@ -85,7 +85,8 @@ function refresh(): void {
   const mounts = document.querySelectorAll<HTMLElement>(
     "[data-manager-feature], [data-manager-secret]",
   );
-  if (mounts.length === 0) return;
+  const maps = document.querySelectorAll<HTMLElement>("[data-manager-map]");
+  if (mounts.length === 0 && maps.length === 0) return;
   if (!readCaught()) {
     state = null;
     for (const mount of mounts) renderGate(mount);
@@ -96,6 +97,9 @@ function refresh(): void {
   if (page) markVisited(state, page);
   saveState(state);
   renderAll();
+  if (state) {
+    for (const map of maps) renderMapBadges(map, state);
+  }
 }
 
 function renderAll(): void {
@@ -135,6 +139,21 @@ function renderFeature(mount: HTMLElement, feature: Feature): void {
     return;
   }
   mount.innerHTML = statusBarHtml(state) + sleepHtml(state) + allHtml(state);
+}
+
+/** Swap defeated gym leaders' hometown markers for their badge sprites. */
+function renderMapBadges(mount: HTMLElement, game: GameState): void {
+  for (const marker of mount.querySelectorAll<HTMLElement>(".map-marker")) {
+    const number = Number(marker.dataset.number);
+    const badge = badgeFor(number);
+    if (!badge || !game.defeated.includes(number)) continue;
+    const player = findPlayer(number);
+    marker.classList.add("map-marker-badge");
+    marker.innerHTML = spriteHtml(badge.sprite, "1.6rem");
+    marker.title = `${badge.name} BADGE${
+      player ? ` — ${player.name} — ${player.hometown}` : ""
+    }`;
+  }
 }
 
 function renderSecret(mount: HTMLElement, key: SecretHumonKey): void {
