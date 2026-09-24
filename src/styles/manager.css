@@ -257,6 +257,22 @@
   align-items: center;
 }
 
+.mgr-box-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem;
+  border: 1px dashed var(--ceefax-cyan);
+}
+
+.mgr-transfer {
+  display: grid;
+  gap: 0.5rem;
+  border-top: 2px solid var(--ceefax-white);
+  padding-top: 0.75rem;
+}
+
 .mgr-label {
   display: flex;
   align-items: center;

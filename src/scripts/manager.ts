@@ -31,6 +31,11 @@ import {
   humonSprite,
   kindLabel,
   humonById,
+  depositToStorage,
+  withdrawFromStorage,
+  transferBetweenHumons,
+  sellFromStorage,
+  CURRENCY,
   XP_PER_LEVEL,
   catchChance,
   staminaCost,
@@ -171,6 +176,7 @@ function statusBarHtml(game: GameState): string {
 			<span class="mgr-status-item">DAY <strong>${game.day}</strong></span>
 			<span class="mgr-status-item">CASH <strong>¥${game.currency}</strong></span>
 			<span class="mgr-status-item">SQUAD <strong>${game.humons.length}</strong></span>
+			<span class="mgr-status-item">POKEPUTER <strong>${game.storage.length}</strong></span>
 			<span class="mgr-status-item">STAMINA <strong>${staminaTotal}/${staminaMax}</strong></span>
 			<span class="mgr-status-item">RARE CANDY <strong>${game.items["rare-candy"]}</strong></span>
 			<span class="mgr-status-item">MAX REPEL <strong>${game.items["max-repel"]}</strong></span>
@@ -216,6 +222,7 @@ function allHtml(game: GameState): string {
 		${travelFormHtml(game)}
 		${gymsSectionHtml(game)}
 		${battleReplaysHtml(game)}
+		${pokeputerSectionHtml(game)}
 		${shopHtml(game)}
 		${badgesSectionHtml(game)}
 		${logSectionHtml(game)}`;
@@ -247,6 +254,7 @@ function jumpBarHtml(game: GameState): string {
     ["travel", "TRAVEL"],
     ["gyms", "GYMS"],
     ...(hasReplays ? [replaysSection] : []),
+    ["puter", "POKEPUTER"],
     ["shop", "SHOP"],
     ["badges", "BADGES"],
     ["log", "ACTIVITY"],
@@ -745,6 +753,72 @@ function battleViewerHtml(humon: Humon): string {
 		</section>`;
 }
 
+function pokeputerSectionHtml(game: GameState): string {
+  const boxedRows =
+    game.storage.length === 0
+      ? '<span class="mgr-empty">POKEPUTER IS EMPTY</span>'
+      : game.storage.map((mon) => boxedMonRowHtml(game, mon)).join("");
+  return `
+		<section class="mgr-section" id="mgr-puter">
+			<h2 class="mgr-section-title">POKEPUTER (${game.storage.length})</h2>
+			<div class="mgr-section-body">
+				<p class="mgr-note">DUPLICATE CATCHES AND TEAM-FULL CATCHES ARE STORED HERE. TRANSFER POKEMON BETWEEN HUMONS, OR TO AND FROM THE POKEPUTER. SELL BOXED SPARES FOR ¥${CURRENCY.duplicate} EACH.</p>
+				<div class="mgr-pool">
+					<span class="mgr-note">BOXED:</span>
+					${boxedRows}
+				</div>
+				${transferFormHtml(game)}
+			</div>
+		</section>`;
+}
+
+function boxedMonRowHtml(game: GameState, mon: string): string {
+  const humonOpts = game.humons
+    .map((humon) => option(humon.id, `${humonName(humon)}`, false))
+    .join("");
+  return `
+		<span class="mgr-box-row">
+			${monHtml(mon)}
+			<select class="mgr-select" data-mgr-select="puter-humon">${humonOpts}</select>
+			<button class="mgr-btn" data-mgr-action="withdraw-put" data-mon="${esc(mon)}">BOX OUT TO HUMON</button>
+			<button class="mgr-btn" data-mgr-action="sell-put" data-mon="${esc(mon)}">SELL ¥${CURRENCY.duplicate}</button>
+		</span>`;
+}
+
+function transferFormHtml(game: GameState): string {
+  const humonOpts = game.humons
+    .map((humon) =>
+      option(humon.id, `${humonName(humon)} LV ${humon.level}`, false),
+    )
+    .join("");
+  const sourceOpts = humonOpts + option("puter", "POKEPUTER", false);
+  const destOpts = humonOpts + option("puter", "POKEPUTER (BOX)", false);
+  const startMonOpts = transferMonOpts(game, game.humons[0]?.id ?? "");
+  return `
+		<div class="mgr-transfer">
+			<p class="mgr-note">TRANSFER A POKEMON BETWEEN HUMONS OR THE POKEPUTER.</p>
+			<div class="mgr-form">
+				<label class="mgr-label">FROM
+					<select class="mgr-select" data-mgr-select="puter-source">${sourceOpts}</select>
+				</label>
+				<label class="mgr-label">MON
+					<select class="mgr-select" data-mgr-select="puter-mon">${startMonOpts}</select>
+				</label>
+				<label class="mgr-label">TO
+					<select class="mgr-select" data-mgr-select="puter-dest">${destOpts}</select>
+				</label>
+				<button class="mgr-btn" data-mgr-action="transfer">TRANSFER</button>
+			</div>
+		</div>`;
+}
+
+function transferMonOpts(game: GameState, source: string): string {
+  const mons =
+    source === "puter" ? game.storage : (humonById(game, source)?.team ?? []);
+  if (mons.length === 0) return '<option value="">NOTHING HERE</option>';
+  return mons.map((mon) => option(mon, mon, false)).join("");
+}
+
 function shopHtml(game: GameState): string {
   const shop = SECRET_HUMON_KEYS.map((key) => {
     const spec = SECRET_HUMONS[key];
@@ -1022,6 +1096,43 @@ function handleAction(action: string, el: HTMLElement): void {
       result = useRareCandy(state, humonId);
       break;
     }
+    case "transfer": {
+      const source = selectValue("puter-source");
+      const mon = selectValue("puter-mon");
+      const dest = selectValue("puter-dest");
+      if (!source || !mon || !dest) {
+        result = { ok: false, error: "PICK A SOURCE, POKEMON AND DESTINATION" };
+        break;
+      }
+      if (source === dest) {
+        result = { ok: false, error: "PICK TWO DIFFERENT PLACES" };
+        break;
+      }
+      if (source === "puter") {
+        result = withdrawFromStorage(state, dest, mon);
+      } else if (dest === "puter") {
+        result = depositToStorage(state, source, mon);
+      } else {
+        result = transferBetweenHumons(state, source, dest, mon);
+      }
+      break;
+    }
+    case "withdraw-put": {
+      const mon = el.dataset.mon ?? "";
+      const row = el.closest(".mgr-box-row") as HTMLElement | null;
+      const humonId =
+        row?.querySelector<HTMLSelectElement>('[data-mgr-select="puter-humon"]')
+          ?.value ?? "";
+      result = humonId
+        ? withdrawFromStorage(state, humonId, mon)
+        : { ok: false, error: "PICK A HUMON" };
+      break;
+    }
+    case "sell-put": {
+      const mon = el.dataset.mon ?? "";
+      result = sellFromStorage(state, mon);
+      break;
+    }
     case "jump": {
       const id = el.dataset.mgrScroll;
       if (id) {
@@ -1083,7 +1194,7 @@ function onChange(event: Event): void {
     !target ||
     typeof target.matches !== "function" ||
     !target.matches(
-      '[data-mgr-select="travel-humon"], [data-mgr-select="travel-town"], [data-mgr-select="gym-humon"]',
+      '[data-mgr-select="travel-humon"], [data-mgr-select="travel-town"], [data-mgr-select="gym-humon"], [data-mgr-select="puter-source"]',
     )
   )
     return;
@@ -1091,6 +1202,13 @@ function onChange(event: Event): void {
   if (!mount || !state) return;
   if (target.matches('[data-mgr-select="gym-humon"]')) {
     syncGymCard(target);
+    return;
+  }
+  if (target.matches('[data-mgr-select="puter-source"]')) {
+    const monSelect = mount.querySelector<HTMLSelectElement>(
+      '[data-mgr-select="puter-mon"]',
+    );
+    if (monSelect) monSelect.innerHTML = transferMonOpts(state, target.value);
     return;
   }
   const preview = mount.querySelector<HTMLElement>(

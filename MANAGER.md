@@ -9,6 +9,7 @@ A football-manager style idle game for the Pokémon tournament site. The player 
 - **Gym bosses** = the 10 tournament trainers. Beat one (real Showdown sim via `@pkmn/sim`) → badge recorded in `state.defeated`; badges are tracked, leaders don't join the roster.
 - **Hidden humons** = secret pages: Joak (123, catch with a **JOAKBALL**), Devilmon (new page 666, catch with a **DEVILBALL**), Copmon (page 999, catch with a **COPBALL**). Balls are bought at the POKESHOP on 810, then thrown on the humon's hidden page.
 - **Days + stamina**: the game counts days since you started (`state.day`, starts at 1). Every humon has `100 + (level-1)*20` max stamina, refilled each morning. Actions are **immediate** but each costs stamina (train 20, travel 40, gym 50). Click **GO TO SLEEP** to advance a day and restore the whole roster. The objective is to beat all 10 gym leaders in the fewest days — the last one sets `state.wonDay`, and the UI shows **YOU WON IN X DAYS**.
+- **Pokeputer**: a shared, unlimited box (`state.storage`). Duplicate catches and catches made when a humon's team of 6 is full are **boxed here instead of auto-sold**. The manager can transfer pokémon between humons (`transferBetweenHumons`), box/unbox them (`depositToStorage`/`withdrawFromStorage`), and sell boxed spares for `CURRENCY.duplicate` (`sellFromStorage`). Transfer unboxes are gated by `MAX_TEAM_SIZE` and block duplicate species on the same team. `version` stays 2 — `storage` is additive and old v2 saves load with an empty box.
 
 ## New data layer
 
@@ -23,7 +24,7 @@ A football-manager style idle game for the Pokémon tournament site. The player 
 
 ## New pages (800s block)
 
-**810 MANAGER** (single page, `/manager`) renders everything stacked in one scroll: day/currency/stamina status bar, GO TO SLEEP, victory banner, objective, quick-jump bar (scrolls to each section), full roster (levels, XP, teams, stamina, rare candy), TRAIN form, TRAVEL form + live catch-pool preview, GYM LEADERS boss cards, battle replays, POKESHOP (buy JOAKBALL ¥500, DEVILBALL/COPBALL ¥750 — throw on the humon's hidden page to catch it), a BADGE RACK (10 slots, filled with each defeated leader's badge), and the recent-activity log. Shows a gate message if no HUMON is caught.
+**810 MANAGER** (single page, `/manager`) renders everything stacked in one scroll: day/currency/stamina status bar, GO TO SLEEP, victory banner, objective, quick-jump bar (scrolls to each section), full roster (levels, XP, teams, stamina, rare candy), TRAIN form, TRAVEL form + live catch-pool preview, GYM LEADERS boss cards, battle replays, a **POKEPUTER** section (boxed duplicates with SELL / unbox-to-humon controls plus a FROM→MON→TO transfer form for moving pokémon between humons and the box), POKESHOP (buy JOAKBALL ¥500, DEVILBALL/COPBALL ¥750 — throw on the humon's hidden page to catch it), a BADGE RACK (10 slots, filled with each defeated leader's badge), and the recent-activity log. Shows a gate message if no HUMON is caught.
 
 Plus hidden pages **`123.astro` (PROFESSOR JOAK)**, **`666.astro` (DEVILMON)** and **`999.astro` (COPMON)**, each with a ball-throw widget (`data-manager-secret`) fed by balls from the POKESHOP.
 

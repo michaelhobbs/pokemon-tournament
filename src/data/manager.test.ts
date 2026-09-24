@@ -29,6 +29,11 @@ import {
   BOSS_PLAYER_NUMBERS,
   buyBall,
   useBall,
+  depositToStorage,
+  withdrawFromStorage,
+  transferBetweenHumons,
+  sellFromStorage,
+  CURRENCY,
 } from "./manager";
 
 describe("mulberry32", () => {
@@ -302,6 +307,11 @@ describe("defaultState", () => {
     expect(state.items["cop-ball"]).toBe(0);
   });
 
+  it("has an empty pokeputer", () => {
+    const state = defaultState();
+    expect(state.storage).toEqual([]);
+  });
+
   it("has a log entry", () => {
     const state = defaultState();
     expect(state.log.length).toBeGreaterThan(0);
@@ -424,5 +434,142 @@ describe("balls", () => {
     const result = useBall(state, "devil");
     expect(result.ok).toBe(false);
     expect(state.unlocked).not.toContain("devil");
+  });
+});
+
+describe("pokeputer", () => {
+  it("depositToStorage moves a mon off a team", () => {
+    const state = defaultState();
+    const humon = humonById(state, "starter");
+    if (!humon) return;
+    humon.team = ["Pikachu", "Charizard"];
+    expect(state.storage).toEqual([]);
+    const result = depositToStorage(state, "starter", "Pikachu");
+    expect(result.ok).toBe(true);
+    expect(humon.team).toEqual(["Charizard"]);
+    expect(state.storage).toEqual(["Pikachu"]);
+  });
+
+  it("depositToStorage rejects a mon not on the team", () => {
+    const state = defaultState();
+    const humon = humonById(state, "starter");
+    if (!humon) return;
+    humon.team = ["Pikachu"];
+    const result = depositToStorage(state, "starter", "Charizard");
+    expect(result.ok).toBe(false);
+    expect(state.storage).toEqual([]);
+    expect(humon.team).toEqual(["Pikachu"]);
+  });
+
+  it("depositToStorage rejects an unknown humon", () => {
+    const state = defaultState();
+    const result = depositToStorage(state, "nope", "Pikachu");
+    expect(result.ok).toBe(false);
+  });
+
+  it("withdrawFromStorage adds a mon to a team and empties storage", () => {
+    const state = defaultState();
+    const humon = humonById(state, "starter");
+    if (!humon) return;
+    state.storage = ["Pikachu"];
+    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    expect(result.ok).toBe(true);
+    expect(state.storage).toEqual([]);
+    expect(humon.team).toEqual(["Pikachu"]);
+  });
+
+  it("withdrawFromStorage rejects a full team", () => {
+    const state = defaultState();
+    const humon = humonById(state, "starter");
+    if (!humon) return;
+    humon.team = Array.from({ length: MAX_TEAM_SIZE }, (_, i) => `Mon${i}`);
+    state.storage = ["Pikachu"];
+    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    expect(result.ok).toBe(false);
+    expect(state.storage).toEqual(["Pikachu"]);
+  });
+
+  it("withdrawFromStorage rejects a species already on the team", () => {
+    const state = defaultState();
+    const humon = humonById(state, "starter");
+    if (!humon) return;
+    humon.team = ["Pikachu"];
+    state.storage = ["Pikachu", "Charizard"];
+    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    expect(result.ok).toBe(false);
+    expect(state.storage).toEqual(["Pikachu", "Charizard"]);
+  });
+
+  it("withdrawFromStorage rejects a mon not boxed", () => {
+    const state = defaultState();
+    const result = withdrawFromStorage(state, "starter", "Pikachu");
+    expect(result.ok).toBe(false);
+  });
+
+  it("transferBetweenHumons moves a mon between two humons", () => {
+    const state = defaultState();
+    const starter = humonById(state, "starter");
+    if (!starter) return;
+    state.humons.push({
+      id: "second",
+      kind: "boss",
+      level: 1,
+      xp: 0,
+      team: [],
+      stamina: BASE_STAMINA,
+      maxStamina: BASE_STAMINA,
+    });
+    starter.team = ["Pikachu", "Charizard"];
+    const result = transferBetweenHumons(state, "starter", "second", "Pikachu");
+    expect(result.ok).toBe(true);
+    expect(starter.team).toEqual(["Charizard"]);
+    expect(humonById(state, "second")?.team).toEqual(["Pikachu"]);
+  });
+
+  it("transferBetweenHumons rejects moving to the same humon", () => {
+    const state = defaultState();
+    const result = transferBetweenHumons(
+      state,
+      "starter",
+      "starter",
+      "Pikachu",
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it("transferBetweenHumons rejects a full target", () => {
+    const state = defaultState();
+    const starter = humonById(state, "starter");
+    if (!starter) return;
+    state.humons.push({
+      id: "second",
+      kind: "boss",
+      level: 1,
+      xp: 0,
+      team: Array.from({ length: MAX_TEAM_SIZE }, (_, i) => `Mon${i}`),
+      stamina: BASE_STAMINA,
+      maxStamina: BASE_STAMINA,
+    });
+    starter.team = ["Pikachu"];
+    const result = transferBetweenHumons(state, "starter", "second", "Pikachu");
+    expect(result.ok).toBe(false);
+  });
+
+  it("sellFromStorage pays CURRENCY.duplicate and removes a copy", () => {
+    const state = defaultState();
+    state.currency = 100;
+    state.storage = ["Pikachu", "Charizard"];
+    const result = sellFromStorage(state, "Pikachu");
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.price).toBe(CURRENCY.duplicate);
+    expect(state.currency).toBe(100 + CURRENCY.duplicate);
+    expect(state.storage).toEqual(["Charizard"]);
+  });
+
+  it("sellFromStorage rejects a mon not boxed", () => {
+    const state = defaultState();
+    const result = sellFromStorage(state, "Pikachu");
+    expect(result.ok).toBe(false);
+    expect(state.currency).toBe(0);
   });
 });

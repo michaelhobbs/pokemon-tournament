@@ -87,6 +87,8 @@ export interface GameState {
   defeated: number[];
   currency: number;
   humons: Humon[];
+  /** Boxed pokémon (duplicates / overflow from travel catches), unlimited. */
+  storage: string[];
   items: Items;
   visited: string[];
   unlocked: SecretHumonKey[];
@@ -217,6 +219,7 @@ export function defaultState(): GameState {
     defeated: [],
     currency: 0,
     humons: [],
+    storage: [],
     items: {
       "rare-candy": 0,
       "max-repel": 0,
@@ -274,6 +277,11 @@ export function loadState(): GameState {
       wonDay: typeof parsed.wonDay === "number" ? parsed.wonDay : null,
       currency: typeof parsed.currency === "number" ? parsed.currency : 0,
       humons,
+      storage: Array.isArray(parsed.storage)
+        ? parsed.storage.filter(
+            (name): name is string => typeof name === "string",
+          )
+        : [],
       defeated: (() => {
         const seen = new Set(
           Array.isArray(parsed.defeated)
@@ -505,9 +513,8 @@ function resolveTravel(
       ? unowned[Math.floor(rand() * unowned.length)]
       : pool[Math.floor(rand() * pool.length)];
   if (have.has(pick) || humon.team.length >= MAX_TEAM_SIZE) {
-    const bonus = CURRENCY.duplicate + Math.floor(rand() * 30);
-    state.currency += bonus;
-    log(state, `${pick} DUPED OR TEAM FULL - SOLD FOR ¥${bonus}`);
+    state.storage.push(pick);
+    log(state, `${pick} DUPED OR TEAM FULL - BOXED IN THE POKEPUTER`);
   } else {
     humon.team.push(pick);
     log(state, `${humonName(humon)} CAUGHT ${pick} IN ${townName}!`);
@@ -608,4 +615,81 @@ export function useRareCandy(
   recalcLevel(humon);
   log(state, `${humonName(humon)} USES A RARE CANDY. +${RARE_CANDY_XP} XP`);
   return { ok: true };
+}
+
+/** Move one pokémon from a humon's team into the pokeputer. */
+export function depositToStorage(
+  state: GameState,
+  humonId: string,
+  mon: string,
+): { ok: true } | { ok: false; error: string } {
+  const humon = humonById(state, humonId);
+  if (!humon) return { ok: false, error: "HUMON NOT FOUND" };
+  const index = humon.team.indexOf(mon);
+  if (index === -1)
+    return { ok: false, error: `${mon} IS NOT ON ${humonName(humon)}` };
+  humon.team.splice(index, 1);
+  state.storage.push(mon);
+  log(state, `${mon} MOVED FROM ${humonName(humon)} TO THE POKEPUTER`);
+  return { ok: true };
+}
+
+/** Move one pokémon from the pokeputer onto a humon's team. */
+export function withdrawFromStorage(
+  state: GameState,
+  humonId: string,
+  mon: string,
+): { ok: true } | { ok: false; error: string } {
+  const humon = humonById(state, humonId);
+  if (!humon) return { ok: false, error: "HUMON NOT FOUND" };
+  const index = state.storage.indexOf(mon);
+  if (index === -1)
+    return { ok: false, error: `${mon} IS NOT IN THE POKEPUTER` };
+  if (humon.team.length >= MAX_TEAM_SIZE)
+    return { ok: false, error: `${humonName(humon)} HAS A FULL TEAM` };
+  if (humon.team.includes(mon))
+    return { ok: false, error: `${humonName(humon)} ALREADY OWNS ${mon}` };
+  state.storage.splice(index, 1);
+  humon.team.push(mon);
+  log(state, `${mon} MOVED FROM THE POKEPUTER TO ${humonName(humon)}`);
+  return { ok: true };
+}
+
+/** Move one pokémon directly between two humons' teams. */
+export function transferBetweenHumons(
+  state: GameState,
+  fromHumonId: string,
+  toHumonId: string,
+  mon: string,
+): { ok: true } | { ok: false; error: string } {
+  if (fromHumonId === toHumonId)
+    return { ok: false, error: "PICK TWO DIFFERENT HUMONS" };
+  const from = humonById(state, fromHumonId);
+  const to = humonById(state, toHumonId);
+  if (!from || !to) return { ok: false, error: "HUMON NOT FOUND" };
+  const index = from.team.indexOf(mon);
+  if (index === -1)
+    return { ok: false, error: `${mon} IS NOT ON ${humonName(from)}` };
+  if (to.team.length >= MAX_TEAM_SIZE)
+    return { ok: false, error: `${humonName(to)} HAS A FULL TEAM` };
+  if (to.team.includes(mon))
+    return { ok: false, error: `${humonName(to)} ALREADY OWNS ${mon}` };
+  from.team.splice(index, 1);
+  to.team.push(mon);
+  log(state, `${mon} MOVED FROM ${humonName(from)} TO ${humonName(to)}`);
+  return { ok: true };
+}
+
+/** Sell one boxed pokémon for CURRENCY.duplicate. */
+export function sellFromStorage(
+  state: GameState,
+  mon: string,
+): { ok: true; price: number } | { ok: false; error: string } {
+  const index = state.storage.indexOf(mon);
+  if (index === -1)
+    return { ok: false, error: `${mon} IS NOT IN THE POKEPUTER` };
+  state.storage.splice(index, 1);
+  state.currency += CURRENCY.duplicate;
+  log(state, `${mon} SOLD FROM THE POKEPUTER FOR ¥${CURRENCY.duplicate}`);
+  return { ok: true, price: CURRENCY.duplicate };
 }
