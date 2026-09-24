@@ -10,6 +10,7 @@ import {
   BALL_NAMES,
   type SecretHumonKey,
 } from "./hidden-humons";
+import { HUMON_SKINS } from "./humon-skins";
 
 export const MANAGER_STORAGE_KEY = "pkm:manager:v2";
 
@@ -129,6 +130,8 @@ export interface GameState {
   unlocked: SecretHumonKey[];
   log: LogEntry[];
   createdAt: number;
+  /** Post-victory HUMON customization (sprite skin id). */
+  cosmetic?: { skin: string };
 }
 
 export const BOSS_PLAYER_NUMBERS: number[] = PLAYERS.map(
@@ -375,6 +378,10 @@ export function loadState(): GameState {
       log: Array.isArray(parsed.log) ? parsed.log : [],
       createdAt:
         typeof parsed.createdAt === "number" ? parsed.createdAt : Date.now(),
+      cosmetic:
+        typeof parsed.cosmetic?.skin === "string"
+          ? { skin: parsed.cosmetic.skin }
+          : undefined,
     };
     ensureStarter(state);
     if (typeof parsed.version !== "number" || parsed.version < 4) {
@@ -672,6 +679,18 @@ export function buyRareCandy(
   state.currency -= RARE_CANDY_PRICE;
   state.items["rare-candy"] += 1;
   log(state, `RARE CANDY PURCHASED FOR ¥${RARE_CANDY_PRICE}`);
+  return { ok: true };
+}
+
+/** Post-victory: change the header HUMON's sprite skin. */
+export function setHumonSkin(
+  state: GameState,
+  skinId: string,
+): { ok: true } | { ok: false; error: string } {
+  const skin = HUMON_SKINS.find((s) => s.id === skinId);
+  if (!skin) return { ok: false, error: "NO SUCH LOOK" };
+  state.cosmetic = { skin: skin.id };
+  log(state, `${skin.name} - THE HUMON CHANGES ITS LOOK!`);
   return { ok: true };
 }
 

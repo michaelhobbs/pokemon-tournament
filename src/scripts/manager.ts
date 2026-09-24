@@ -36,6 +36,7 @@ import {
   withdrawFromStorage,
   transferBetweenHumons,
   sellFromStorage,
+  setHumonSkin,
   CURRENCY,
   XP_PER_LEVEL,
   catchChance,
@@ -52,6 +53,7 @@ import {
   type CaughtMon,
 } from "../data/manager";
 import { badgeFor } from "../data/badges";
+import { HUMON_SKINS, skinUnlockKey } from "../data/humon-skins";
 
 type Feature = "all";
 
@@ -251,7 +253,38 @@ function allHtml(game: GameState): string {
 		${pokeputerSectionHtml(game)}
 		${shopHtml(game)}
 		${badgesSectionHtml(game)}
+		${customizeHtml(game)}
 		${logSectionHtml(game)}`;
+}
+
+/** Post-victory: pick a new look for the header HUMON. */
+function customizeHtml(game: GameState): string {
+  if (game.wonDay === null) return "";
+  const options = HUMON_SKINS.map((skin) => {
+    const unlock = skinUnlockKey(skin.id);
+    const locked =
+      unlock !== undefined && !game.unlocked.includes(unlock as SecretHumonKey);
+    const active = game.cosmetic?.skin === skin.id;
+    return `
+			<button
+				class="mgr-skin ${active ? "mgr-skin-active" : ""}"
+				data-mgr-action="skin"
+				data-skin="${esc(skin.id)}"
+				${locked ? "disabled" : ""}
+				title="${locked ? "CATCH THIS HUMON TO UNLOCK ITS LOOK" : `${skin.name} LOOK`}"
+			>
+				<span class="mgr-skin-sprite">${spriteHtml(skin.sprite, "2rem")}</span>
+				<span class="mgr-skin-name">${esc(skin.name)}${active ? " &bull;" : ""}</span>
+			</button>`;
+  }).join("");
+  return `
+		<section class="mgr-section" id="mgr-customize">
+			<h2 class="mgr-section-title">CUSTOMIZE HUMON</h2>
+			<div class="mgr-section-body">
+				<p class="mgr-note">THE CHAMPION PICKS A NEW LOOK FOR THE HEADER HUMON. CATCH A HIDDEN HUMON TO UNLOCK ITS SKIN.</p>
+				<div class="mgr-skin-grid">${options}</div>
+			</div>
+		</section>`;
 }
 
 function objectiveHtml(game: GameState): string {
@@ -1158,6 +1191,7 @@ function handleAction(action: string, el: HTMLElement): void {
         saveState(current);
         renderAll();
         if (gymSaid) humonSay(gymSaid);
+        window.dispatchEvent(new Event("mgr:update"));
       });
       return;
     }
@@ -1168,6 +1202,11 @@ function handleAction(action: string, el: HTMLElement): void {
     }
     case "buy-candy": {
       result = buyRareCandy(state);
+      break;
+    }
+    case "skin": {
+      const skinId = el.dataset.skin ?? "";
+      result = setHumonSkin(state, skinId);
       break;
     }
     case "secret-catch": {
@@ -1264,6 +1303,7 @@ function handleAction(action: string, el: HTMLElement): void {
   renderAll();
   triggerSpriteAnimations();
   if (said) humonSay(said);
+  window.dispatchEvent(new Event("mgr:update"));
 }
 
 function syncGymCard(select: HTMLSelectElement): void {

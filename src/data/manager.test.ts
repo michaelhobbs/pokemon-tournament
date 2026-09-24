@@ -44,6 +44,7 @@ import {
   loadState,
   MANAGER_STORAGE_KEY,
   TOWN_PLAYER_NUMBERS,
+  setHumonSkin,
 } from "./manager";
 import { SECRET_HUMONS, SECRET_HUMON_KEYS } from "./hidden-humons";
 import { POKEMON_TYPES } from "./pokemon";
@@ -928,5 +929,29 @@ describe("shiny", () => {
       CURRENCY.duplicate * (1 + SHINY_SELL_MULTIPLIER),
     );
     expect(state.storage).toEqual([]);
+  });
+});
+
+describe("setHumonSkin", () => {
+  it("stores a valid skin and logs it", () => {
+    const state = defaultState();
+    const result = setHumonSkin(state, "champion");
+    expect(result.ok).toBe(true);
+    expect(state.cosmetic).toEqual({ skin: "champion" });
+    expect(state.log[0].text).toContain("CHAMPION");
+  });
+
+  it("rejects an unknown skin without touching cosmetic", () => {
+    const state = defaultState();
+    state.cosmetic = { skin: "champion" };
+    const result = setHumonSkin(state, "bogus");
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(/NO SUCH LOOK/);
+    expect(state.cosmetic).toEqual({ skin: "champion" });
+  });
+
+  it("is a no-op gate until the game is won", () => {
+    const state = defaultState();
+    expect(state.cosmetic).toBeUndefined();
   });
 });

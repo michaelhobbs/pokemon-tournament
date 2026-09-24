@@ -1,6 +1,6 @@
 ---
 import PixelArt from "./PixelArt.astro";
-import { HUMON } from "../../data/humon";
+import { HUMON_SKINS } from "../../data/humon-skins";
 import { QUESTION_MARK } from "../../data/question-mark";
 import { HELP_PAGE } from "../../data/navigation";
 
@@ -39,7 +39,17 @@ const {
         tabindex="0"
         aria-label="HUMON"
       >
-        <PixelArt sprite={HUMON} size="100%" decorative />
+        <span class="ceefax-humon-visual">
+          {
+            HUMON_SKINS.map((skin) => (
+              <span class="ceefax-humon-skin" data-skin={skin.id}>
+                <PixelArt sprite={skin.sprite} size="100%" decorative />
+              </span>
+            ))
+          }
+        </span>
+        <span class="ceefax-humon-medals" role="presentation" aria-hidden="true"
+        ></span>
         <span class="ceefax-humon-bubble ceefax-humon-msg" role="status">
           I USED TO BE TRAINER.<br />NOW I'M A MON.<br />I STILL HAVE MY TEAM
           THOUGH.<br />POKECEPTION!
@@ -136,6 +146,34 @@ const {
     visibility: visible;
     opacity: 1;
     animation: ceefax-humon-bob 2.8s ease-in-out infinite;
+  }
+
+  .ceefax-humon-visual {
+    display: grid;
+    width: 100%;
+  }
+
+  .ceefax-humon-skin {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+
+  .ceefax-humon-medals {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .ceefax-humon-medal {
+    width: 2px;
+    height: 2px;
+    background: var(--ceefax-cyan);
+    outline: 1px solid var(--ceefax-black);
   }
 
   .ceefax-humon-bubble {
@@ -296,6 +334,9 @@ const {
 
 <script>
   import { bindHumonChat } from "../../scripts/humon-chat";
+  import { loadState } from "../../data/manager";
+  import { badgeFor } from "../../data/badges";
+  import { skinFor } from "../../data/humon-skins";
   const clock = document.getElementById("ceefax-clock");
   const pad = (n) => String(n).padStart(2, "0");
   const render = () => {
@@ -343,4 +384,29 @@ const {
       if (text) say(text);
     });
   }
+
+  const applyHumon = () => {
+    const game = loadState();
+    const medalsEl = humon?.querySelector(".ceefax-humon-medals");
+    if (medalsEl) {
+      medalsEl.innerHTML = "";
+      for (const number of game.defeated) {
+        const badge = badgeFor(number);
+        const medal = document.createElement("span");
+        medal.className = "ceefax-humon-medal";
+        medal.style.background =
+          badge?.sprite.palette.C ?? "var(--ceefax-cyan)";
+        medalsEl.appendChild(medal);
+      }
+    }
+    const active = skinFor(game.cosmetic?.skin).id;
+    for (const el of humon?.querySelectorAll<HTMLElement>(
+      ".ceefax-humon-skin",
+    ) ?? []) {
+      el.style.visibility = el.dataset.skin === active ? "visible" : "hidden";
+    }
+  };
+  applyHumon();
+  window.addEventListener("mgr:update", applyHumon);
+  document.addEventListener("astro:page-load", applyHumon);
 </script>
