@@ -13,6 +13,7 @@ export function bindHumonChat(humon: HTMLElement): void {
   let msgIndex = 0;
   const talk = (event?: Event): void => {
     if (event && isLinkTarget(event)) return;
+    humon.classList.remove("is-talking-say");
     msgIndex = (msgIndex + 1) % 3;
     if (msgIndex === 0) {
       humon.classList.remove("is-talking", "is-talking-two");

@@ -50,6 +50,7 @@ const {
             href={`${import.meta.env.BASE_URL}000`}>000</a
           >&nbsp;IDEA WHERE IT IS…
         </span>
+        <span class="ceefax-humon-bubble ceefax-humon-say" role="status"></span>
       </span>
     </div>
     <div class="ceefax-pagebox-group">
@@ -171,6 +172,39 @@ const {
     opacity: 0;
   }
 
+  .ceefax-humon-say {
+    background: var(--ceefax-cyan);
+    color: var(--ceefax-black);
+  }
+
+  .ceefax-humon.is-talking-say .ceefax-humon-say {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    animation: ceefax-say-pop 0.22s ease-out;
+  }
+
+  .ceefax-humon.is-talking-say .ceefax-humon-msg,
+  .ceefax-humon.is-talking-say .ceefax-humon-msg2 {
+    opacity: 0;
+  }
+
+  @keyframes ceefax-say-pop {
+    0% {
+      transform: translateX(-50%) translateY(8px) scale(0.92);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(-50%) translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ceefax-humon.is-talking-say .ceefax-humon-say {
+      animation: none;
+    }
+  }
+
   .ceefax-humon-bubble::before,
   .ceefax-humon-bubble::after {
     content: "";
@@ -288,5 +322,25 @@ const {
 
   if (humon) {
     bindHumonChat(humon);
+    const sayBubble = humon.querySelector(".ceefax-humon-say");
+    const SAY_HIDE_MS = 5000;
+    let sayTimer: number | undefined;
+    const say = (text: string) => {
+      if (!sayBubble) return;
+      sayBubble.textContent = text;
+      humon.classList.remove("is-talking", "is-talking-two");
+      humon.classList.remove("is-talking-say");
+      void humon.offsetWidth;
+      humon.classList.add("is-talking-say");
+      window.clearTimeout(sayTimer);
+      sayTimer = window.setTimeout(
+        () => humon.classList.remove("is-talking-say"),
+        SAY_HIDE_MS,
+      );
+    };
+    window.addEventListener("mgr:say", (event) => {
+      const text = (event as CustomEvent<{ text?: string }>).detail?.text;
+      if (text) say(text);
+    });
   }
 </script>

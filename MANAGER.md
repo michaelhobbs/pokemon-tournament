@@ -34,7 +34,7 @@ Plus hidden pages **`123.astro` (PROFESSOR JOAK)**, **`666.astro` (DEVILMON)** a
 ## Wiring
 
 - **`navigation.ts`**: `MANAGER_PAGE` (810, hidden) — add to `PAGES`, `ALL_PAGES`; `DEVILMON_PAGE`/`COPMON_PAGE` (hidden) so typing 666/999 works.
-- **`src/scripts/manager.ts`**: global init (included once, like `ceefax-nav.ts`); on every `astro:page-load` loads state, marks the current page as visited (for unlock conditions), and re-renders any `data-manager-feature` containers. A small `ManagerApp.astro` component injects it per page with a feature key (`all`). Forms use scoped select keys (`train-humon`, `travel-humon`/`travel-town`, `gym-humon`) safe to co-exist on the single page.
+- **`src/scripts/manager.ts`**: global init (included once, like `ceefax-nav.ts`); on every `astro:page-load` loads state, marks the current page as visited (for unlock conditions), and re-renders any `data-manager-feature` containers. A small `ManagerApp.astro` component injects it per page with a feature key (`all`). Forms use scoped select keys (`train-humon`, `travel-humon`/`travel-town`, `gym-humon`) safe to co-exist on the single page. After every action it dispatches a `mgr:say` event (newest log line), and the header HUMON shows it in a 5-second transient bubble (replaced on the next action; `is-talking-say`).
 - **`CeefaxLayout`**: pages render static Ceefax skeletons; the script fills them client-side from localStorage (same pattern as `TournamentGraphic.initBall`).
 - Reuse `SectionNav.astro`, `CeefaxBlock`, `CeefaxHeading`, `PixelArt`, `TrainerSprite`, `POKEMON_SPRITES`, and the map markers for distance.
 

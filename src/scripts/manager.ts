@@ -1096,6 +1096,11 @@ function onClick(event: Event): void {
   handleAction(action, el);
 }
 
+/** Have the header HUMON say a line. */
+function humonSay(text: string): void {
+  window.dispatchEvent(new CustomEvent("mgr:say", { detail: { text } }));
+}
+
 function handleAction(action: string, el: HTMLElement): void {
   if (!state) return;
   const current = state;
@@ -1105,6 +1110,7 @@ function handleAction(action: string, el: HTMLElement): void {
   const selectValue = (attr: string): string =>
     mount?.querySelector<HTMLSelectElement>(`[data-mgr-select="${attr}"]`)
       ?.value ?? "";
+  const logLen = state.log.length;
   let result: { ok: true } | { ok: false; error: string };
   switch (action) {
     case "sleep": {
@@ -1139,6 +1145,7 @@ function handleAction(action: string, el: HTMLElement): void {
         break;
       }
       result = { ok: true };
+      const gymLogLen = current.log.length;
       // Disable the button while the battle runs
       el.setAttribute("disabled", "");
       el.textContent = "BATTLE IN PROGRESS...";
@@ -1146,8 +1153,11 @@ function handleAction(action: string, el: HTMLElement): void {
         if (!battleResult.ok) {
           log(current, battleResult.error);
         }
+        const gymSaid =
+          current.log.length > gymLogLen ? current.log[0].text : null;
         saveState(current);
         renderAll();
+        if (gymSaid) humonSay(gymSaid);
       });
       return;
     }
@@ -1249,9 +1259,11 @@ function handleAction(action: string, el: HTMLElement): void {
       return;
   }
   if (!result.ok) log(state, result.error);
+  const said = state.log.length > logLen ? state.log[0].text : null;
   saveState(state);
   renderAll();
   triggerSpriteAnimations();
+  if (said) humonSay(said);
 }
 
 function syncGymCard(select: HTMLSelectElement): void {
