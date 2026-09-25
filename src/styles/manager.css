@@ -58,6 +58,7 @@
   gap: 0.35rem;
   border: 1px solid var(--ceefax-white);
   padding: 0.5rem 0.6rem;
+  min-width: 0;
 }
 
 .mgr-card[data-dim="true"] {
@@ -378,6 +379,8 @@
   font-size: 1rem;
   text-transform: uppercase;
   padding: 0.25rem 0.4rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .mgr-form {

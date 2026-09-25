@@ -527,7 +527,7 @@ function gymsSectionHtml(game: GameState): string {
     const needsTeam = !!selectedHumon && selectedHumon.team.length === 0;
     const humonOpts =
       ready.length === 0
-        ? '<option value="">NO HUMONS WITH ENOUGH STAMINA</option>'
+        ? '<option value="">NO HUMONS READY</option>'
         : ready
             .map((humon) =>
               option(humon.id, `${humonName(humon)} LV ${humon.level}`, false),
