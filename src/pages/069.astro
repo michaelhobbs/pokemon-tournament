@@ -5,26 +5,23 @@ import CeefaxHeading from "../components/ceefax/CeefaxHeading.astro";
 import PixelArt from "../components/ceefax/PixelArt.astro";
 import SecretAwardBanner from "../components/ceefax/SecretAwardBanner.astro";
 import SecretQuote from "../components/ceefax/SecretQuote.astro";
-import { GLITCH_SPRITE } from "../data/hidden-humons";
+import { SEX_SPRITE } from "../data/hidden-humons";
 ---
 
-<CeefaxLayout title="PAGE NOT FOUND" pageNumber="404">
+<CeefaxLayout title="SEXMON" pageNumber="069">
   <SecretQuote />
   <div class="secret-block">
     <div class="secret-sprite-row">
-      <PixelArt sprite={GLITCH_SPRITE} size="8rem" />
-      <span class="mgr-secret-ball" data-secret-ball="glitch"></span>
+      <PixelArt sprite={SEX_SPRITE} size="8rem" />
+      <span class="mgr-secret-ball" data-secret-ball="sex"></span>
     </div>
-    <CeefaxHeading text="404 — GLITCHMON" color="green" />
-    <CeefaxBlock
-      title="THE PAGE YOU WERE LOOKING FOR DOES NOT EXIST"
-      color="red"
-    >
-      <p>ONLY GLITCHMON EXISTS.</p>
-      <p>EVERYTHING ELSE ABOUT THIS PAGE WAS RENDERED WRONG.</p>
-      <p>CATCH IT WITH A GLITCHBALL FROM THE POKESHOP ON PAGE 810.</p>
+    <CeefaxHeading text="SEXMON" color="magenta" />
+    <CeefaxBlock title="69. NICE." color="magenta">
+      <p>IT'S EXACTLY WHAT YOU THINK IT IS.</p>
+      <p>EVERY ROUND IS A ROUND. IT HAS NEVER LOST A ONE-NIGHT READ.</p>
+      <p>CATCH IT WITH A SEXBALL FROM THE POKESHOP ON PAGE 810.</p>
     </CeefaxBlock>
-    <div class="mgr-app" data-manager-secret="glitch"></div>
+    <div class="mgr-app" data-manager-secret="sex"></div>
     <SecretAwardBanner />
   </div>
 </CeefaxLayout>

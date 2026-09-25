@@ -104,14 +104,32 @@ export interface Items {
   "joak-ball": number;
   "devil-ball": number;
   "cop-ball": number;
+  "glitch-ball": number;
+  "bond-ball": number;
+  "angel-ball": number;
+  "sex-ball": number;
+  "dbz-ball": number;
 }
 
-export type BallItem = "joak-ball" | "devil-ball" | "cop-ball";
+export type BallItem =
+  | "joak-ball"
+  | "devil-ball"
+  | "cop-ball"
+  | "glitch-ball"
+  | "bond-ball"
+  | "angel-ball"
+  | "sex-ball"
+  | "dbz-ball";
 
 export function ballItemFor(key: SecretHumonKey): BallItem {
   if (key === "joak") return "joak-ball";
   if (key === "devil") return "devil-ball";
-  return "cop-ball";
+  if (key === "cop") return "cop-ball";
+  if (key === "glitch") return "glitch-ball";
+  if (key === "bond") return "bond-ball";
+  if (key === "angel") return "angel-ball";
+  if (key === "sex") return "sex-ball";
+  return "dbz-ball";
 }
 
 export interface GameState {
@@ -143,9 +161,13 @@ export const TOWN_PLAYER_NUMBERS: number[] = PLAYERS.map(
 
 export const HIDDEN_PAGE_NUMBERS: string[] = [
   "000",
+  "007",
+  "069",
   "123",
+  "329",
   "404",
   "666",
+  "777",
   "999",
 ];
 
@@ -264,6 +286,11 @@ export function defaultState(): GameState {
       "joak-ball": 0,
       "devil-ball": 0,
       "cop-ball": 0,
+      "glitch-ball": 0,
+      "bond-ball": 0,
+      "angel-ball": 0,
+      "sex-ball": 0,
+      "dbz-ball": 0,
     },
     visited: [],
     unlocked: [],
@@ -371,6 +398,26 @@ export function loadState(): GameState {
         "cop-ball":
           typeof parsed.items?.["cop-ball"] === "number"
             ? parsed.items["cop-ball"]
+            : 0,
+        "glitch-ball":
+          typeof parsed.items?.["glitch-ball"] === "number"
+            ? parsed.items["glitch-ball"]
+            : 0,
+        "bond-ball":
+          typeof parsed.items?.["bond-ball"] === "number"
+            ? parsed.items["bond-ball"]
+            : 0,
+        "angel-ball":
+          typeof parsed.items?.["angel-ball"] === "number"
+            ? parsed.items["angel-ball"]
+            : 0,
+        "sex-ball":
+          typeof parsed.items?.["sex-ball"] === "number"
+            ? parsed.items["sex-ball"]
+            : 0,
+        "dbz-ball":
+          typeof parsed.items?.["dbz-ball"] === "number"
+            ? parsed.items["dbz-ball"]
             : 0,
       },
       visited: Array.isArray(parsed.visited) ? parsed.visited : [],

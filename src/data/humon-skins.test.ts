@@ -45,6 +45,11 @@ describe("HUMON_SKINS", () => {
     expect(skinUnlockKey("joak")).toBe("joak");
     expect(skinUnlockKey("devil")).toBe("devil");
     expect(skinUnlockKey("cop")).toBe("cop");
+    expect(skinUnlockKey("glitch")).toBe("glitch");
+    expect(skinUnlockKey("bond")).toBe("bond");
+    expect(skinUnlockKey("angel")).toBe("angel");
+    expect(skinUnlockKey("sex")).toBe("sex");
+    expect(skinUnlockKey("dbz")).toBe("dbz");
   });
 });
 

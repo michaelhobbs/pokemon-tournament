@@ -340,6 +340,11 @@ describe("defaultState", () => {
     expect(state.items["joak-ball"]).toBe(0);
     expect(state.items["devil-ball"]).toBe(0);
     expect(state.items["cop-ball"]).toBe(0);
+    expect(state.items["glitch-ball"]).toBe(0);
+    expect(state.items["bond-ball"]).toBe(0);
+    expect(state.items["angel-ball"]).toBe(0);
+    expect(state.items["sex-ball"]).toBe(0);
+    expect(state.items["dbz-ball"]).toBe(0);
   });
 
   it("has an empty pokeputer", () => {
@@ -687,6 +692,16 @@ describe("loadState migration (v3 -> v4)", () => {
     );
     const state = loadState();
     expect(humonById(state, "joak")?.team).toEqual([]);
+  });
+
+  it("defaults the new hidden-humon balls to 0 on old saves", () => {
+    setLocalStorage(JSON.stringify({ ...baseSave, version: 4 }));
+    const state = loadState();
+    expect(state.items["glitch-ball"]).toBe(0);
+    expect(state.items["bond-ball"]).toBe(0);
+    expect(state.items["angel-ball"]).toBe(0);
+    expect(state.items["sex-ball"]).toBe(0);
+    expect(state.items["dbz-ball"]).toBe(0);
   });
 });
 

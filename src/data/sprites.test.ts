@@ -4,6 +4,11 @@ import { PLAYERS } from "./players";
 import { HOMETOWN_MAP, HOMETOWN_MARKERS } from "./hometown-map";
 import { TROPHY_SPRITE } from "./trophy";
 import { FONT_5X7 } from "./pixel-font";
+import {
+  SECRET_HUMONS,
+  SECRET_HUMON_KEYS,
+  BALL_SPRITES,
+} from "./hidden-humons";
 
 describe("TRAINER_SPRITES", () => {
   it("has sprites for all players", () => {
@@ -114,6 +119,41 @@ describe("TROPHY_SPRITE", () => {
     expect(TROPHY_SPRITE.palette.B).toBeDefined();
     expect(TROPHY_SPRITE.palette.G).toBeDefined();
     expect(TROPHY_SPRITE.palette.H).toBeDefined();
+  });
+});
+
+describe("SECRET_HUMON sprites", () => {
+  it("every humon sprite is 16 rows of 16 chars", () => {
+    for (const key of SECRET_HUMON_KEYS) {
+      const sprite = SECRET_HUMONS[key].sprite;
+      expect(sprite.map, key).toHaveLength(16);
+      for (const row of sprite.map) {
+        expect(row, key).toHaveLength(16);
+      }
+    }
+  });
+
+  it("every humon sprite only uses defined palette chars", () => {
+    for (const key of SECRET_HUMON_KEYS) {
+      const sprite = SECRET_HUMONS[key].sprite;
+      for (const row of sprite.map) {
+        for (const char of row) {
+          if (char !== ".") {
+            expect(sprite.palette[char], `${key} ${char}`).toBeDefined();
+          }
+        }
+      }
+    }
+  });
+
+  it("every ball sprite is 16 rows of 16 chars", () => {
+    for (const key of SECRET_HUMON_KEYS) {
+      const sprite = BALL_SPRITES[key];
+      expect(sprite.map, key).toHaveLength(16);
+      for (const row of sprite.map) {
+        expect(row, key).toHaveLength(16);
+      }
+    }
   });
 });
 

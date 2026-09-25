@@ -56,7 +56,146 @@ export const COP_SPRITE: PixelArt = {
   },
 };
 
-export type SecretHumonKey = "joak" | "devil" | "cop";
+export const GLITCH_SPRITE: PixelArt = {
+  map: [
+    "................",
+    "..G..G....G..G..",
+    ".G...G...G...G..",
+    "..G..G....G..G..",
+    "...GGGGGGGGGG...",
+    "..BKKKKKKKKKKB..",
+    ".BKKWKKKKWKKKB..",
+    "BKKKKKKKKKKKKKB.",
+    "BKKKKKKKKKKKKKB.",
+    "BKKKKKKKKKKKKKB.",
+    ".BKKDDDDDDDKKB..",
+    "..BDDGGDDGGDKB..",
+    "..BGGDDGGDDDKB..",
+    "..BGGGGGGGGGKB..",
+    "..BBBBBBBBBBB...",
+    "................",
+  ],
+  palette: {
+    B: "#000000",
+    G: "#004d26",
+    K: "#00ff41",
+    W: "#ffffff",
+    D: "#ff00dd",
+  },
+};
+
+export const BOND_SPRITE: PixelArt = {
+  map: [
+    "................",
+    "......WWWW......",
+    "....WWWWWWWW....",
+    "...WKKKKKKKKW...",
+    "...WKKKKKKKKW...",
+    "...WKKWWKKWWK...",
+    "...WKKKKKKKKW...",
+    "....KKKKKKKK....",
+    "....KKKKKKKK....",
+    "...BBBBBBBBBB...",
+    "..BBWWWWWWWWBB..",
+    "..BBWWWWWWWWBB..",
+    ".BBBBBBBBBBBBBB.",
+    ".BBBKBBBBKBBBKB.",
+    "..BKK..BB..KKB..",
+    "................",
+  ],
+  palette: {
+    B: "#000000",
+    K: "#ffcc99",
+    W: "#ffffff",
+  },
+};
+
+export const ANGEL_SPRITE: PixelArt = {
+  map: [
+    "................",
+    "......GGG.......",
+    "......GGG.......",
+    "......GGG.......",
+    "..WW..KKKK..WW..",
+    ".WWW.KKKKKK.WWW.",
+    ".WWW.KWKKWK.WWW.",
+    ".WWW.KKKKKK.WWW.",
+    ".WWW..KKKK..WWW.",
+    "..WW.PPPPPPP.WW.",
+    "..PP.PPPPPP.PP..",
+    ".PPP.PPPPPP.PPP.",
+    ".PPP.PPPPPP.PPP.",
+    "..PPPPPP..PPPP..",
+    ".....PPP..PPP...",
+    "................",
+  ],
+  palette: {
+    B: "#000000",
+    G: "#ffd700",
+    K: "#ffcc99",
+    W: "#ffffff",
+    P: "#f6c1d9",
+  },
+};
+
+export const SEX_SPRITE: PixelArt = {
+  map: [
+    "................",
+    "...PPP....PPP...",
+    "..PPPPP..PPPPP..",
+    ".PPPKKKKKKPPP...",
+    ".PPKKWWKKKKPP...",
+    ".PPKKKPPKKKKP...",
+    ".PPKKKKPPKKKP...",
+    ".PPKKWWKKKKPP...",
+    ".PPPKKKKKKPPP...",
+    "..PPPPPPPPPPP...",
+    "...PP.....PP....",
+    "...PPP...PPP....",
+    "....PPP.PPP.....",
+    ".....PPPPP......",
+    ".......P........",
+    "................",
+  ],
+  palette: {
+    B: "#000000",
+    K: "#ffcc99",
+    W: "#ffffff",
+    P: "#ff5c9a",
+  },
+};
+
+export const DBZ_SPRITE: PixelArt = {
+  map: [
+    "................",
+    "..G.G...G..G....",
+    ".G.G.G.GG.G.G...",
+    ".GG.GGGGGG.GG...",
+    ".GGGGKKKKGGGG...",
+    ".GGGKKKKKKGGG...",
+    "..BKKKKKKKKKB...",
+    "..BKKWKKKKWKB...",
+    "..BKKKKKKKKKB...",
+    "...BKKYKKKB.....",
+    "...BKKKKKKB.....",
+    "..BOOOOYYOOOB...",
+    ".BOOOOYYYOOOOBB.",
+    ".BOOOOOOOOOOOBB.",
+    "..BBOOO..OOOBB..",
+    "................",
+  ],
+  palette: {
+    B: "#000000",
+    G: "#ffd700",
+    Y: "#fff27a",
+    K: "#ffcc99",
+    W: "#ffffff",
+    O: "#e68a00",
+  },
+};
+
+export type SecretHumonKey =
+  "joak" | "devil" | "cop" | "glitch" | "bond" | "angel" | "sex" | "dbz";
 
 export interface SecretHumonSpec {
   key: SecretHumonKey;
@@ -130,9 +269,116 @@ export const SECRET_HUMONS: Record<SecretHumonKey, SecretHumonSpec> = {
       "Lucario",
     ],
   },
+  glitch: {
+    key: "glitch",
+    name: "GLITCHMON",
+    title: "THE NOT FOUND",
+    page: "404",
+    cost: 600,
+    sprite: GLITCH_SPRITE,
+    blurb:
+      "THE PAGE WASN'T FOUND. THEN IT DRIFTED HERE. NOW IT FIGHTS WITH YOU.",
+    ballBlurb:
+      "A BALL THAT DOESN'T EXIST UNTIL YOU THROW IT. PACKETS AND PRAYERS.",
+    team: [
+      "Porygon2",
+      "Rotom (W)",
+      "Aegislash",
+      "Gengar",
+      "Sableye",
+      "Galarian Weezing",
+    ],
+  },
+  bond: {
+    key: "bond",
+    name: "BONDMON",
+    title: "LICENCE TO THRILL",
+    page: "007",
+    cost: 800,
+    sprite: BOND_SPRITE,
+    blurb: "NOT EVEN A TYPE ADVANTAGE. THE STIRRED ONE. IT NEVER MISSES.",
+    ballBlurb:
+      "CLASSIFIED. TO BE SOLD ONLY AFTER THE END OF THE SEASON. THIS BALL MIGHT LOVE YOU.",
+    team: [
+      "Greninja",
+      "Murkrow",
+      "Meowstic (M)",
+      "Hisuian Zoroark",
+      "Kingdra",
+      "Kangaskhan",
+    ],
+  },
+  angel: {
+    key: "angel",
+    name: "ANGELMON",
+    title: "THE WATCHER",
+    page: "777",
+    cost: 700,
+    sprite: ANGEL_SPRITE,
+    blurb:
+      "AN ABOVE-WATER HUMON. EVERY BATTLE IS WITNESSED. EVERY LOSS IS JUDGED.",
+    ballBlurb: "A HOLY BALL. THROW IT AND MAYBE SOMETHING GOOD HAPPENS.",
+    team: [
+      "Sylveon",
+      "Togekiss",
+      "Clefable",
+      "Gardevoir",
+      "Milotic",
+      "Pelipper",
+    ],
+  },
+  sex: {
+    key: "sex",
+    name: "SEXMON",
+    title: "69. NICE.",
+    page: "069",
+    cost: 750,
+    sprite: SEX_SPRITE,
+    blurb:
+      "IT'S EXACTLY WHAT YOU THINK IT IS. EVERY ROUND IS A ROUND. IT NEVER SLEEPS ALONE.",
+    ballBlurb:
+      "REQUIRED BY POKECEPTION LAW TO BE SOLD WITH THIS LABEL. SEXY TIMES INSIDE.",
+    team: [
+      "Blissey",
+      "Whimsicott",
+      "Alolan Muk",
+      "Blastoise",
+      "Politoed",
+      "Raichu",
+    ],
+  },
+  dbz: {
+    key: "dbz",
+    name: "DBZMON",
+    title: "POWER LEVEL OVER 9000",
+    page: "329",
+    cost: 850,
+    sprite: DBZ_SPRITE,
+    blurb:
+      "IT'S TRAINING ON THE WAY THERE. IT GOES EVEN FURTHER BEYOND. SCREAMING NOT INCLUDED.",
+    ballBlurb:
+      "A BALL THAT TOOK FIVE EPISODES TO LEAVE THE SHELF. CLICKING OPENS ANOTHER ARC.",
+    team: [
+      "Electabuzz",
+      "Hariyama",
+      "Hitmontop",
+      "Scizor",
+      "Shuckle",
+      "Slaking",
+    ],
+  },
 };
 
-export const SECRET_HUMON_KEYS: SecretHumonKey[] = ["joak", "devil", "cop"];
+export const SECRET_HUMON_KEYS: SecretHumonKey[] = [
+  "joak",
+  "devil",
+  "cop",
+  "glitch",
+  "bond",
+  "angel",
+  "sex",
+  "dbz",
+];
 
 export function secretHumon(key: SecretHumonKey): SecretHumonSpec {
   return SECRET_HUMONS[key];
@@ -142,6 +388,11 @@ export const BALL_NAMES: Record<SecretHumonKey, string> = {
   joak: "JOAKBALL",
   devil: "DEVILBALL",
   cop: "COPBALL",
+  glitch: "GLITCHBALL",
+  bond: "BONDBALL",
+  angel: "ANGELBALL",
+  sex: "SEXBALL",
+  dbz: "DBZBALL",
 };
 
 const POKEBALL_MAP: string[] = [
@@ -174,4 +425,9 @@ export const BALL_SPRITES: Record<SecretHumonKey, PixelArt> = {
   joak: pokeball("#e63232"),
   devil: pokeball("#ff00ff"),
   cop: pokeball("#3b6aff"),
+  glitch: pokeball("#00ff41"),
+  bond: pokeball("#ff9d00"),
+  angel: pokeball("#f6d6ff"),
+  sex: pokeball("#ff5c9a"),
+  dbz: pokeball("#ff5a1f"),
 };

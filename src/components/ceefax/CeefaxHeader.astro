@@ -86,6 +86,7 @@ const {
 
 <style>
   .ceefax-header {
+    position: relative;
     z-index: 1;
   }
 
@@ -338,10 +339,11 @@ const {
   import { badgeFor } from "../../data/badges";
   import { skinFor } from "../../data/humon-skins";
   const clock = document.getElementById("ceefax-clock");
-  const pad = (n) => String(n).padStart(2, "0");
+  const pad = (n: number) => String(n).padStart(2, "0");
   const render = () => {
     const d = new Date();
-    clock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}/${pad(d.getSeconds())}`;
+    if (clock)
+      clock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}/${pad(d.getSeconds())}`;
   };
   render();
   setInterval(render, 1000);

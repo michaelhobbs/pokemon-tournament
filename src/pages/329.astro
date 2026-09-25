@@ -5,26 +5,23 @@ import CeefaxHeading from "../components/ceefax/CeefaxHeading.astro";
 import PixelArt from "../components/ceefax/PixelArt.astro";
 import SecretAwardBanner from "../components/ceefax/SecretAwardBanner.astro";
 import SecretQuote from "../components/ceefax/SecretQuote.astro";
-import { GLITCH_SPRITE } from "../data/hidden-humons";
+import { DBZ_SPRITE } from "../data/hidden-humons";
 ---
 
-<CeefaxLayout title="PAGE NOT FOUND" pageNumber="404">
+<CeefaxLayout title="DBZMON" pageNumber="329">
   <SecretQuote />
   <div class="secret-block">
     <div class="secret-sprite-row">
-      <PixelArt sprite={GLITCH_SPRITE} size="8rem" />
-      <span class="mgr-secret-ball" data-secret-ball="glitch"></span>
+      <PixelArt sprite={DBZ_SPRITE} size="8rem" />
+      <span class="mgr-secret-ball" data-secret-ball="dbz"></span>
     </div>
-    <CeefaxHeading text="404 — GLITCHMON" color="green" />
-    <CeefaxBlock
-      title="THE PAGE YOU WERE LOOKING FOR DOES NOT EXIST"
-      color="red"
-    >
-      <p>ONLY GLITCHMON EXISTS.</p>
-      <p>EVERYTHING ELSE ABOUT THIS PAGE WAS RENDERED WRONG.</p>
-      <p>CATCH IT WITH A GLITCHBALL FROM THE POKESHOP ON PAGE 810.</p>
+    <CeefaxHeading text="DBZMON" color="red" />
+    <CeefaxBlock title="POWER LEVEL OVER 9000" color="red">
+      <p>IT'S STILL TRAINING ON THE WAY TO THE BATTLE.</p>
+      <p>IT GOES EVEN FURTHER BEYOND. SCREAMING IS UNDERSTOOD.</p>
+      <p>CATCH IT WITH A DBZBALL FROM THE POKESHOP ON PAGE 810.</p>
     </CeefaxBlock>
-    <div class="mgr-app" data-manager-secret="glitch"></div>
+    <div class="mgr-app" data-manager-secret="dbz"></div>
     <SecretAwardBanner />
   </div>
 </CeefaxLayout>

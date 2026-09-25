@@ -134,6 +134,30 @@ export const COPMON_PAGE: PageLink = {
   href: `${base}999`,
   hidden: true,
 };
+export const BONDMON_PAGE: PageLink = {
+  number: "007",
+  label: "BONDMON",
+  href: `${base}007`,
+  hidden: true,
+};
+export const ANGELMON_PAGE: PageLink = {
+  number: "777",
+  label: "ANGELMON",
+  href: `${base}777`,
+  hidden: true,
+};
+export const SEXMON_PAGE: PageLink = {
+  number: "069",
+  label: "SEXMON",
+  href: `${base}069`,
+  hidden: true,
+};
+export const DBZMON_PAGE: PageLink = {
+  number: "329",
+  label: "DBZMON",
+  href: `${base}329`,
+  hidden: true,
+};
 
 export const PAGES: PageLink[] = [
   HOME_PAGE,
@@ -192,8 +216,12 @@ function findPlayerLabel(playerNumber: number): string {
 export const ALL_PAGES: PageLink[] = [
   HIDDEN_PAGE,
   NOT_FOUND_PAGE,
+  BONDMON_PAGE,
+  SEXMON_PAGE,
   JOAk_PAGE,
+  DBZMON_PAGE,
   DEVILMON_PAGE,
+  ANGELMON_PAGE,
   COPMON_PAGE,
   HOME_PAGE,
   RULES_PAGE,

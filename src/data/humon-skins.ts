@@ -1,6 +1,14 @@
 import type { PixelArt } from "./trophy";
 import { HUMON } from "./humon";
-import { DEVIL_SPRITE, COP_SPRITE } from "./hidden-humons";
+import {
+  DEVIL_SPRITE,
+  COP_SPRITE,
+  GLITCH_SPRITE,
+  BOND_SPRITE,
+  ANGEL_SPRITE,
+  SEX_SPRITE,
+  DBZ_SPRITE,
+} from "./hidden-humons";
 import { JOAk_SPRITE } from "./professor-joak";
 
 export interface HumonSkin {
@@ -45,6 +53,11 @@ export const HUMON_SKINS: HumonSkin[] = [
   { id: "joak", name: "JOAK", sprite: JOAk_SPRITE },
   { id: "devil", name: "THE DEVIL", sprite: DEVIL_SPRITE },
   { id: "cop", name: "THE COP", sprite: COP_SPRITE },
+  { id: "glitch", name: "THE GLITCH", sprite: GLITCH_SPRITE },
+  { id: "bond", name: "THE BOND", sprite: BOND_SPRITE },
+  { id: "angel", name: "THE ANGEL", sprite: ANGEL_SPRITE },
+  { id: "sex", name: "THE SEX", sprite: SEX_SPRITE },
+  { id: "dbz", name: "THE DBZ", sprite: DBZ_SPRITE },
 ];
 
 export function skinFor(id: string | undefined): HumonSkin {
@@ -53,6 +66,17 @@ export function skinFor(id: string | undefined): HumonSkin {
 
 /** Whether a skin is gated behind catching that hidden HUMON. */
 export function skinUnlockKey(id: string): string | undefined {
-  if (id === "joak" || id === "devil" || id === "cop") return id;
+  if (
+    id === "joak" ||
+    id === "devil" ||
+    id === "cop" ||
+    id === "glitch" ||
+    id === "bond" ||
+    id === "angel" ||
+    id === "sex" ||
+    id === "dbz"
+  ) {
+    return id;
+  }
   return undefined;
 }

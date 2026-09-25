@@ -208,9 +208,10 @@ function statusBarHtml(game: GameState): string {
 			<span class="mgr-status-item">STAMINA <strong>${staminaTotal}/${staminaMax}</strong></span>
 			<span class="mgr-status-item">RARE CANDY <strong>${game.items["rare-candy"]}</strong></span>
 			<span class="mgr-status-item">MAX REPEL <strong>${game.items["max-repel"]}</strong></span>
-			<span class="mgr-status-item">JOAKBALL <strong>${game.items["joak-ball"]}</strong></span>
-			<span class="mgr-status-item">DEVILBALL <strong>${game.items["devil-ball"]}</strong></span>
-			<span class="mgr-status-item">COPBALL <strong>${game.items["cop-ball"]}</strong></span>
+			${SECRET_HUMON_KEYS.map(
+        (key) =>
+          `<span class="mgr-status-item">${BALL_NAMES[key]} <strong>${game.items[`${key}-ball`]}</strong></span>`,
+      ).join("")}
 			<span class="mgr-status-item">BADGES <strong>${badges}</strong>/10</span>
 		</div>`;
 }
