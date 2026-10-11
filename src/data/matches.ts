@@ -166,7 +166,7 @@ export const WEEKS: Week[] = [
     number: 14,
     date: "W/C 05/10",
     matches: [
-      { p1: 7, p2: 1 },
+      { p1: 7, p2: 1, wins1: 1, wins2: 2 },
       { p1: 10, p2: 6 },
       { p1: 3, p2: 2, wins1: 2, wins2: 1 },
       { p1: 11, p2: 8 },
