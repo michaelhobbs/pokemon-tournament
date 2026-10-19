@@ -584,13 +584,12 @@ describe("secret humon teams", () => {
   });
 
   it("joak gets the top-tier powerhouses of the pool, minus the Truant trap", () => {
-    const maxTier = Math.max(...pool.map(bst));
-    expect(maxTier).toBe(700);
+    const maxTier = Math.max(
+      ...pool.filter((species) => species !== "Slaking").map(bst),
+    );
+    expect(maxTier).toBe(600);
     for (const species of SECRET_HUMONS.joak.team) {
-      expect(bst(species)).toBeGreaterThanOrEqual(600);
-    }
-    for (const species of pool.filter((s) => bst(s) === maxTier)) {
-      expect(SECRET_HUMONS.joak.team).toContain(species);
+      expect(bst(species)).toBe(maxTier);
     }
     expect(SECRET_HUMONS.joak.team).not.toContain("Slaking");
   });
