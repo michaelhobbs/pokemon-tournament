@@ -3,18 +3,26 @@ import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
 import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
 import PixelArt from "../../components/ceefax/PixelArt.astro";
 import {
-  AWARDS,
   awardDisplayName,
   awardDisplayDescription,
   awardDisplaySprite,
+  awardWinners,
 } from "../../data/awards";
+import {
+  getDistributedAwards,
+  getAwardRankings,
+} from "../../data/award-distribution";
+import { findPlayer } from "../../data/players";
+
+const awards = getDistributedAwards();
+const rankings = getAwardRankings();
 ---
 
 <CeefaxLayout title="AWARDS" pageNumber="700">
   <CeefaxHeading text="END OF SEASON AWARDS" color="yellow" />
   <ul class="award-grid">
     {
-      AWARDS.map((award) => (
+      awards.map((award) => (
         <li>
           <a
             class="award-card"
@@ -27,6 +35,24 @@ import {
             <span class="award-number">{award.number}</span>
             <span class="award-name">{awardDisplayName(award)}</span>
             <span class="award-desc">{awardDisplayDescription(award)}</span>
+            {!award.hidden && awardWinners(award).length > 0 && (
+              <span class="award-winners">
+                WINNER{awardWinners(award).length !== 1 ? "S" : ""}:{" "}
+                {awardWinners(award).map((w, i) => {
+                  const p = findPlayer(w);
+                  const name = p ? p.name : String(w);
+                  const rank = rankings.get(award.number);
+                  const entry = rank?.find((r) => r.playerNumber === w);
+                  return (
+                    <>
+                      {i > 0 && ", "}
+                      {name}
+                      {entry ? ` (${entry.scoreLabel})` : ""}
+                    </>
+                  );
+                })}
+              </span>
+            )}
           </a>
         </li>
       ))
@@ -118,6 +144,16 @@ import {
   }
 
   .award-card:hover .award-name {
+    color: var(--ceefax-black);
+  }
+
+  .award-winners {
+    color: var(--ceefax-green);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  .award-card:hover .award-winners {
     color: var(--ceefax-black);
   }
 

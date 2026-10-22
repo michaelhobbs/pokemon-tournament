@@ -18,6 +18,12 @@ import {
 import { analyzeTeam } from "../../data/pokemon";
 import { spriteFor } from "../../data/pokemon-sprites";
 import { swapsFor, applySwaps } from "../../data/midseason";
+import { awardWinners } from "../../data/awards";
+import {
+  getDistributedAwards,
+  getAwardRankings,
+} from "../../data/award-distribution";
+import PixelArt from "../../components/ceefax/PixelArt.astro";
 
 export function getStaticPaths() {
   return PLAYERS.map((player) => ({
@@ -67,6 +73,12 @@ const playerIndex = PLAYERS.findIndex((p) => p.number === player.number);
 const prev = PLAYERS[playerIndex - 1];
 const next = PLAYERS[playerIndex + 1];
 const base = import.meta.env.BASE_URL;
+
+const distributedAwards = getDistributedAwards();
+const rankings = getAwardRankings();
+const playerAwards = distributedAwards.filter((a) =>
+  awardWinners(a).includes(player.number),
+);
 ---
 
 <CeefaxLayout
@@ -79,6 +91,51 @@ const base = import.meta.env.BASE_URL;
     <p>HOMETOWN: {player.hometown}</p>
     <p>SIGNATURE: {player.signature}</p>
   </CeefaxBlock>
+  {
+    playerAwards.length > 0 && (
+      <>
+        <CeefaxHeading text="AWARDS" color="yellow" />
+        <CeefaxBlock title="AWARDS WON" number={player.number} color="yellow">
+          <ul class="trainer-awards-list">
+            {playerAwards.map((award) => (
+              <li class="trainer-award-item">
+                <a
+                  href={`${base}awards/${award.number}`}
+                  class="trainer-award-link"
+                >
+                  <span class="trainer-award-sprite">
+                    <PixelArt sprite={award.sprite} size="2.5rem" />
+                  </span>
+                  <span class="trainer-award-info">
+                    <span class="trainer-award-number">{award.number}</span>
+                    <span class="trainer-award-name">
+                      {award.name}
+                      {!award.hidden &&
+                        rankings
+                          .get(award.number)
+                          ?.find((r) => r.playerNumber === player.number) && (
+                          <span class="trainer-award-count">
+                            {" "}
+                            (
+                            {
+                              rankings
+                                .get(award.number)
+                                ?.find((r) => r.playerNumber === player.number)!
+                                .scoreLabel
+                            }
+                            )
+                          </span>
+                        )}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </CeefaxBlock>
+      </>
+    )
+  }
   <CeefaxHeading text={hasSwaps ? "1ST HALF" : "1ST & 2ND HALF"} color="cyan" />
   <CeefaxBlock title="TEAM" number={player.number} color="yellow">
     <TeamList team={player.team} dossier={secondTeam} />
@@ -254,6 +311,57 @@ const base = import.meta.env.BASE_URL;
   .no-swaps {
     margin: 0;
     color: var(--ceefax-yellow);
+    font-weight: 700;
+  }
+
+  .trainer-awards-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .trainer-award-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--ceefax-white);
+  }
+
+  .trainer-award-link:hover {
+    color: var(--ceefax-cyan);
+  }
+
+  .trainer-award-sprite {
+    display: block;
+  }
+
+  .trainer-award-info {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .trainer-award-number {
+    background: var(--ceefax-black);
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+    padding: 0 0.4rem;
+  }
+
+  .trainer-award-name {
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+  }
+
+  .trainer-award-link:hover .trainer-award-name {
+    color: var(--ceefax-cyan);
+  }
+
+  .trainer-award-count {
+    color: var(--ceefax-cyan);
     font-weight: 700;
   }
 

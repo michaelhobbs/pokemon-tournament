@@ -1,13 +1,26 @@
 import type { PixelArt } from "./trophy";
 
 export interface Award {
-  /** Sub-page number (701–710). */
+  /** Sub-page number (701–718). */
   number: number;
   name: string;
   description: string;
   sprite: PixelArt;
   /** True while the award is a season-end surprise: shown as SURPRISE until revealed. */
   hidden?: boolean;
+  /** Player numbers who won this award (set manually or by distribution). */
+  winners?: number[];
+}
+
+/** When true, awards are distributed/programmatically computed where possible. */
+export const DISTRIBUTE_AWARDS = false;
+
+export function awardWinners(award: Award): number[] {
+  return award.winners ?? [];
+}
+
+export function hasAwardWinner(award: Award): boolean {
+  return awardWinners(award).length > 0;
 }
 
 export const SURPRISE_NAME = "SURPRISE";

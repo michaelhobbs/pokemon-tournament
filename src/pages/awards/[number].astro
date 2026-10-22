@@ -4,27 +4,38 @@ import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
 import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
 import PixelArt from "../../components/ceefax/PixelArt.astro";
 import {
-  AWARDS,
-  awardFor,
   awardDisplayName,
   awardDisplayDescription,
   awardDisplaySprite,
+  awardWinners,
 } from "../../data/awards";
+import {
+  getDistributedAwards,
+  getAwardRankings,
+} from "../../data/award-distribution";
+import { findPlayer } from "../../data/players";
+
+const awards = getDistributedAwards();
+const rankings = getAwardRankings();
 
 export function getStaticPaths() {
-  return AWARDS.map((award) => ({
+  return getDistributedAwards().map((award) => ({
     params: { number: String(award.number) },
   }));
 }
 
 const { number } = Astro.params;
-const award = awardFor(Number(number));
+const award = awards.find((a) => a.number === Number(number));
 if (!award) throw new Error(`Unknown award: ${number}`);
 
-const awardIndex = AWARDS.findIndex((a) => a.number === award.number);
-const prev = AWARDS[awardIndex - 1];
-const next = AWARDS[awardIndex + 1];
+const awardIndex = awards.findIndex((a) => a.number === award.number);
+const prev = awards[awardIndex - 1];
+const next = awards[awardIndex + 1];
 const base = import.meta.env.BASE_URL;
+
+const winners = awardWinners(award);
+const awardRanking = !award.hidden ? rankings.get(award.number) : undefined;
+const isPlacement = award.number >= 701 && award.number <= 704;
 ---
 
 <CeefaxLayout
@@ -42,12 +53,86 @@ const base = import.meta.env.BASE_URL;
         <PixelArt sprite={awardDisplaySprite(award)} size="14rem" />
         <p class="award-desc">{awardDisplayDescription(award)}</p>
         <div class="award-nameplate">
-          <span class="nameplate-label">WINNER</span>
-          <span class="nameplate-name">TBD</span>
+          <span class="nameplate-label">
+            WINNER{winners.length !== 1 ? "S" : ""}
+          </span>
+          {
+            winners.length === 0 ? (
+              <span class="nameplate-name">TBD</span>
+            ) : (
+              <div class="nameplate-winners">
+                {winners.map((w, i) => {
+                  const p = findPlayer(w);
+                  const name = p ? p.name : String(w);
+                  const entry = awardRanking?.find((r) => r.playerNumber === w);
+                  return (
+                    <>
+                      {i > 0 && <span class="nameplate-sep">&</span>}
+                      {p ? (
+                        <a
+                          class="nameplate-link"
+                          href={`${base}trainers/${p.number}`}
+                        >
+                          {name}
+                        </a>
+                      ) : (
+                        <span>{name}</span>
+                      )}
+                      {!award.hidden && entry && (
+                        <span class="nameplate-count">
+                          ({entry.scoreLabel})
+                        </span>
+                      )}
+                    </>
+                  );
+                })}
+              </div>
+            )
+          }
         </div>
       </div>
     </CeefaxBlock>
   </div>
+  {
+    !award.hidden && awardRanking && awardRanking.length > 0 && (
+      <div class="award-ranking">
+        <CeefaxBlock title="RANKING" color="cyan">
+          <table class="ranking-table">
+            <thead>
+              <tr>
+                <th scope="col">POS</th>
+                <th scope="col">TRAINER</th>
+                <th scope="col">SCORE</th>
+                {isPlacement && <th scope="col">W</th>}
+                {isPlacement && <th scope="col">B</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {awardRanking.map((entry, idx) => {
+                const p = findPlayer(entry.playerNumber);
+                const name = p ? p.name : String(entry.playerNumber);
+                return (
+                  <tr>
+                    <td>{idx + 1}</td>
+                    <td>
+                      {p ? (
+                        <a href={`${base}trainers/${p.number}`}>{name}</a>
+                      ) : (
+                        name
+                      )}
+                    </td>
+                    <td>{entry.scoreLabel}</td>
+                    {isPlacement && <td>{entry.wins ?? "-"}</td>}
+                    {isPlacement && <td>{entry.battles ?? "-"}</td>}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </CeefaxBlock>
+      </div>
+    )
+  }
   <nav class="award-nav" aria-label="Award pages">
     {
       prev ? (
@@ -122,6 +207,74 @@ const base = import.meta.env.BASE_URL;
     letter-spacing: 0.08em;
     color: var(--ceefax-yellow);
     text-transform: uppercase;
+  }
+
+  .nameplate-winners {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--ceefax-yellow);
+    text-transform: uppercase;
+  }
+
+  .nameplate-link {
+    color: var(--ceefax-yellow);
+    text-decoration: none;
+  }
+
+  .nameplate-link:hover {
+    color: var(--ceefax-cyan);
+  }
+
+  .nameplate-sep {
+    color: var(--ceefax-white);
+  }
+
+  .nameplate-count {
+    color: var(--ceefax-cyan);
+    font-size: 0.9rem;
+  }
+
+  .award-ranking {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .ranking-table {
+    width: 100%;
+    min-width: max-content;
+    border-collapse: collapse;
+  }
+
+  .ranking-table th,
+  .ranking-table td {
+    border: 1px solid var(--ceefax-cyan);
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+  }
+
+  .ranking-table th {
+    background: var(--ceefax-cyan);
+    color: var(--ceefax-black);
+    font-weight: 700;
+  }
+
+  .ranking-table td {
+    color: var(--ceefax-white);
+  }
+
+  .ranking-table td:first-child {
+    color: var(--ceefax-yellow);
+  }
+
+  .ranking-table td a {
+    color: var(--ceefax-cyan);
   }
 
   .award-nav {
