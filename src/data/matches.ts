@@ -190,7 +190,7 @@ export const WEEKS: Week[] = [
     matches: [
       { p1: 7, p2: 2 },
       { p1: 6, p2: 8 },
-      { p1: 1, p2: 9 },
+      { p1: 1, p2: 9, wins1: 2, wins2: 1 },
       { p1: 10, p2: 5 },
       { p1: 3, p2: 11 },
     ],
