@@ -128,7 +128,47 @@ Core rules:
 
 If Mark has no Ninetales and no Shuckle, Tyranitar is optional. Gardevoir is usually the better fourth piece.
 
-## 5. Game 1 scouting, games 2–3 adjustment
+## 5. Speed analysis
+
+All stats are level 100. Our speeds with the locked sets:
+
+| Pokémon   | Speed | Notes                                                                 |
+| --------- | ----: | --------------------------------------------------------------------- |
+| Greninja  |   377 | Timid, 252 Spe. Fastest on our side.                                  |
+| Gardevoir |   284 | Timid, 252 Spe.                                                       |
+| Excadrill |   212 | Adamant, 0 Spe.                                                       |
+| Scizor    |   166 | Adamant, 0 Spe.                                                       |
+| Tyranitar |   158 | Adamant, 0 Spe.                                                       |
+| Sableye   |   136 | Impish, 0 Spe. Prankster covers Taunt/WoW/Recover when Gas is absent. |
+
+Mark's likely speeds, with common fast variants. These are not confirmed:
+
+| Pokémon   | Common | Faster variants                                           |
+| --------- | -----: | --------------------------------------------------------- |
+| Ninetales |    348 | 317 neutral max; 522 Choice Scarf; doubles under Tailwind |
+| Slaking   |    299 | 328 Jolly; 448 Scarf Adamant; 492 Scarf Jolly             |
+| Weezing   |    156 | 219 neutral max; 240 Timid; 328 Scarf                     |
+| Blissey   |    146 | 209 neutral max; 229 Timid; 313 Scarf                     |
+| Amoonguss |     96 | 65 with 0 Speed IVs; 58 with 0 IVs and a hindering nature |
+| Shuckle   |     46 | 15 with 0 Speed IVs; 13 with 0 IVs and a hindering nature |
+
+Key speed interactions:
+
+- **Greninja 377** outspeeds Ninetales 348 and unboosted Slaking 299. It does not outspeed Scarf Slaking 448/492 or Tailwind Ninetales. Do not lead Greninja just for speed if Tyranitar + Sableye is the better weather lead.
+- **Gardevoir 284** outspeeds the whole defensive core (Weezing/Blissey/Amoonguss/Shuckle) but not Ninetales 348 or max-Speed Slaking 299. Do not treat Gardevoir as a Slaking revenge killer.
+- **Excadrill 212** outspeeds the defensive core but not Ninetales or Slaking. Rapid Spin gives +1 Speed, raising it to ~318, which beats unboosted Slaking but still not Ninetales.
+- **Scizor 166** and **Tyranitar 158** are only 10 and 2 points above 0-Speed Weezing 156. If Weezing invests Speed, it can move first. Scizor's Bullet Punch ignores this; Tyranitar's Rock Slide does not.
+- **Sableye 136** is slower than Blissey 146 and Weezing 156. Prankster makes that irrelevant for Taunt/WoW/Recover, but Neutralizing Gas removes the priority layer and lets Blissey/Weezing move first. This is another reason to KO Weezing immediately.
+- **Tyranitar is intentionally slower than Ninetales.** On a simultaneous switch-in, Snow Warning resolves first and Sand Stream resolves last, so sand clears snow. Keep Tyranitar slow and bulky; do not give it Speed investment or a Speed item.
+- **Choice Scarf Slaking** outspeeds everything at 448 (Adamant) or 492 (Jolly), but it gives up Choice Band power. Sableye still survives one neutral hit at full HP and can burn it if terrain allows. Do not try to outspeed Scarf Slaking; tank it.
+- **Tailwind** doubles Mark's side: Ninetales 696, Slaking 598, Weezing 312, Blissey 292, Amoonguss 192. Then only Greninja 377 stays ahead of the defensive core, and it still loses to Ninetales/Slaking. Use Bullet Punch, Prankster, Taunt the setter, or stall the turns.
+- **Trick Room** reverses order. Their Shuckle/Amoonguss become fastest; your Tyranitar/Excadrill/Scizor/Sableye become fast; Greninja/Gardevoir become liabilities. Priority (Bullet Punch, Prankster) still works. If Trick Room appears, bring the slow core and leave Greninja/Gardevoir.
+- **Sticky Web** drops every grounded Pokémon we have by one stage: Greninja 251, Gardevoir 189, Excadrill 141, Scizor 110, Tyranitar 105, Sableye 90. Rapid Spin removes it and gives Excadrill +1 to ~318. This is why Excadrill is mandatory vs Shuckle and why you do not lead it into Shuckle.
+- **Icy Wind** (-1 Speed to both foes) and **Thunder Wave** (halves Speed) can erase the Greninja/Gardevoir advantage. Taunt the users. Ninetales' Icy Wind is the main risk; Blissey's Thunder Wave is the other.
+- **Weather does not change our speed.** We use Mold Breaker Excadrill, not Sand Rush. Snow boosts Ice-type Defense, not Speed. Except for the speed-control moves above, the order is raw stats.
+- **Tera does not change Speed.** If you need a speed panic button, Scizor's Bullet Punch and Sableye's Prankster are the real ones; raw speed alone will not bail you out of Scarf or Tailwind.
+
+## 6. Game 1 scouting, games 2–3 adjustment
 
 Game 1 is information. You cannot change your six sets afterwards, but you can change your four and leads.
 
@@ -152,7 +192,7 @@ Games 2–3:
 - If Shuckle has **Mental Herb**, Knock Off first, then Taunt.
 - If Slaking is **Choice-locked**, exploit the lock. If it is **Life Orb**, respect the coverage switch.
 
-## 6. Lead and sequencing
+## 7. Lead and sequencing
 
 ### Default lead
 
@@ -214,7 +254,7 @@ If Aurora Veil is already up, Knocking Off Light Clay does not shorten the curre
 - Knock Off Light Clay only matters before the next Veil; it does not shorten an already-active one.
 - If Ninetales is Snow Cloak, ignore this section.
 
-## 7. Matchup cheat sheet
+## 8. Matchup cheat sheet
 
 | Mark's Pokemon       | Your priority                                                                                                                                                                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -225,7 +265,7 @@ If Aurora Veil is already up, Knocking Off Light Clay does not shorten the curre
 | **Shuckle**          | Knock Off, then Taunt. Bring Excadrill to Rapid Spin after hazards. Do not lead Excadrill. Do not expect a one-hit KO through Sturdy.                                                                                                    |
 | **Slaking**          | Sableye WoW. If terrain blocks it, pivot and stall Truant. Keep Scizor away from Fire Punch. Respect Choice lock vs Life Orb.                                                                                                            |
 
-## 8. Tera priorities
+## 9. Tera priorities
 
 | Tera                     | Use when                                                 | Notes                                                                                                                                                                                                                   |
 | ------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -237,7 +277,7 @@ If Aurora Veil is already up, Knocking Off Light Clay does not shorten the curre
 
 You only get one Tera per battle. Do not use it on turn 1 unless it prevents a loss.
 
-## 9. Baseline damage checks
+## 10. Baseline damage checks
 
 These are against common bulky spreads, not Mark's confirmed sets. Add or subtract chip after scouting. No crits, no Aurora Veil or snow unless stated.
 
@@ -262,7 +302,7 @@ These are against common bulky spreads, not Mark's confirmed sets. Add or subtra
 
 If Mark's spreads are bulkier than these baselines, assume one extra turn of chip. Do not overcommit to exact rolls.
 
-## 10. Quick checklist
+## 11. Quick checklist
 
 - [ ] Treat `pokemon-sets.ts` as gym data only, not tournament scouting.
 - [ ] Scout Ninetales and Weezing abilities before committing to a line.
