@@ -15,6 +15,9 @@ export interface Award {
 /** When true, awards are distributed/programmatically computed where possible. */
 export const DISTRIBUTE_AWARDS = false;
 
+/** When true, current award rankings are shown without declaring winners. */
+export const SHOW_AWARD_PROGRESS = true;
+
 export function awardWinners(award: Award): number[] {
   return award.winners ?? [];
 }

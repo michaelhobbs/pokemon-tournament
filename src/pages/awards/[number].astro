@@ -8,6 +8,7 @@ import {
   awardDisplayDescription,
   awardDisplaySprite,
   awardWinners,
+  DISTRIBUTE_AWARDS,
 } from "../../data/awards";
 import {
   getDistributedAwards,
@@ -96,7 +97,10 @@ const isPlacement = award.number >= 701 && award.number <= 704;
   {
     !award.hidden && awardRanking && awardRanking.length > 0 && (
       <div class="award-ranking">
-        <CeefaxBlock title="RANKING" color="cyan">
+        <CeefaxBlock
+          title={DISTRIBUTE_AWARDS ? "RANKING" : "PROGRESS"}
+          color="cyan"
+        >
           <table class="ranking-table">
             <thead>
               <tr>
@@ -129,6 +133,11 @@ const isPlacement = award.number >= 701 && award.number <= 704;
               })}
             </tbody>
           </table>
+          {!DISTRIBUTE_AWARDS && (
+            <p class="ranking-note">
+              SEASON IN PROGRESS — WINNER NOT YET AWARDED.
+            </p>
+          )}
         </CeefaxBlock>
       </div>
     )
@@ -275,6 +284,13 @@ const isPlacement = award.number >= 701 && award.number <= 704;
 
   .ranking-table td a {
     color: var(--ceefax-cyan);
+  }
+
+  .ranking-note {
+    margin: 0.5rem 0 0;
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+    text-align: center;
   }
 
   .award-nav {

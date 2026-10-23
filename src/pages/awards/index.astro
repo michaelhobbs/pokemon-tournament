@@ -7,15 +7,64 @@ import {
   awardDisplayDescription,
   awardDisplaySprite,
   awardWinners,
+  DISTRIBUTE_AWARDS,
+  SHOW_AWARD_PROGRESS,
+  type Award,
 } from "../../data/awards";
 import {
   getDistributedAwards,
   getAwardRankings,
+  getAwardProgressLeaders,
 } from "../../data/award-distribution";
 import { findPlayer } from "../../data/players";
 
 const awards = getDistributedAwards();
 const rankings = getAwardRankings();
+const leaders = getAwardProgressLeaders();
+
+interface ProgressLeader {
+  name: string;
+  score?: string;
+}
+
+function progressLeadersFor(award: Award): ProgressLeader[] {
+  if (award.hidden || awardWinners(award).length > 0) return [];
+  return (leaders.get(award.number) ?? []).map((playerNumber) => {
+    const player = findPlayer(playerNumber);
+    const entry = rankings
+      .get(award.number)
+      ?.find((r) => r.playerNumber === playerNumber);
+    return {
+      name: player ? player.name : String(playerNumber),
+      score: entry?.scoreLabel,
+    };
+  });
+}
+
+function progressLabel(progressLeaders: ProgressLeader[]): string {
+  if (progressLeaders.length > 3) {
+    return `${progressLeaders.length} TRAINERS TIED`;
+  }
+  const prefix = progressLeaders.length === 1 ? "LEADING: " : "JOINT LEAD: ";
+  return (
+    prefix +
+    progressLeaders
+      .map((leader) =>
+        leader.score ? `${leader.name} (${leader.score})` : leader.name,
+      )
+      .join(" / ")
+  );
+}
+
+const progressByAward = new Map<number, ProgressLeader[]>(
+  awards.map((award) => [award.number, progressLeadersFor(award)]),
+);
+
+const awardsNote = DISTRIBUTE_AWARDS
+  ? "AWARDS FINAL."
+  : SHOW_AWARD_PROGRESS
+    ? "CURRENT LEADERS SHOWN — WINNERS REVEALED AT THE END OF THE SEASON."
+    : "WINNERS REVEALED AT THE END OF THE SEASON.";
 ---
 
 <CeefaxLayout title="AWARDS" pageNumber="700">
@@ -53,12 +102,17 @@ const rankings = getAwardRankings();
                 })}
               </span>
             )}
+            {progressByAward.get(award.number)?.length ? (
+              <span class="award-progress">
+                {progressLabel(progressByAward.get(award.number)!)}
+              </span>
+            ) : null}
           </a>
         </li>
       ))
     }
   </ul>
-  <p class="awards-note">WINNERS REVEALED AT THE END OF THE SEASON.</p>
+  <p class="awards-note">{awardsNote}</p>
 </CeefaxLayout>
 
 <style>
@@ -154,6 +208,16 @@ const rankings = getAwardRankings();
   }
 
   .award-card:hover .award-winners {
+    color: var(--ceefax-black);
+  }
+
+  .award-progress {
+    color: var(--ceefax-cyan);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  .award-card:hover .award-progress {
     color: var(--ceefax-black);
   }
 

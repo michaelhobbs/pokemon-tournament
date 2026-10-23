@@ -2,7 +2,12 @@ import type { Match, Week } from "./matches";
 import { WEEKS, FIRST_HALF_WEEKS, SECOND_HALF_WEEKS } from "./matches";
 import { computeStandings } from "./standings";
 import { PLAYERS } from "./players";
-import { AWARDS, DISTRIBUTE_AWARDS, type Award } from "./awards";
+import {
+  AWARDS,
+  DISTRIBUTE_AWARDS,
+  SHOW_AWARD_PROGRESS,
+  type Award,
+} from "./awards";
 
 export interface AwardRankingEntry {
   playerNumber: number;
@@ -25,13 +30,21 @@ interface AwardStats {
   longestWinStreak: number;
 }
 
+function hasPlayedMatch(weeks: Week[]): boolean {
+  return weeks.some((week) =>
+    week.matches.some(
+      (match) => match.wins1 !== undefined && match.wins2 !== undefined,
+    ),
+  );
+}
+
 export function computeAllAwardWinners(
   weeks: Week[] = WEEKS,
 ): Map<number, number[]> {
   const winners = new Map<number, number[]>();
   const standings = computeStandings(weeks);
 
-  if (standings.length === 0) {
+  if (standings.length === 0 || !hasPlayedMatch(weeks)) {
     return winners;
   }
 
@@ -236,7 +249,7 @@ export function computeAllAwardRankings(
   const rankings = new Map<number, AwardRankingEntry[]>();
   const standings = computeStandings(weeks);
 
-  if (standings.length === 0) {
+  if (standings.length === 0 || !hasPlayedMatch(weeks)) {
     return rankings;
   }
 
@@ -502,10 +515,18 @@ export function computeAllAwardRankings(
 export function getAwardRankings(
   baseAwards: Award[] = AWARDS,
 ): Map<number, AwardRankingEntry[]> {
-  if (!DISTRIBUTE_AWARDS) {
+  if (!SHOW_AWARD_PROGRESS && !DISTRIBUTE_AWARDS) {
     return new Map();
   }
   return computeAllAwardRankings();
+}
+
+/** Current leaders per award, used to show progress before winners are handed out. */
+export function getAwardProgressLeaders(): Map<number, number[]> {
+  if (!SHOW_AWARD_PROGRESS && !DISTRIBUTE_AWARDS) {
+    return new Map();
+  }
+  return computeAllAwardWinners();
 }
 
 export function getDistributedAwards(baseAwards: Award[] = AWARDS): Award[] {
