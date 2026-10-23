@@ -95,8 +95,9 @@ export function analyzeTeraDefensive(
       | undefined;
 
     for (const carrier of team) {
-      // Tera to a type the carrier already has keeps its original defensive
-      // typing — no defensive change — so it's never a worthwhile suggestion.
+      // Same-type Tera still collapses the carrier to that single type
+      // defensively. This ranking only evaluates Tera types that differ from
+      // the carrier's base typing, so same-type options are excluded here.
       if ((POKEMON_TYPES[carrier] ?? []).includes(teraType)) continue;
       const others = team.filter((name) => name !== carrier);
       const map = weaknessMap(others);
