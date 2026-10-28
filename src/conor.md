@@ -90,7 +90,7 @@ Adamant Nature
 
 - **Tyranitar:** Assault Vest + Sand Stream lets it tank Chandelure, Raichu, and Milotic while setting sand for Excadrill. Crunch OHKOs Chandelure; Rock Slide pressures Gyarados and Chandelure together; High Horsepower answers Raichu; Thunder Punch is for Milotic/Cloyster once Raichu is gone.
 - **Excadrill:** Sand Rush is the key. In sand it outspeeds Scarf Chandelure and +2 Cloyster. Life Orb gives it the power to revenge kill. Protect is important in doubles.
-- **Sableye:** Prankster WoW/Taunt shuts down Gyarados, Cloyster, Milotic, and Meowstic's support. Leftovers > Safety Goggles because Conor has no sleep moves.
+- **Sableye:** Prankster WoW/Taunt shuts down Gyarados, Cloyster, and Milotic. Meowstic is faster and can set Safeguard/screens before Taunt, but Meowstic cannot Taunt Sableye. Leftovers > Safety Goggles because Conor has no sleep moves.
 - **Greninja:** Fast offensive check to Chandelure and Meowstic. Dark Pulse OHKOs Chandelure; Grass Knot 2HKOs Milotic and punishes Tera Water/Ground Gyarados; U-turn keeps momentum.
 - **Gardevoir:** Bench by default because Chandelure and Raichu make it risky. Bring it only when Chandelure is gone/benched; then Thunderbolt pressures Gyarados/Milotic and Moonblast handles Tera Dark/Fighting targets.
 - **Scizor:** Bench by default because Chandelure's Fire move is a 4x OHKO. Tera Water is only a panic button to survive one surprise Fire hit; it is not a reason to bring Scizor into Chandelure.
@@ -112,7 +112,7 @@ Against Conor's roster it has **no exploitable weakness** — only Steel/Poison 
 - **Do not click Electric moves while Raichu is on the field.** Lightning Rod redirects Thunder Punch/Thunderbolt and gives Raichu +1 SpA.
 - **Do not lead Tyranitar into Water without Tera Fairy.** Choice Band Gyarados Waterfall can OHKO it.
 - **Chandelure is faster than Greninja if Scarf.** Tyranitar still tanks it; Excadrill in sand revenge kills.
-- **Meowstic is faster Prankster than Sableye.** Do not expect Sableye's Taunt to beat Meowstic's screens/Trick Room. Kill Meowstic with Greninja/Tyranitar.
+- **Meowstic is faster Prankster than Sableye, but cannot Taunt Sableye (Dark).** Do not expect Sableye's Taunt to beat Meowstic's first screen/Trick Room, but Sableye's own support is reliable. Kill Meowstic with Greninja/Tyranitar.
 - **Milotic may have Competitive.** Avoid bringing Gardevoir in with Trace/Intimidate while Milotic is out. Avoid WoW if it has Marvel Scale.
 - **Cloyster may have Overcoat.** Sand will not break its Sash then. Taunt it before Shell Smash.
 

@@ -4,12 +4,12 @@ Assumptions: default 4 is **Tyranitar, Sableye, Excadrill, Greninja**; lead **Sa
 
 ## Turn 1 by Conor's lead
 
-- **Gyarados + Raichu (most likely):** Tera Fairy Tyranitar; Sableye uses Will-O-Wisp on Gyarados; Tyranitar uses Rock Slide. If Raichu Fake Outs Sableye, accept the flinch—Rock Slide still goes off; WoW next turn. Tera Fairy blanks Waterfall and Raichu's Focus Blast.
+- **Gyarados + Raichu (most likely):** Tera Fairy Tyranitar; Sableye uses Will-O-Wisp on Gyarados; Tyranitar uses Rock Slide. Raichu cannot Fake Out Sableye (Ghost), so expect Fake Out on Tyranitar instead—if Tyranitar is flinched, accept the lost Rock Slide and let Sableye Recover or Knock Off Raichu next turn. Tera Fairy blanks Waterfall and Raichu's Focus Blast.
 - **Gyarados + Chandelure:** Tera Fairy Tyranitar; Sableye WoW Gyarados; Tyranitar Crunch Chandelure. If Chandelure Teras Fairy, Crunch does little—pivot to Excadrill Iron Head next turn.
 - **Chandelure + Milotic:** Do not Tera. Sableye Taunt Milotic; Tyranitar Crunch Chandelure. If Chandelure is Scarf it moves first, but Tyranitar tanks it. If it Teras Fairy, pivot to Excadrill/Scizor.
 - **Raichu + Chandelure:** Do not Tera. Sableye Knock Off Raichu; Tyranitar Crunch Chandelure. Ground moves are not redirected by Lightning Rod.
 - **Raichu + Milotic:** Do not Tera. Sableye Taunt Milotic; Tyranitar High Horsepower Raichu. Do not use Electric moves.
-- **Cloyster + Meowstic:** Do not Tera. Sableye Taunt Cloyster; Tyranitar Rock Slide. Meowstic is faster Prankster and may Taunt Sableye first; if so, Cloyster may get Shell Smash, but Rock Slide + Sand + WoW next turn contain it. Bring Greninja next for Meowstic.
+- **Cloyster + Meowstic:** Do not Tera. Sableye Taunt Cloyster; Tyranitar Rock Slide. Meowstic cannot Taunt Sableye (Dark), but it is faster and can set Safeguard or attack with Dazzling Gleam. If Cloyster gets Shell Smash, Rock Slide + Sand + WoW next turn contain it. Bring Greninja next for Meowstic.
 - **Meowstic + Chandelure:** Do not Tera. Sableye Knock Off Meowstic; Tyranitar Crunch Chandelure. Do not rely on Taunt beating Meowstic—kill it with Greninja/Tyranitar.
 
 ## Turn 2 priorities
@@ -18,8 +18,8 @@ Assumptions: default 4 is **Tyranitar, Sableye, Excadrill, Greninja**; lead **Sa
 - **Raichu still alive:** Tyranitar High Horsepower, or bring Excadrill in on a predicted Electric move. Never click Thunder Punch/Thunderbolt while Raichu is on the field.
 - **Chandelure still alive:** Crunch with Tyranitar or Dark Pulse with Greninja. If it Teras Fairy, switch to Excadrill Iron Head or Scizor Bullet Punch.
 - **Milotic switched in:** Taunt it, Knock Off its Leftovers, and bring Greninja in on a Water move; Grass Knot 2HKOs. Thunder Punch only after Raichu is gone.
-- **Cloyster:** Taunt before Shell Smash, WoW it, and let Sand break Focus Sash. If Meowstic Taunted Sableye, use Tyranitar Rock Slide and bring Greninja.
-- **Meowstic:** Kill it with Greninja Dark Pulse or Tyranitar Crunch. Sableye's support is unreliable while Meowstic is faster.
+- **Cloyster:** Taunt before Shell Smash, WoW it, and let Sand break Focus Sash. Meowstic cannot Taunt Sableye, so expect Safeguard or Dazzling Gleam from it; use Tyranitar Rock Slide and bring Greninja.
+- **Meowstic:** Kill it with Greninja Dark Pulse or Tyranitar Crunch. Sableye's Taunt still works on Meowstic, but Meowstic is faster and can set Safeguard/screens before it is Taunted. Do not rely on Taunt to stop Meowstic's first support move.
 
 ## Turn 3
 
