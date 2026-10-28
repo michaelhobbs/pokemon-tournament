@@ -10,8 +10,9 @@ In current-gen mechanics, Tera Fighting makes Chandelure mono-Fighting, so it lo
 
 Timing matters:
 
-- On the turn Chandelure Teras, Sableye's Prankster WoW resolves first while Chandelure is still Fire-type, so WoW fails.
-- On the next turn, Chandelure is Fighting-type, so WoW works.
+- Tera resolves before moves, so if Chandelure Terastallizes, it is Fighting-type before Sableye's WoW resolves; WoW works on that same turn.
+- If Chandelure does not Terastallize, it is still Fire-type, so WoW fails.
+- Fake Out cannot stop Terastallization; the Tera action happens before Fake Out and all other moves.
 - Safeguard still blocks WoW for its duration.
 - Burn only chips Chandelure; it does not reduce Fire Blast because Chandelure is a special attacker.
 - With sand up, burn + sand is 1/8 per turn. Chandelure has Choice Scarf, not Leftovers, so that chip is real.
@@ -70,9 +71,9 @@ Do not Tera Sableye Fairy while Chandelure is active unless you have a specific 
 ## Practical turn sequence vs Meowstic + Chandelure
 
 1. Expect Tera Fighting on turn 1.
-2. Tera Fairy Tyranitar is the safe default.
-3. Sableye should Knock Off Chandelure, not WoW.
-4. Turn 2, once Chandelure is Fighting-type, WoW it unless Meowstic has Safeguard up.
+2. Tera Fairy Tyranitar is the safe default; Fake Out cannot stop it.
+3. Sableye should Knock Off Chandelure; it works before and after Tera and removes Scarf.
+4. If Chandelure has Terastallized and Safeguard is not up, WoW is live on that same turn; if it has not Terastallized, WoW fails.
 5. Get sand up and bring Excadrill in.
 6. Force Chandelure out with neutral Life Orb damage.
 7. If Meowstic sets Safeguard, kill Meowstic or Taunt it after Safeguard expires.
@@ -89,12 +90,12 @@ Tera Fighting Chandelure is strong into Michael's default 4 because it removes t
 
 Michael should force that sequence rather than trying to out-type Chandelure with the default 4.
 
-## Existing-doc corrections, not applied here
+## Existing-doc corrections
 
 These lines are only true before Chandelure Terastallizes:
 
-- `src/conor.md`: "Do not WoW Chandelure—Fire-types cannot be burned."
-- `src/conor-turn-plan.md`: the same WoW rule.
-- `src/conor-counter-plan.md`: "Chandelure is immune to WoW."
+- `src/conor-turn-plan.md`: the WoW override is now qualified.
+- `src/conor-counter-plan.md`: the WoW matchup notes are now qualified.
+- `src/conor-final-tips.md`: the switch-in WoW note is now qualified.
 
 After Tera Fighting, Chandelure can be burned.

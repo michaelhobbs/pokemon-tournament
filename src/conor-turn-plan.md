@@ -35,7 +35,7 @@ Assumptions: default 4 is **Tyranitar, Sableye, Excadrill, Greninja**; lead **Sa
 
 ## Overrides
 
-- **Do not WoW Chandelure**—Fire-types cannot be burned.
+- **Do not WoW Chandelure before it Teras**—Fire-types cannot be burned. After Tera Fighting/Dark, WoW works; Knock Off is still the safer default.
 - **Do not bring Scizor or Gardevoir into Chandelure.**
 - **Do not lead Tyranitar into Water without Tera Fairy**—Choice Band Gyarados Waterfall can OHKO it.
 - If you lead Sableye + Excadrill instead, Excadrill has **no Sand Rush until Tyranitar enters**—don't expect it to outspeed immediately.

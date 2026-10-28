@@ -4,7 +4,7 @@ Level 100 Doubles Custom Game, pick 4 from 6, all three games played. One Tera p
 
 This is a counter-plan for Conor, not confirmed scouting. Conor's exact items/EVs/Tera are still unknown, so the sets below are recommendations. Michael's side is taken from `src/conor.md`.
 
-**Rules interactions that matter:** Tera is in play, so use current-gen mechanics. Fake Out is a Normal move and cannot hit Sableye (Ghost). Prankster status moves that target a Dark-type fail, so Meowstic cannot Taunt Sableye, Tyranitar, or Greninja. Fire-types cannot be burned, so do not try to WoW Chandelure.
+**Rules interactions that matter:** Tera is in play, so use current-gen mechanics. Fake Out is a Normal move and cannot hit Sableye (Ghost). Prankster status moves that target a Dark-type fail, so Meowstic cannot Taunt Sableye, Tyranitar, or Greninja. Fire-types cannot be burned before Tera, but Tera Fighting Chandelure loses that immunity, so WoW works after it Teras. Tera resolves before moves, so Fake Out cannot prevent it and WoW on the Tera turn resolves after the type change.
 
 ## Recommendation
 
@@ -88,7 +88,7 @@ Bold Nature
 
 ## Tera plan
 
-**Default: Chandelure → Fighting.** Against Michael's default 4 it has no exploitable weakness: Michael has no Fairy, Psychic, or Flying attacks. It resists Sableye's Knock Off, Tyranitar's Crunch/Rock Slide, and Greninja's Dark Pulse. Use it on turn 1 when Sableye or Greninja is on the field.
+**Default: Chandelure → Fighting.** Against Michael's default 4 it has no exploitable type weakness: Michael has no Fairy, Psychic, or Flying attacks. It resists Sableye's Knock Off, Tyranitar's Crunch/Rock Slide, and Greninja's Dark Pulse. Use it on turn 1 when Sableye or Greninja is on the field. It does lose Fire's burn immunity, so WoW works after Tera.
 
 **Do not Tera Chandelure Fighting while Gardevoir is on the field.** Gardevoir's Fairy/Psychic coverage punishes it. In that case, use Scarf Shadow Ball to revenge kill Gardevoir, or Tera Raichu Fairy / Gyarados Dark if the game state demands it.
 
@@ -113,7 +113,7 @@ Bold Nature
 
 ## Matchup cheat sheet
 
-- **Sableye:** Fake Out and Prankster Taunt fail. Psychic and Fighting moves fail. Dazzling Gleam is 2x; Fire Blast/Shadow Ball are neutral. Chandelure is immune to WoW, and Tera Fighting Chandelure resists Knock Off. Safeguard blocks WoW. Kill it or force it to Tera.
+- **Sableye:** Fake Out and Prankster Taunt fail. Psychic and Fighting moves fail. Dazzling Gleam is 2x; Fire Blast/Shadow Ball are neutral. Chandelure is immune to WoW before Tera; after Tera Fighting it can be burned. Tera Fighting Chandelure resists Knock Off. Safeguard blocks WoW. Kill it or force it to Tera.
 - **Tyranitar:** Tera Blast Fighting is 4x before Tera and 0.5x after Tera Fairy. Waterfall is 2x before Tera and neutral after. Focus Blast follows the same pattern. Force the Tera, then chip with Gyarados.
 - **Excadrill:** Fire Blast is 2x; Waterfall is 2x. Remove it before sand. Fake Out can flinch it; Taunt can stop Protect, but Sableye may Taunt Meowstic first.
 - **Greninja:** Tera Fighting Chandelure resists Dark Pulse. Tera Blast Fighting is 2x. Meowstic's Dazzling Gleam is 2x. Fake Out can flinch it.
