@@ -21,7 +21,7 @@
 - **Tyranitar:** Rock Slide. If Ninetales is active, aim at it. Sand clears snow (or Gas stops both weather abilities), blocking turn-1 Aurora Veil.
 - **Sableye:**
   - Slaking active, no Misty Terrain, and Gas is not up → **Will-O-Wisp Slaking**.
-  - Slaking active and Gas is up → **do not default to WoW**. Play Rough OHKOs Sableye before it moves. Knock Off Weezing or switch Sableye out; kill Weezing first.
+  - Slaking active and Gas is up → **do not default to WoW**. Choice Band Play Rough OHKOs Sableye before it moves; Life Orb leaves it at 8 HP. Knock Off Weezing or switch Sableye out; kill Weezing first.
   - Weezing active and Gas is up, with no Slaking active → **Knock Off Weezing** or switch Sableye out.
   - Amoonguss active → **Taunt Amoonguss**.
   - Shuckle active → **Taunt Shuckle**, unless it has Mental Herb; then Knock Off first.

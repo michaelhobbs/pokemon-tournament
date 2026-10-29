@@ -15,14 +15,14 @@ Key rules: **Sableye is mandatory if Slaking is present. Bring Excadrill if Shuc
 
 ## Lead 1: Tyranitar + Sableye — whenever Ninetales is in Mark's four
 
-Exception: if you expect **Gas + Slaking on the lead**, use **Tyranitar + Gardevoir** instead. Sableye can be OHKOed by Play Rough before it moves; bring it after Weezing is removed.
+Exception: if you expect **Gas + Slaking on the lead**, use **Tyranitar + Gardevoir** instead. Choice Band Play Rough can OHKO Sableye before it moves; bring it after Weezing is removed.
 
 ### Turn 1
 
 - **Tyranitar: Rock Slide**, targeting Ninetales. If Ninetales is in back, Rock Slide the active pair.
 - **Sableye**, in priority order:
   1. Slaking is active, Misty Terrain is not up, and Gas is not up → **Will-O-Wisp Slaking**. Prankster makes it move first.
-  2. Slaking is active and Gas is up → **do not default to WoW**. Slaking moves first and Play Rough OHKOs Sableye. Knock Off Weezing or switch Sableye out; kill Weezing first.
+  2. Slaking is active and Gas is up → **do not default to WoW**. Slaking moves first and Choice Band Play Rough OHKOs Sableye; Life Orb leaves it at 8 HP. Knock Off Weezing or switch Sableye out; kill Weezing first.
   3. Shuckle is active → **Taunt Shuckle**.
   4. Amoonguss is active → **Taunt Amoonguss**.
   5. Otherwise, if Prankster is active → **Taunt** Weezing/Blissey/Ninetales, whichever is the support threat.
@@ -43,11 +43,11 @@ If Ninetales switches in later, sand does **not** reassert. **Taunt Ninetales** 
 
 ## Lead 2: Sableye + Scizor — no Ninetales, Slaking present
 
-Exception: if you expect **Gas + Slaking on the lead**, keep Sableye in back and lead **Tyranitar + Gardevoir** if Tyranitar is in the four, otherwise **Scizor + Gardevoir**. Bring Sableye after Weezing is removed.
+Exception: if you expect **Gas + Slaking on the lead**, keep Sableye in back and lead **Tyranitar + Gardevoir** if Tyranitar is in the four, otherwise **Scizor + Gardevoir**. Choice Band Play Rough can OHKO Sableye; bring it after Weezing is removed.
 
 ### Turn 1
 
-- **Sableye: Will-O-Wisp Slaking** if Misty Terrain is not up and Gas is not up. Under Gas, Slaking moves first and Play Rough OHKOs Sableye; do not default to WoW. Knock Off Weezing or switch Sableye out, then kill Weezing first.
+- **Sableye: Will-O-Wisp Slaking** if Misty Terrain is not up and Gas is not up. Under Gas, Slaking moves first and Choice Band Play Rough OHKOs Sableye; Life Orb leaves it at 8 HP. Do not default to WoW. Knock Off Weezing or switch Sableye out, then kill Weezing first.
 - If Misty Terrain is up: **do not WoW**. Use **Knock Off Slaking** to remove Choice Band/Scarf/Life Orb, or **Taunt Amoonguss**.
 - **Scizor: Bullet Punch Slaking**. If Amoonguss is on the field, expect Rage Powder to redirect Bullet Punch; that is acceptable only if Sableye is actually burning Slaking. Under Gas, target Weezing instead.
 - If Slaking is in back: Sableye Taunts Amoonguss/Knocks Off Weezing; Scizor Bullet Punches Weezing or U-turns. Burn Slaking the turn it comes in, but only if Gas is gone.
