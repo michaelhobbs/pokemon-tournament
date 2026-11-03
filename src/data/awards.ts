@@ -332,7 +332,7 @@ export const AWARDS: Award[] = [
     number: 711,
     name: "DARK HORSE",
     description: "BEAT THE EVENTUAL CHAMPION",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",
@@ -359,7 +359,7 @@ export const AWARDS: Award[] = [
     number: 712,
     name: "CLUTCH",
     description: "MOST 2-1 WINS",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",
@@ -386,7 +386,7 @@ export const AWARDS: Award[] = [
     number: 713,
     name: "IRON LEGEND",
     description: "NEVER SWEPT 0-3",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",
@@ -413,7 +413,7 @@ export const AWARDS: Award[] = [
     number: 714,
     name: "PARTY CRASHER",
     description: "BEAT THE MOST TOP-3 FINISHERS",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",
@@ -440,7 +440,7 @@ export const AWARDS: Award[] = [
     number: 715,
     name: "HOT STREAK",
     description: "MOST CONSECUTIVE WINS",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",
@@ -517,6 +517,7 @@ export const AWARDS: Award[] = [
       ],
       palette: { B: "#000000", Y: "#f7d52b", R: "#e03131", Br: "#8a5a2b" },
     },
+    winners: [9],
   },
   {
     number: 718,

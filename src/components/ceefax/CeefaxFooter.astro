@@ -1,18 +1,28 @@
 ---
+interface TickerEntry {
+  text: string;
+  href?: string;
+}
+
 interface Props {
   pageNumber?: string;
-  ticker?: string[];
+  ticker?: Array<string | TickerEntry>;
 }
 
 const {
   pageNumber = "001",
   ticker = [
-    "WELCOME TO THE POKEMON TOURNAMENT",
-    "ILEX FOREST CITIZENS CELEBRATING EARLY",
+    "WELCOME TO SEASON 3!",
+    { text: "CHECK OUT PROGRESS TOWARDS AWARDS", href: "/awards" },
+    "ILEX FOREST CITIZENS PREPARING CELEBRATIONS EARLY",
+    "AN UPSET IS STILL POSSIBLE",
     "TIGHT FIGHT FOR THE OTHER SPOTS ON THE PODIUM",
     "I 1 2 BREAK 3",
   ],
 } = Astro.props;
+
+const normaliseEntry = (entry: string | TickerEntry): TickerEntry =>
+  typeof entry === "string" ? { text: entry } : entry;
 
 const dateLabel = new Date()
   .toLocaleDateString("en-GB", {
@@ -30,36 +40,62 @@ const tickerSegments = (
     .map((part) =>
       /^[123]$/.test(part) ? { text: part, digit: true } : { text: part },
     );
+
+const tickerEntries = ticker.map(normaliseEntry);
 ---
 
 <footer class="ceefax-footer" transition:animate="none">
-  <div class="ceefax-ticker" aria-hidden="true">
+  <div class="ceefax-ticker">
     <div class="ceefax-ticker-track">
       <span class="ceefax-ticker-copy">
         {
-          ticker.map((entry) => (
+          tickerEntries.map((entry) => (
             <span class="ceefax-ticker-item">
-              {tickerSegments(entry).map((segment) =>
-                segment.digit ? (
-                  <span class="ceefax-ticker-digit">{segment.text}</span>
-                ) : (
-                  segment.text
-                ),
+              {entry.href ? (
+                <a class="ceefax-ticker-link" href={entry.href}>
+                  {tickerSegments(entry.text).map((segment) =>
+                    segment.digit ? (
+                      <span class="ceefax-ticker-digit">{segment.text}</span>
+                    ) : (
+                      segment.text
+                    ),
+                  )}
+                </a>
+              ) : (
+                tickerSegments(entry.text).map((segment) =>
+                  segment.digit ? (
+                    <span class="ceefax-ticker-digit">{segment.text}</span>
+                  ) : (
+                    segment.text
+                  ),
+                )
               )}
             </span>
           ))
         }
       </span>
-      <span class="ceefax-ticker-copy">
+      <span class="ceefax-ticker-copy" aria-hidden="true">
         {
-          ticker.map((entry) => (
+          tickerEntries.map((entry) => (
             <span class="ceefax-ticker-item">
-              {tickerSegments(entry).map((segment) =>
-                segment.digit ? (
-                  <span class="ceefax-ticker-digit">{segment.text}</span>
-                ) : (
-                  segment.text
-                ),
+              {entry.href ? (
+                <a class="ceefax-ticker-link" href={entry.href} tabindex="-1">
+                  {tickerSegments(entry.text).map((segment) =>
+                    segment.digit ? (
+                      <span class="ceefax-ticker-digit">{segment.text}</span>
+                    ) : (
+                      segment.text
+                    ),
+                  )}
+                </a>
+              ) : (
+                tickerSegments(entry.text).map((segment) =>
+                  segment.digit ? (
+                    <span class="ceefax-ticker-digit">{segment.text}</span>
+                  ) : (
+                    segment.text
+                  ),
+                )
               )}
             </span>
           ))
@@ -102,6 +138,20 @@ const tickerSegments = (
   .ceefax-ticker-digit {
     color: var(--ceefax-magenta);
     font-weight: 700;
+  }
+
+  .ceefax-ticker-link {
+    background: var(--ceefax-magenta);
+    color: var(--ceefax-black);
+    font-weight: 700;
+    padding: 0 0.35rem;
+    text-decoration: none;
+  }
+
+  .ceefax-ticker-link:hover,
+  .ceefax-ticker-link:focus-visible {
+    color: var(--ceefax-black);
+    text-decoration: underline;
   }
 
   .ceefax-ticker-item::after {
