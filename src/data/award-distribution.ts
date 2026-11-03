@@ -337,11 +337,12 @@ export function computeAllAwardRankings(
   }
 
   const standingsMap = new Map(standings.map((s) => [s.player.number, s]));
-  // 701-704 placement by standings
+  // 701-704 placement by standings (704 wooden pokeball runs last-to-first)
   for (const awardNum of [701, 702, 703, 704]) {
+    const ordered = awardNum === 704 ? [...standings].reverse() : standings;
     rankings.set(
       awardNum,
-      standings.map((s, idx) => ({
+      ordered.map((s, idx) => ({
         playerNumber: s.player.number,
         scoreLabel: `${s.wins}W / ${s.battles}B`,
         sortValue: -(s.wins * 100000 + s.battles + idx * 0.0001),
@@ -438,23 +439,35 @@ export function computeAllAwardRankings(
         count: s.blowouts,
       })),
   );
-  // 711 beat champion
-  const beatChampionSet = new Set<number>();
+  // 711 beat champion — ordered by wins against the current first place
+  const winsAgainstChampion = new Map<number, number>();
+  for (const p of PLAYERS) winsAgainstChampion.set(p.number, 0);
   for (const { match } of allMatches) {
     if (match.wins1 === undefined || match.wins2 === undefined) continue;
-    if (match.p2 === champion && match.wins1 > match.wins2)
-      beatChampionSet.add(match.p1);
-    if (match.p1 === champion && match.wins2 > match.wins1)
-      beatChampionSet.add(match.p2);
+    if (match.p2 === champion && match.wins1 > match.wins2) {
+      winsAgainstChampion.set(
+        match.p1,
+        (winsAgainstChampion.get(match.p1) ?? 0) + 1,
+      );
+    }
+    if (match.p1 === champion && match.wins2 > match.wins1) {
+      winsAgainstChampion.set(
+        match.p2,
+        (winsAgainstChampion.get(match.p2) ?? 0) + 1,
+      );
+    }
   }
   rankings.set(
     711,
-    PLAYERS.map((p) => ({
-      playerNumber: p.number,
-      scoreLabel: beatChampionSet.has(p.number) ? "1" : "0",
-      sortValue: beatChampionSet.has(p.number) ? -1 : 0,
-      count: beatChampionSet.has(p.number) ? 1 : 0,
-    })).sort((a, b) => b.sortValue - a.sortValue),
+    PLAYERS.map((p) => {
+      const wins = winsAgainstChampion.get(p.number) ?? 0;
+      return {
+        playerNumber: p.number,
+        scoreLabel: `${wins}`,
+        sortValue: wins,
+        count: wins,
+      };
+    }).sort((a, b) => b.sortValue - a.sortValue),
   );
   // 712 clutch wins
   rankings.set(
@@ -468,20 +481,19 @@ export function computeAllAwardRankings(
         count: s.clutchWins,
       })),
   );
-  // 713 iron legend
+  // 713 iron legend — fewest sweep losses first
   rankings.set(
     713,
     [...statsArr]
       .sort(
         (a, b) =>
-          (a.sweepLosses === 0 ? -1 : 1) - (b.sweepLosses === 0 ? -1 : 1) ||
-          a.playerNumber - b.playerNumber,
+          a.sweepLosses - b.sweepLosses || a.playerNumber - b.playerNumber,
       )
       .map((s) => ({
         playerNumber: s.playerNumber,
-        scoreLabel: s.sweepLosses === 0 ? "0" : `${s.sweepLosses}`,
-        sortValue: s.sweepLosses === 0 ? -1 : 0,
-        count: s.sweepLosses === 0 ? 0 : s.sweepLosses,
+        scoreLabel: `${s.sweepLosses}`,
+        sortValue: -s.sweepLosses,
+        count: s.sweepLosses,
       })),
   );
   // 714 beat top3

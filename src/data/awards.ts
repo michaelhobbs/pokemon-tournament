@@ -352,7 +352,7 @@ export const AWARDS: Award[] = [
         "..BB...BB...BB..",
         "..BB...BB...BB..",
       ],
-      palette: { B: "#000000", W: "#ffffff" },
+      palette: { B: "#222222", W: "#ffffff" },
     },
   },
   {
