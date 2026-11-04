@@ -9,11 +9,13 @@ interface Props {
   ticker?: Array<string | TickerEntry>;
 }
 
+const base = import.meta.env.BASE_URL;
+
 const {
   pageNumber = "001",
   ticker = [
     "WELCOME TO SEASON 3!",
-    { text: "CHECK OUT PROGRESS TOWARDS AWARDS", href: "/awards" },
+    { text: "CHECK OUT PROGRESS TOWARDS AWARDS", href: `${base}awards` },
     "ILEX FOREST CITIZENS PREPARING CELEBRATIONS EARLY",
     "AN UPSET IS STILL POSSIBLE",
     "TIGHT FIGHT FOR THE OTHER SPOTS ON THE PODIUM",
