@@ -2,7 +2,7 @@
 
 ## The one-sentence plan
 
-Keep sand up, Tera Poison Tyranitar through the rain/Blaziken turn, Taunt/Knock Off Blaziken, Taunt the support Pokémon, remove or neutralize Ludicolo/Politoed, then let Excadrill clean.
+Keep sand up, Tera Poison Tyranitar through the rain/Blaziken turn, use Tera Blast to remove Ludicolo or Clefable if they stay in, Taunt/Knock Off Blaziken, Taunt the support Pokémon, remove or neutralize Politoed, then let Excadrill clean.
 
 ## Bring these four
 
@@ -29,11 +29,11 @@ Keep sand up, Tera Poison Tyranitar through the rain/Blaziken turn, Taunt/Knock 
 ## After turn 1
 
 - Keep **sand** up. If Politoed brings rain, reset sand by switching Tyranitar out and back in, or KO Politoed.
-- If Ludicolo is in rain, **do not leave Tyranitar un-Teraed in front of it**. Tera Poison or switch out.
+- If Ludicolo is in rain, **do not leave Tyranitar un-Teraed in front of it**. Tera Poison or switch out. If you do Tera, **Tera Blast** OHKOs offensive Ludicolo.
 - If Blaziken is out, **Taunt it**, **Knock Off Life Orb**, or **Foul Play** for damage.
 - If Klefki sets a screen, **Taunt it after the first screen**; its first screen is faster than your Taunt.
-- If Ferrothorn is out, **Taunt** it and hit it with **Fire Punch** in sand. Fire Punch is contact and triggers Iron Barbs/Rocky Helmet; accept the chip or use Rock Slide/Hydro Pump/Focus Blast.
-- If Clefable is out, **Taunt** it and use **Rock Slide** because Follow Me redirects single-target moves.
+- If Ferrothorn is out, **Taunt** it and hit it with **Fire Punch** in sand. Fire Punch is contact and triggers Iron Barbs/Rocky Helmet; accept the chip or use Rock Slide/Hydro Pump/Focus Blast. Do not click Tera Blast into Ferrothorn or Klefki; Steel is immune.
+- If Clefable is out, **Taunt** it and use **Rock Slide** because Follow Me redirects single-target moves. If you are forced to Tera anyway, **Tera Blast** 2HKOs it.
 - Bring **Excadrill** in after sand is up. Use **High Horsepower** on Blaziken/Klefki and **Iron Head** on Clefable.
 - Use **Greninja** to revenge Blaziken with Hydro Pump, or to chip Ludicolo with Ice Beam.
 
@@ -45,17 +45,18 @@ Keep sand up, Tera Poison Tyranitar through the rain/Blaziken turn, Taunt/Knock 
 - Do not try to **Taunt Klefki before its first screen**.
 - Do not use a single-target status move into **Clefable's Follow Me**.
 - Do not rely on burn against **Blaziken**; it is Fire-type. Use Taunt/Knock Off/Foul Play.
-- Do not Tera Poison Tyranitar before you need it.
+- Do not Tera Poison Tyranitar before you need it, just to use Tera Blast.
+- Do not click **Tera Blast** into Ferrothorn or Klefki; Steel is immune.
 - Do not try to outdamage **rain Ludicolo**; reset sand or Tera.
 - Do not forget that **Knock Off** does not shorten the current rain or current screens.
 
 ## Emergency buttons
 
-- **Tera Poison Tyranitar** against rain Hydro Pump or Blaziken Close Combat.
+- **Tera Poison Tyranitar** against rain Hydro Pump or Blaziken Close Combat. Once Terastallized, **Tera Blast** OHKOs offensive Ludicolo and 2HKOs Clefable.
 - **Tera Poison Sableye** if Tyranitar must stay un-Teraed.
 - **Tera Steel Excadrill** against Fairy/Ice pressure.
 - **Tera Fairy Gardevoir** only if it is already in and needs to survive a Dragon/Fighting hit.
 
 ## Win condition
 
-Sand up, Tyranitar alive, Blaziken taunted or Knocked Off, Ludicolo/Politoed gone or neutralized, Excadrill at +0 with Sand Rush. That is the game.
+Sand up, Tyranitar alive, Blaziken taunted or Knocked Off, Ludicolo/Politoed gone or neutralized (Tera Blast can remove Ludicolo), Excadrill at +0 with Sand Rush. That is the game.

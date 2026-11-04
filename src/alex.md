@@ -39,9 +39,9 @@ Tera Type: Poison
 Adamant Nature
 EVs: 252 HP / 252 Atk / 4 SpD
 - Rock Slide
-- Crunch
 - Fire Punch
 - Superpower
+- Tera Blast
 
 Excadrill @ Life Orb
 Ability: Sand Rush
@@ -130,18 +130,18 @@ Hard rules:
 
 Default lead: **Tyranitar + Sableye**.
 
-| Alex's lead           | Michael's lead      | Turn 1 priority                                                                                                            |
-| --------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Politoed + Ludicolo   | Tyranitar + Sableye | Tyranitar Rock Slide; Sableye Taunt Ludicolo (Rain Dance) or Knock Off Politoed.                                           |
-| Politoed + Blaziken   | Tyranitar + Sableye | Sableye Taunt Blaziken to stop setup, or Knock Off Life Orb; Tyranitar Tera Poison + Rock Slide if Close Combat is likely. |
-| Politoed + Ferrothorn | Tyranitar + Sableye | Sableye Taunt Ferrothorn; Tyranitar Fire Punch Ferrothorn.                                                                 |
-| Politoed + Klefki     | Tyranitar + Sableye | Sableye Taunt Klefki (its first screen still lands); Tyranitar Fire Punch Klefki.                                          |
-| Politoed + Clefable   | Tyranitar + Sableye | Sableye Taunt Clefable; Tyranitar Rock Slide.                                                                              |
-| Ludicolo + Blaziken   | Tyranitar + Sableye | Sableye Taunt Blaziken unless Rain Dance is the bigger threat; Tyranitar Rock Slide.                                       |
-| Ferrothorn + Klefki   | Tyranitar + Sableye | Sableye Taunt Klefki or Ferrothorn; Tyranitar Fire Punch the other.                                                        |
-| Clefable + Blaziken   | Tyranitar + Sableye | Sableye Taunt Clefable; Tyranitar Tera Poison Rock Slide; Taunt/Knock Off Blaziken next turn.                              |
-| Klefki + Blaziken     | Tyranitar + Sableye | Sableye Taunt Blaziken or Knock Off Life Orb; Tyranitar Fire Punch Klefki; Tera Poison if needed.                          |
-| Ferrothorn + Clefable | Tyranitar + Sableye | Sableye Taunt Clefable; Tyranitar Rock Slide, not Fire Punch into Follow Me.                                               |
+| Alex's lead           | Michael's lead      | Turn 1 priority                                                                                                                            |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Politoed + Ludicolo   | Tyranitar + Sableye | Tyranitar Rock Slide, or Tera Poison + Tera Blast Ludicolo if it stays in rain; Sableye Taunt Ludicolo (Rain Dance) or Knock Off Politoed. |
+| Politoed + Blaziken   | Tyranitar + Sableye | Sableye Taunt Blaziken to stop setup, or Knock Off Life Orb; Tyranitar Tera Poison + Rock Slide if Close Combat is likely.                 |
+| Politoed + Ferrothorn | Tyranitar + Sableye | Sableye Taunt Ferrothorn; Tyranitar Fire Punch Ferrothorn.                                                                                 |
+| Politoed + Klefki     | Tyranitar + Sableye | Sableye Taunt Klefki (its first screen still lands); Tyranitar Fire Punch Klefki.                                                          |
+| Politoed + Clefable   | Tyranitar + Sableye | Sableye Taunt Clefable; Tyranitar Rock Slide.                                                                                              |
+| Ludicolo + Blaziken   | Tyranitar + Sableye | Sableye Taunt Blaziken unless Rain Dance is the bigger threat; Tyranitar Rock Slide.                                                       |
+| Ferrothorn + Klefki   | Tyranitar + Sableye | Sableye Taunt Klefki or Ferrothorn; Tyranitar Fire Punch the other.                                                                        |
+| Clefable + Blaziken   | Tyranitar + Sableye | Sableye Taunt Clefable; Tyranitar Tera Poison Rock Slide; Taunt/Knock Off Blaziken next turn.                                              |
+| Klefki + Blaziken     | Tyranitar + Sableye | Sableye Taunt Blaziken or Knock Off Life Orb; Tyranitar Fire Punch Klefki; Tera Poison if needed.                                          |
+| Ferrothorn + Clefable | Tyranitar + Sableye | Sableye Taunt Clefable; Tyranitar Rock Slide, not Fire Punch into Follow Me.                                                               |
 
 If Alex leads something unexpected, default to **Tyranitar + Sableye**, get sand up, and use Taunt/Foul Play/Knock Off before attacking.
 
@@ -184,10 +184,10 @@ Key points:
 | Alex           | Priority                                                                                                                                                                                                               |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Politoed**   | Taunt Encore/Toxic/Hypnosis; Knock Off Damp Rock; reset sand with Tyranitar.                                                                                                                                           |
-| **Ludicolo**   | Do not let it sit in rain. Tera Poison Tyranitar or reset sand. Taunt Rain Dance. Ice Beam from Greninja is only a 2HKO.                                                                                               |
+| **Ludicolo**   | Do not let it sit in rain. Tera Poison Tyranitar or reset sand. Taunt Rain Dance. Tera Blast OHKOs offensive Ludicolo; never click it into Ferrothorn/Klefki. Ice Beam from Greninja is only a 2HKO.                   |
 | **Blaziken**   | It cannot be burned. Taunt Swords Dance (Protect still beats Taunt that turn), Knock Off Life Orb, Foul Play for damage. Tera Poison Tyranitar if it may Close Combat. Excadrill High Horsepower. Do not bring Scizor. |
 | **Ferrothorn** | Taunt Leech Seed/Stealth Rock/Spikes; Fire Punch in sand; it is contact, so accept Iron Barbs/Rocky Helmet chip; Rapid Spin.                                                                                           |
-| **Clefable**   | Taunt Follow Me/Thunder Wave/Encore/Calm Mind; use Rock Slide spread; do not let it redirect Taunt/Knock Off/Foul Play for free.                                                                                       |
+| **Clefable**   | Taunt Follow Me/Thunder Wave/Encore/Calm Mind; use Rock Slide spread; Tera Blast 2HKOs; do not let it redirect Taunt/Knock Off/Foul Play for free.                                                                     |
 | **Klefki**     | Its first screen beats Taunt. Taunt after; Fire Punch/High Horsepower; Knock Off Light Clay only helps future screens.                                                                                                 |
 
 ## Tera plan
@@ -199,6 +199,7 @@ Key points:
 - Only Ground and Psychic weaknesses; Alex's standard sets rarely have either.
 - Turns rain Hydro Pump from a OHKO into a 2HKO and Blaziken Close Combat from a OHKO into a 3HKO.
 - Cost: loses Rock STAB, Rock's sand Special Defense boost, sand immunity, and the Rock-type Fire resistance. Flare Blitz hits harder after Tera. Do not Tera early just for damage.
+- Offensive use: Tera Blast becomes Poison STAB — **OHKO on offensive Ludicolo** and **2HKO on Clefable**, but **0× into Ferrothorn/Klefki**. Best when Ludicolo/rain forces the Tera anyway; do not Tera early just to attack.
 
 **Backup: Tera Fairy Tyranitar** if Alex reveals Psychic/Ground or leans on Knock Off/Foul Play.
 
@@ -216,7 +217,7 @@ Tera reminders:
 
 ## Damage benchmarks
 
-Numbers use representative bulky spreads, no crits, no screens, and no Tera unless stated. Spread moves are 0.75× in doubles. Foul Play uses the target's Attack, so it punishes Swords Dance Blaziken; Sableye cannot burn Blaziken because Blaziken is Fire-type. Fire Punch and Crunch are contact moves, so Ferrothorn's Iron Barbs/Rocky Helmet chip Tyranitar when it uses them; Fire Punch is still the best damage. High Horsepower is also contact, so Excadrill takes the same chip when it hits Ferrothorn.
+Numbers use representative bulky spreads, no crits, no screens, and no Tera unless stated. Spread moves are 0.75× in doubles. Foul Play uses the target's Attack, so it punishes Swords Dance Blaziken; Sableye cannot burn Blaziken because Blaziken is Fire-type. Fire Punch and Superpower are contact moves, so Ferrothorn's Iron Barbs/Rocky Helmet chip Tyranitar when it uses them; Fire Punch is still the best damage. Tera Blast is non-contact, so it avoids that chip. High Horsepower is also contact, so Excadrill takes the same chip when it hits Ferrothorn.
 
 ### Alex hitting Michael
 
@@ -255,34 +256,35 @@ Numbers use representative bulky spreads, no crits, no screens, and no Tera unle
 
 ### Michael hitting Alex
 
-| Attack                                  | Target     |                      Damage |
-| --------------------------------------- | ---------- | --------------------------: |
-| Tyranitar Fire Punch (sand)             | Ferrothorn |              **62.5–73.9%** |
-| Tyranitar Fire Punch (rain)             | Ferrothorn |              **30.7–36.4%** |
-| Tyranitar Fire Punch (sand)             | Klefki     |              **44.7–52.8%** |
-| Tyranitar Fire Punch (rain)             | Klefki     |              **22.0–26.4%** |
-| Tyranitar Crunch                        | Ludicolo   |              **64.9–76.8%** |
-| Tyranitar Crunch                        | Politoed   |              **48.4–57.3%** |
-| Tyranitar Rock Slide (spread)           | Ludicolo   |                  **46–54%** |
-| Tyranitar Rock Slide (spread)           | Politoed   |                  **34–40%** |
-| Tyranitar Rock Slide (spread)           | Blaziken   |                  **46–54%** |
-| Tyranitar Superpower                    | Blaziken   |              **65.4–77.1%** |
-| Tyranitar Superpower                    | Ferrothorn |              **50.0–59.1%** |
-| Sand Life Orb Excadrill High Horsepower | Blaziken   |         **203–239%** (OHKO) |
-| Sand Life Orb Excadrill High Horsepower | Klefki     |         **110–130%** (OHKO) |
-| Sand Life Orb Excadrill High Horsepower | Ferrothorn |              **38.6–45.7%** |
-| Sand Life Orb Excadrill Iron Head       | Clefable   | **85.8–101.5%** (OHKO roll) |
-| Sableye Foul Play (target at +0)        | Blaziken   |                  **32–38%** |
-| Sableye Foul Play (target at +2)        | Blaziken   |                  **71–83%** |
-| Scizor Choice Band Bullet Punch         | Clefable   |              **72.1–85.3%** |
-| Scizor Choice Band Bullet Punch         | Klefki     |              **39.0–46.2%** |
-| Scizor Choice Band Close Combat         | Ferrothorn |              **73.3–86.4%** |
-| Gardevoir Choice Specs Psychic          | Blaziken   |         **190–224%** (OHKO) |
-| Gardevoir Choice Specs Focus Blast      | Ferrothorn | **94.9–111.9%** (OHKO roll) |
-| Gardevoir Choice Specs Moonblast        | Clefable   |              **62.4–73.9%** |
-| Gardevoir Choice Specs Moonblast        | Ludicolo   |              **74.8–88.4%** |
-| Greninja Hydro Pump                     | Blaziken   |  **OHKO even without rain** |
-| Greninja Ice Beam                       | Ludicolo   |                    **2HKO** |
+| Attack                                  | Target               |                      Damage |
+| --------------------------------------- | -------------------- | --------------------------: |
+| Tyranitar Fire Punch (sand)             | Ferrothorn           |              **62.5–73.9%** |
+| Tyranitar Fire Punch (rain)             | Ferrothorn           |              **30.7–36.4%** |
+| Tyranitar Fire Punch (sand)             | Klefki               |              **44.7–52.8%** |
+| Tyranitar Fire Punch (rain)             | Klefki               |              **22.0–26.4%** |
+| Tyranitar Tera Blast (Poison)           | Ludicolo (offensive) |         **131–154%** (OHKO) |
+| Tyranitar Tera Blast (Poison)           | Ludicolo (max Def)   |           **74–87%** (2HKO) |
+| Tyranitar Tera Blast (Poison)           | Clefable             |           **66–78%** (2HKO) |
+| Tyranitar Rock Slide (spread)           | Ludicolo             |                  **46–54%** |
+| Tyranitar Rock Slide (spread)           | Politoed             |                  **34–40%** |
+| Tyranitar Rock Slide (spread)           | Blaziken             |                  **46–54%** |
+| Tyranitar Superpower                    | Blaziken             |              **65.4–77.1%** |
+| Tyranitar Superpower                    | Ferrothorn           |              **50.0–59.1%** |
+| Sand Life Orb Excadrill High Horsepower | Blaziken             |         **203–239%** (OHKO) |
+| Sand Life Orb Excadrill High Horsepower | Klefki               |         **110–130%** (OHKO) |
+| Sand Life Orb Excadrill High Horsepower | Ferrothorn           |              **38.6–45.7%** |
+| Sand Life Orb Excadrill Iron Head       | Clefable             | **85.8–101.5%** (OHKO roll) |
+| Sableye Foul Play (target at +0)        | Blaziken             |                  **32–38%** |
+| Sableye Foul Play (target at +2)        | Blaziken             |                  **71–83%** |
+| Scizor Choice Band Bullet Punch         | Clefable             |              **72.1–85.3%** |
+| Scizor Choice Band Bullet Punch         | Klefki               |              **39.0–46.2%** |
+| Scizor Choice Band Close Combat         | Ferrothorn           |              **73.3–86.4%** |
+| Gardevoir Choice Specs Psychic          | Blaziken             |         **190–224%** (OHKO) |
+| Gardevoir Choice Specs Focus Blast      | Ferrothorn           | **94.9–111.9%** (OHKO roll) |
+| Gardevoir Choice Specs Moonblast        | Clefable             |              **62.4–73.9%** |
+| Gardevoir Choice Specs Moonblast        | Ludicolo             |              **74.8–88.4%** |
+| Greninja Hydro Pump                     | Blaziken             |  **OHKO even without rain** |
+| Greninja Ice Beam                       | Ludicolo             |                    **2HKO** |
 
 ## Scouting checklist
 
@@ -298,4 +300,4 @@ Track these during game 1:
 
 ## Win condition
 
-Keep sand up, Tera Poison Tyranitar through the rain/Blaziken turn, Taunt/Knock Off Blaziken, Taunt the support mon, remove or neutralize Ludicolo/Politoed, then let Excadrill clean with High Horsepower and Iron Head.
+Keep sand up, Tera Poison Tyranitar through the rain/Blaziken turn, use Tera Blast to remove Ludicolo or Clefable if they stay in, Taunt/Knock Off Blaziken, Taunt the support mon, remove or neutralize Politoed, then let Excadrill clean with High Horsepower and Iron Head.

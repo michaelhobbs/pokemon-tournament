@@ -16,7 +16,7 @@ Use this with `alex.md`. Default four: **Tyranitar / Sableye / Excadrill / Greni
 - Tyranitar **Rock Slide**; Sableye **Taunt Ludicolo** if you fear Rain Dance, otherwise **Knock Off Politoed**.
 - Sand wins the weather war because Politoed is faster and Drizzle resolves first.
 - If Ludicolo used **Fake Out**, its target is flinched; the other Pokémon still moves. Taunt Ludicolo next turn.
-- Do not Tera Tyranitar turn 1 unless Ludicolo is already in rain and threatens a KO.
+- Do not Tera Tyranitar turn 1 unless Ludicolo is already in rain and threatens a KO. If you do, **Tera Blast** OHKOs offensive Ludicolo.
 
 ### Politoed + Blaziken
 
@@ -27,19 +27,19 @@ Use this with `alex.md`. Default four: **Tyranitar / Sableye / Excadrill / Greni
 ### Politoed + Ferrothorn
 
 - Sableye **Taunt Ferrothorn**.
-- Tyranitar **Fire Punch Ferrothorn**. In sand it does about 63–74%; in rain it is only about 31–36%.
+- Tyranitar **Fire Punch Ferrothorn**. In sand it does about 63–74%; in rain it is only about 31–36%. Do not click Tera Blast into Ferrothorn (0× into Steel).
 - Bring Excadrill in on Ferrothorn's Grass move or after Ferrothorn is taunted.
 
 ### Politoed + Klefki
 
 - Sableye **Taunt Klefki**. Its first screen still goes up because Klefki's Prankster is faster.
-- Tyranitar **Fire Punch Klefki**.
+- Tyranitar **Fire Punch Klefki**. Do not click Tera Blast into Klefki (0× into Steel).
 - Klefki cannot Prankster Thunder Wave Sableye, Tyranitar or Greninja; all are Dark types. It can hit Excadrill, Scizor and Gardevoir.
 
 ### Politoed + Clefable
 
 - Sableye **Taunt Clefable**.
-- Tyranitar **Rock Slide**.
+- Tyranitar **Rock Slide**; if you are forced to Tera anyway, **Tera Blast** 2HKOs Clefable.
 - If Clefable uses Follow Me, it redirects the first turn, but Taunt lands afterward and stops the next Follow Me.
 
 ### Ludicolo + Blaziken
@@ -47,6 +47,7 @@ Use this with `alex.md`. Default four: **Tyranitar / Sableye / Excadrill / Greni
 - Sableye **Taunt Blaziken** unless Ludicolo's Rain Dance is the bigger threat; then **Taunt Ludicolo**.
 - Tyranitar **Rock Slide**.
 - If Blaziken Close Combats Tyranitar, Tera Poison immediately. If it targets Sableye, Sableye is immune to Close Combat.
+- Tera Blast is neutral into Blaziken; keep clicking Rock Slide or Superpower for damage.
 
 ### Ferrothorn + Klefki
 
@@ -82,6 +83,7 @@ Use this with `alex.md`. Default four: **Tyranitar / Sableye / Excadrill / Greni
 ### Rain is up and Ludicolo is on the field
 
 - If Tyranitar is un-Teraed and Ludicolo is healthy, **do not tank rain Hydro Pump**. Tera Poison Tyranitar or switch out.
+- If you Tera, **Tera Blast** OHKOs offensive Ludicolo (74–87% on max-Def).
 - Reset sand by switching Tyranitar out and back in, or KO Politoed.
 - Taunt Ludicolo's Rain Dance if it tries to set rain itself.
 - Ice Beam from Greninja is only a 2HKO. Do not expect it to remove Ludicolo in one hit.
@@ -99,7 +101,7 @@ Use this with `alex.md`. Default four: **Tyranitar / Sableye / Excadrill / Greni
 
 - Its first screen beats Taunt. Taunt after the first screen to stop the second.
 - Knock Off Light Clay only shortens future screens; it does not remove the current ones.
-- Fire Punch from Tyranitar and High Horsepower from Excadrill are the reliable damage.
+- Fire Punch from Tyranitar and High Horsepower from Excadrill are the reliable damage. Tera Blast is 0× into Klefki.
 - Klefki's Prankster Thunder Wave cannot hit Sableye, Tyranitar or Greninja.
 
 ### Ferrothorn is on the field
@@ -113,6 +115,7 @@ Use this with `alex.md`. Default four: **Tyranitar / Sableye / Excadrill / Greni
 
 - Taunt Follow Me, Thunder Wave, Encore, Calm Mind and recovery.
 - Use Rock Slide spread damage; Follow Me only redirects single-target moves.
+- If you are forced to Tera anyway, **Tera Blast** 2HKOs Clefable.
 - Do not let Clefable redirect a single-target Taunt/Knock Off/Foul Play for free.
 - If Clefable is Magic Guard, sand and hazards do not chip it. If it is Unaware, do not rely on setup.
 
@@ -137,20 +140,21 @@ Use this with `alex.md`. Default four: **Tyranitar / Sableye / Excadrill / Greni
 - If Tyranitar + Excadrill are alive with sand up, Excadrill's High Horsepower/Iron Head should close the game.
 - If Tyranitar is gone and rain is up, Excadrill loses Sand Rush. Use Sableye Taunt/Knock Off/Foul Play and Greninja/Scizor to stabilize; do not expect Excadrill to outspeed rain Ludicolo.
 - If Sableye is gone, Tera Poison Tyranitar becomes the primary defensive tool. Be careful with Blaziken.
-- If Alex's last mon is Blaziken, keep Taunt/Knock Off or Tera Poison available. If it is Ferrothorn, keep Fire Punch (accept the contact chip) and Rapid Spin. If it is Clefable/Klefki, keep Taunt and spread damage.
+- If Alex's last mon is Blaziken, keep Taunt/Knock Off or Tera Poison available. If it is Ferrothorn, keep Fire Punch (accept the contact chip) and Rapid Spin. If it is Clefable, keep Taunt and Tera Blast; if it is Klefki, keep Fire Punch and spread damage.
 
 ## If Alex Teras
 
 - **Blaziken Tera Fighting:** Tera Poison Tyranitar still resists Close Combat, and Flare Blitz loses Fire STAB. **Tera Fire:** Flare Blitz gets stronger; Tera Poison Tyranitar is neutral, so do not tank it repeatedly.
-- **Ludicolo Tera Grass/Water:** Tera Poison Tyranitar resists Grass and is neutral to Water. Ice Beam from Greninja is still a 2HKO.
-- **Ferrothorn Tera Steel/Water:** Fire Punch is neutral if it Teras Water; High Horsepower is 2× if it Teras Steel. Focus Blast from Gardevoir is an option if Ferrothorn is the last problem.
-- **Clefable Tera Fairy/Steel:** Tera Poison Tyranitar resists Fairy; Fire Punch hits Tera Steel Clefable.
-- **Klefki Tera Fairy/Steel:** Tera Poison Tyranitar resists Fairy; Fire Punch/High Horsepower hit Tera Steel Klefki.
+- **Ludicolo Tera Grass/Water:** Tera Poison Tyranitar resists Grass and is neutral to Water. Tera Blast is 2× into Tera Grass but only neutral into Tera Water. Ice Beam from Greninja is still a 2HKO.
+- **Ferrothorn Tera Steel/Water:** Fire Punch is neutral if it Teras Water; High Horsepower is 2× if it Teras Steel. Tera Blast is 0× into Steel and only neutral into Tera Water. Focus Blast from Gardevoir is an option if Ferrothorn is the last problem.
+- **Clefable Tera Fairy/Steel:** Tera Poison Tyranitar resists Fairy; Tera Blast is 2× into Tera Fairy but 0× into Tera Steel. Fire Punch hits Tera Steel Clefable.
+- **Klefki Tera Fairy/Steel:** Tera Poison Tyranitar resists Fairy; Tera Blast is 0× either way. Fire Punch/High Horsepower hit Tera Steel Klefki.
 - **Politoed Tera Water:** Tera Poison Tyranitar is neutral to Water; do not expect to wall it.
 
 ## Common mistakes
 
-- Tera Poison Tyranitar too early, before rain or Blaziken actually threatens it.
+- Tera Poison Tyranitar too early, before rain or Blaziken actually threatens it, just to fire Tera Blast.
+- Clicking Tera Blast into Ferrothorn or Klefki; Steel is immune.
 - Trying to Taunt Klefki before its first screen; its Prankster is faster.
 - Using a single-target status move into Clefable's Follow Me.
 - Leaving Sableye in on Ludicolo or Clefable.

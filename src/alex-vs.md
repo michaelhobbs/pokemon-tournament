@@ -51,9 +51,9 @@ Adamant Nature
 EVs: 252 HP / 252 Atk / 4 SpD
 IVs: 0 Spe
 - Rock Slide
-- Crunch
 - Fire Punch
 - Superpower
+- Tera Blast
 
 Sableye @ Leftovers
 Ability: Prankster
@@ -148,6 +148,7 @@ Default lead: **Tyranitar + Sableye**.
 
 - Tyranitar: **Rock Slide**
 - Sableye: **Taunt Ludicolo** if you fear Rain Dance, otherwise **Knock Off Politoed**
+- If Ludicolo stays in rain and threatens a KO, **Tera Poison + Tera Blast** removes it
 
 Ludicolo's Fake Out will flinch Sableye; Tyranitar's Rock Slide still goes off. Next turn, Taunt/Knock Off the bigger threat.
 
@@ -157,28 +158,28 @@ Ludicolo's Fake Out will flinch Sableye; Tyranitar's Rock Slide still goes off. 
 - Sableye: **Taunt Blaziken** or **Knock Off Life Orb**
 - If Blaziken aims Close Combat at Tyranitar, **Tera Poison**
 
-If Blaziken Protects, Taunt it next turn to stop Protect/Swords Dance.
+Tera Blast is neutral into Blaziken; keep clicking Rock Slide or Superpower for damage. If Blaziken Protects, Taunt it next turn to stop Protect/Swords Dance.
 
 ### vs Politoed + Klefki
 
 - Tyranitar: **Fire Punch Klefki**
 - Sableye: **Taunt Klefki**
 
-Klefki's first screen still lands because it is faster, but Taunt stops the second screen. Klefki's Thunder Wave is dead against your default four: Tyranitar/Sableye/Greninja are Dark, and Excadrill is Ground. It becomes live if you Tera away from Dark/Ground.
+Klefki's first screen still lands because it is faster, but Taunt stops the second screen. Klefki's Thunder Wave is dead against your default four: Tyranitar/Sableye/Greninja are Dark, and Excadrill is Ground. It becomes live if you Tera away from Dark/Ground. Do not click Tera Blast into Klefki (0× into Steel).
 
 ### vs Politoed + Clefable
 
 - Tyranitar: **Rock Slide**
 - Sableye: **Taunt Clefable**
 
-Rock Slide hits both through Follow Me. If Clefable is Magic Guard, do not rely on sand chip to finish it.
+Rock Slide hits both through Follow Me. If Clefable is Magic Guard, do not rely on sand chip to finish it. If you are forced to Tera anyway, **Tera Blast** 2HKOs Clefable.
 
 ### vs Politoed + Ferrothorn
 
 - Tyranitar: **Fire Punch Ferrothorn**
 - Sableye: **Taunt Ferrothorn**
 
-In rain, Fire Punch is halved. If rain is up, consider Superpower/High Horsepower or Tera Poison Tyranitar to tank Power Whip. Tera Poison here is fine because it also covers Blaziken later.
+In rain, Fire Punch is halved. If rain is up, consider Superpower/High Horsepower or Tera Poison Tyranitar to tank Power Whip. Tera Poison here is fine because it also covers Blaziken later. Do not click Tera Blast into Ferrothorn (0× into Steel).
 
 ### vs no Politoed
 
@@ -186,7 +187,7 @@ Still lead Tyranitar + Sableye, set sand, Taunt the support, and pressure the Bl
 
 ## Midgame priorities
 
-1. **Remove or neutralize Politoed/Ludicolo.** Keep sand up.
+1. **Remove or neutralize Politoed/Ludicolo.** Keep sand up; Tera Blast Ludicolo if it forces the Tera.
 2. **Taunt/Knock Off Blaziken before it snowballs.** Foul Play if it boosts.
 3. **Taunt Klefki after the first screen.** Do not let it set both screens.
 4. **Taunt Clefable to stop Follow Me.** Use Rock Slide while Follow Me is active.
@@ -205,11 +206,12 @@ Use when:
 - Blaziken threatens Close Combat/Flare Blitz
 - rain Hydro Pump would OHKO
 - you need to tank Fighting, Water, Fire, or Grass
+- you are forced to Tera by Ludicolo/rain and can KO back with Tera Blast
 
 Tera Poison:
 
 - keeps Rock/Dark STAB
-- adds Poison STAB, though you have no Poison moves
+- Tera Blast becomes Poison STAB: **OHKOs offensive Ludicolo**, **2HKOs Clefable**, but is **0× into Ferrothorn/Klefki**
 - loses Dark's Psychic and Prankster immunities
 - loses Rock's sand Special Defense boost, sand immunity, and Fire resistance
 - becomes weak to Ground and Psychic
@@ -236,9 +238,9 @@ Usually Tyranitar. Do not spend it on a bench Pokémon unless the matchup demand
 ### Alex's likely Tera
 
 - **Blaziken:** expect Tera Fighting. It keeps Fire STAB, resists Rock/Dark, and boosts Close Combat. Tera Poison Tyranitar still walls it, and Excadrill still OHKOs with High Horsepower.
-- **Ludicolo:** expect Tera Water. It is scary in rain, but even Tera Water Life Orb Hydro Pump cannot OHKO Tera Poison Assault Vest Tyranitar.
-- **Klefki:** Tera Steel makes Fire Punch/High Horsepower best; Tera Fairy makes Iron Head/Bullet Punch best.
-- **Ferrothorn:** Tera Grass/Steel still loses to Fire Punch/High Horsepower. Tera Water would resist Fire Punch; scout before committing.
+- **Ludicolo:** expect Tera Water. It is scary in rain, but even Tera Water Life Orb Hydro Pump cannot OHKO Tera Poison Assault Vest Tyranitar. Tera Water also cancels its Poison weakness, so Tera Blast is only neutral; into Tera Grass it stays 2×.
+- **Klefki:** Tera Steel makes Fire Punch/High Horsepower best; Tera Fairy makes Iron Head/Bullet Punch best. Tera Blast is 0× either way.
+- **Ferrothorn:** Tera Grass/Steel still loses to Fire Punch/High Horsepower. Tera Water would resist Fire Punch; scout before committing. Tera Blast is 0× into Steel and only neutral into Tera Water.
 
 ## Key damage benchmarks
 
@@ -250,6 +252,10 @@ Usually Tyranitar. Do not spend it on a bench Pokémon unless the matchup demand
 - Tyranitar Fire Punch in sand vs Ferrothorn: **62–74%**
 - Tyranitar Fire Punch in sand vs Klefki: **45–53%**
 - In rain, halve Fire Punch damage.
+- Tyranitar Tera Blast (Poison) vs offensive Ludicolo: **OHKO** (131–154%)
+- Tyranitar Tera Blast (Poison) vs max-Def Ludicolo: **74–87%, 2HKO**
+- Tyranitar Tera Blast (Poison) vs Clefable: **66–78%, 2HKO**
+- Tera Blast is **0× into Ferrothorn/Klefki** (Steel).
 - Excadrill High Horsepower vs Blaziken: **OHKO**
 - Excadrill High Horsepower vs Klefki: **OHKO**
 - Sableye Foul Play vs +0 Blaziken: **32–38%**
@@ -286,9 +292,10 @@ Yes, but only with specific tech:
 - **Excadrill Poison Jab** — guaranteed OHKO, but not worth replacing Protect/Rapid Spin/Iron Head.
 - **Greninja U-turn** — OHKOs offensive Ludicolo only if it is Greninja's first move and Protean gives Bug STAB. Bulky Ludicolo survives.
 - **Ice Beam** — reliable 2HKO, not an OHKO.
-- **Tyranitar/Sableye** — no OHKO with current moves. Fire Punch is neutral in sand and halved in rain; Foul Play uses Ludicolo's low Attack.
+- **Tyranitar Tera Blast (Poison)** — guaranteed OHKO on offensive Ludicolo and 74–87% on max-Def, but it costs the Tera and a moveslot. It is 0× into Ferrothorn/Klefki.
+- **Sableye** — no OHKO. Foul Play uses Ludicolo's low Attack.
 
-Keep the current sets. Ice Beam's 2HKO plus Taunt/Knock Off is more consistent than gambling on Gunk Shot. If Alex has no Blaziken and you want a guaranteed OHKO, bring Scizor and click U-turn.
+We are slotting Tera Blast over Crunch: it gives Tyranitar a 100%-accurate OHKO on offensive Ludicolo and a 2HKO on Clefable, at the cost of the Tera and a moveslot. Greninja's Gunk Shot is the no-Tera alternative but is 80% accurate and useless into Steel. If Alex has no Blaziken and you want a guaranteed OHKO without spending the Tera, bring Scizor and click U-turn.
 
 ## Importable team
 
@@ -303,9 +310,9 @@ Adamant Nature
 EVs: 252 HP / 252 Atk / 4 SpD
 IVs: 0 Spe
 - Rock Slide
-- Crunch
 - Fire Punch
 - Superpower
+- Tera Blast
 
 Sableye @ Leftovers
 Ability: Prankster

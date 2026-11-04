@@ -131,8 +131,8 @@ Fast reference for the mechanics that decide this matchup. Alex's exact sets are
 ### Iron Barbs and Rocky Helmet
 
 - Iron Barbs: 1/8 on contact. Rocky Helmet: 1/6 on contact. Both stack.
-- Contact moves in Michael's sets: Fire Punch, Crunch, Superpower, Bullet Punch, U-turn, Knock Off, Close Combat, High Horsepower, Iron Head, Rapid Spin.
-- Non-contact moves: Rock Slide, Hydro Pump, Ice Beam, Dark Pulse, Moonblast, Psychic, Psyshock, Focus Blast.
+- Contact moves in Michael's sets: Fire Punch, Superpower, Bullet Punch, U-turn, Knock Off, Close Combat, High Horsepower, Iron Head, Rapid Spin.
+- Non-contact moves: Rock Slide, Tera Blast, Hydro Pump, Ice Beam, Dark Pulse, Moonblast, Psychic, Psyshock, Focus Blast.
 - Fire Punch is contact but is still the best way to hit Ferrothorn; accept the chip or use Rock Slide, Hydro Pump or Focus Blast when you need non-contact damage.
 
 ### Gyro Ball and Power Whip
@@ -149,6 +149,7 @@ Fast reference for the mechanics that decide this matchup. Alex's exact sets are
 - One Tera per battle.
 - Burn immunity follows the current typing: Fire-type Blaziken cannot be burned; a non-Fire Tera Blaziken can.
 - Tera Poison Tyranitar is the primary defensive Tera. It resists Fighting/Fairy/Grass and is neutral to Water/Fire/Steel/Dark, but loses Rock STAB, sand Special Defense, sand immunity, and the Rock-type Fire resistance.
+- After Tera, Tera Blast becomes Poison STAB: 2× into Ludicolo/Clefable (unless they Tera Water/Steel) and 0× into Ferrothorn/Klefki.
 
 ## Alex's likely move branches
 
