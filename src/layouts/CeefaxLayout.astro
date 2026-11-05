@@ -12,6 +12,7 @@ interface Props {
   pageNumber?: string;
   subtitle?: string;
   nav?: PageLink[];
+  noindex?: boolean;
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   pageNumber = "001",
   subtitle = "POKEMON TOURNAMENT",
   nav = PAGES,
+  noindex = false,
 } = Astro.props;
 const docTitle = `${title} | ${subtitle}`;
 const navData = {
@@ -45,6 +47,7 @@ const navJson = JSON.stringify(navData);
     <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{docTitle}</title>
     {
       import.meta.env.PROD && (
