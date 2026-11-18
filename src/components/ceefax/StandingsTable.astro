@@ -64,11 +64,7 @@ const hasLate = rows.some(
     }
   </tbody>
 </table>
-{
-  hasLate && (
-    <LateNote text="X + Y — X = OFFICIAL, PURPLE = LATE (NOT COUNTED)" />
-  )
-}
+{hasLate && <LateNote text="X + Y: X = ON TIME, Y (PURPLE) = LATE" />}
 
 <style>
   .standings {
