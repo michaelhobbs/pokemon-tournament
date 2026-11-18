@@ -1,21 +1,30 @@
 ---
 import type { Player } from "../../data/players";
+import LateNote from "./LateNote.astro";
+
+interface HeadToHeadResult {
+  outcome: "W" | "L";
+  late: boolean;
+}
 
 interface Props {
   players: Player[];
-  headToHead: Map<string, "W" | "L">;
+  headToHead: Map<string, HeadToHeadResult>;
 }
 
 const { players, headToHead } = Astro.props;
+const hasLate = [...headToHead.values()].some((result) => result.late);
 const base = import.meta.env.BASE_URL;
 
-/** Outcome of `row` vs `col` from `row`'s perspective: 'W', 'L', or null if unplayed/same. */
-const outcomeFor = (row: number, col: number): "W" | "L" | null => {
+/** Outcome of `row` vs `col` from `row`'s perspective: W/L, or null if unplayed/same. */
+const outcomeFor = (row: number, col: number): HeadToHeadResult | null => {
   if (row === col) return null;
   const ab = headToHead.get(`${row}:${col}`);
   if (ab !== undefined) return ab;
   const ba = headToHead.get(`${col}:${row}`);
-  if (ba !== undefined) return ba === "W" ? "L" : "W";
+  if (ba !== undefined) {
+    return { outcome: ba.outcome === "W" ? "L" : "W", late: ba.late };
+  }
   return null;
 };
 ---
@@ -46,18 +55,21 @@ const outcomeFor = (row: number, col: number): "W" | "L" | null => {
             </a>
           </th>
           {players.map((col) => {
-            const outcome = outcomeFor(row.number, col.number);
+            const result = outcomeFor(row.number, col.number);
             return (
               <td
                 class={
-                  outcome === null
+                  result === null
                     ? "h2h-empty"
-                    : outcome === "W"
-                      ? "h2h-win"
-                      : "h2h-loss"
+                    : result.late
+                      ? "h2h-late"
+                      : result.outcome === "W"
+                        ? "h2h-win"
+                        : "h2h-loss"
                 }
+                title={result?.late ? "LATE GAME" : undefined}
               >
-                {outcome ?? "·"}
+                {result?.outcome ?? "·"}
               </td>
             );
           })}
@@ -66,6 +78,7 @@ const outcomeFor = (row: number, col: number): "W" | "L" | null => {
     }
   </tbody>
 </table>
+{hasLate && <LateNote />}
 
 <style>
   .h2h-note {
@@ -116,6 +129,11 @@ const outcomeFor = (row: number, col: number): "W" | "L" | null => {
 
   .head-to-head .h2h-loss {
     color: var(--ceefax-red);
+    font-weight: 700;
+  }
+
+  .head-to-head .h2h-late {
+    color: var(--ceefax-magenta);
     font-weight: 700;
   }
 

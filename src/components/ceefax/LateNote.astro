@@ -1,0 +1,18 @@
+---
+interface Props {
+  text?: string;
+}
+
+const { text = "PURPLE = LATE GAME" } = Astro.props;
+---
+
+<p class="late-note">{text}</p>
+
+<style>
+  .late-note {
+    margin: 0.5rem 0 0;
+    color: var(--ceefax-magenta);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+</style>

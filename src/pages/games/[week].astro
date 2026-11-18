@@ -2,7 +2,8 @@
 import CeefaxLayout from "../../layouts/CeefaxLayout.astro";
 import CeefaxBlock from "../../components/ceefax/CeefaxBlock.astro";
 import CeefaxHeading from "../../components/ceefax/CeefaxHeading.astro";
-import { WEEKS, weekFor } from "../../data/matches";
+import LateNote from "../../components/ceefax/LateNote.astro";
+import { WEEKS, hasLateResults, weekFor } from "../../data/matches";
 import { findPlayer } from "../../data/players";
 import { matchupFor } from "../../data/matchups";
 
@@ -20,6 +21,7 @@ const pageNumber = String(500 + week.number);
 const weekIndex = WEEKS.findIndex((w) => w.number === week.number);
 const prev = WEEKS[weekIndex - 1];
 const next = WEEKS[weekIndex + 1];
+const hasLate = hasLateResults([week]);
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -48,7 +50,10 @@ const base = import.meta.env.BASE_URL;
                   </a>
                   <span class="match-mid">
                     {hasResult ? (
-                      <span class="match-score">
+                      <span
+                        class={`match-score${match.isLate ? " match-score-late" : ""}`}
+                        title={match.isLate ? "LATE GAME" : undefined}
+                      >
                         {match.wins1} - {match.wins2}
                       </span>
                     ) : (
@@ -72,6 +77,7 @@ const base = import.meta.env.BASE_URL;
           </ol>
         )
       }
+      {hasLate && <LateNote />}
     </CeefaxBlock>
   </div>
   <nav class="week-nav" aria-label="Week pages">
@@ -147,6 +153,10 @@ const base = import.meta.env.BASE_URL;
     flex-shrink: 0;
     font-weight: 700;
     color: var(--ceefax-yellow);
+  }
+
+  .match-score-late {
+    color: var(--ceefax-magenta);
   }
 
   .match-mid {

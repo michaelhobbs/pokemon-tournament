@@ -1,5 +1,6 @@
 ---
 import type { Player } from "../../data/players";
+import LateNote from "./LateNote.astro";
 
 export interface TrainerResult {
   week: number;
@@ -8,6 +9,7 @@ export interface TrainerResult {
   theirs: number;
   played: boolean;
   won: boolean;
+  late: boolean;
 }
 
 interface Props {
@@ -15,6 +17,7 @@ interface Props {
 }
 
 const { results } = Astro.props;
+const hasLate = results.some((result) => result.late);
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -22,38 +25,42 @@ const base = import.meta.env.BASE_URL;
   results.length === 0 ? (
     <p class="results-empty">FIXTURES TBA</p>
   ) : (
-    <table class="trainer-results">
-      <thead>
-        <tr>
-          <th scope="col">WEEK</th>
-          <th scope="col">OPPONENT</th>
-          <th scope="col">SCORE</th>
-          <th scope="col">RESULT</th>
-        </tr>
-      </thead>
-      <tbody>
-        {results.map((result) => (
-          <tr
-            class={
-              result.won ? "result-win" : result.played ? "result-loss" : ""
-            }
-          >
-            <td>
-              <a href={`${base}games/${result.week}`}>{result.week}</a>
-            </td>
-            <td>
-              <a href={`${base}trainers/${result.opponent.number}`}>
-                {result.opponent.name}
-              </a>
-            </td>
-            <td>
-              {result.played ? `${result.mine} - ${result.theirs}` : "VS"}
-            </td>
-            <td>{result.played ? (result.won ? "W" : "L") : "—"}</td>
+    <>
+      <table class="trainer-results">
+        <thead>
+          <tr>
+            <th scope="col">WEEK</th>
+            <th scope="col">OPPONENT</th>
+            <th scope="col">SCORE</th>
+            <th scope="col">RESULT</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {results.map((result) => (
+            <tr
+              class:list={[
+                result.won ? "result-win" : result.played ? "result-loss" : "",
+                result.late && "result-late",
+              ]}
+            >
+              <td>
+                <a href={`${base}games/${result.week}`}>{result.week}</a>
+              </td>
+              <td>
+                <a href={`${base}trainers/${result.opponent.number}`}>
+                  {result.opponent.name}
+                </a>
+              </td>
+              <td class:list={[result.late && "result-late-score"]}>
+                {result.played ? `${result.mine} - ${result.theirs}` : "VS"}
+              </td>
+              <td>{result.played ? (result.won ? "W" : "L") : "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {hasLate && <LateNote />}
+    </>
   )
 }
 
@@ -78,6 +85,11 @@ const base = import.meta.env.BASE_URL;
 
   .trainer-results td {
     color: var(--ceefax-white);
+  }
+
+  .trainer-results .result-late-score {
+    color: var(--ceefax-magenta);
+    font-weight: 700;
   }
 
   .trainer-results td:first-child {

@@ -22,6 +22,7 @@ import { awardWinners } from "../../data/awards";
 import {
   getDistributedAwards,
   getAwardRankings,
+  type AwardRankingEntry,
 } from "../../data/award-distribution";
 import PixelArt from "../../components/ceefax/PixelArt.astro";
 
@@ -55,6 +56,7 @@ const buildResults = (weeks: Week[]) =>
           theirs: theirs ?? 0,
           played,
           won: played ? mine! > theirs! : false,
+          late: match.isLate ?? false,
         };
       }),
   );
@@ -79,6 +81,18 @@ const rankings = getAwardRankings();
 const playerAwards = distributedAwards.filter((a) =>
   awardWinners(a).includes(player.number),
 );
+
+const awardEntries = new Map<number, AwardRankingEntry>();
+for (const award of playerAwards) {
+  if (award.hidden) continue;
+  const entry = rankings
+    .get(award.number)
+    ?.find((ranking) => ranking.playerNumber === player.number);
+  if (entry) awardEntries.set(award.number, entry);
+}
+
+const lateSuffix = (label: string): string =>
+  /^[+-]/.test(label) ? ` ${label}` : ` + ${label}`;
 ---
 
 <CeefaxLayout
@@ -97,40 +111,39 @@ const playerAwards = distributedAwards.filter((a) =>
         <CeefaxHeading text="AWARDS" color="yellow" />
         <CeefaxBlock title="AWARDS WON" number={player.number} color="yellow">
           <ul class="trainer-awards-list">
-            {playerAwards.map((award) => (
-              <li class="trainer-award-item">
-                <a
-                  href={`${base}awards/${award.number}`}
-                  class="trainer-award-link"
-                >
-                  <span class="trainer-award-sprite">
-                    <PixelArt sprite={award.sprite} size="2.5rem" />
-                  </span>
-                  <span class="trainer-award-info">
-                    <span class="trainer-award-number">{award.number}</span>
-                    <span class="trainer-award-name">
-                      {award.name}
-                      {!award.hidden &&
-                        rankings
-                          .get(award.number)
-                          ?.find((r) => r.playerNumber === player.number) && (
+            {playerAwards.map((award) => {
+              const entry = awardEntries.get(award.number);
+              return (
+                <li class="trainer-award-item">
+                  <a
+                    href={`${base}awards/${award.number}`}
+                    class="trainer-award-link"
+                  >
+                    <span class="trainer-award-sprite">
+                      <PixelArt sprite={award.sprite} size="2.5rem" />
+                    </span>
+                    <span class="trainer-award-info">
+                      <span class="trainer-award-number">{award.number}</span>
+                      <span class="trainer-award-name">
+                        {award.name}
+                        {entry && (
                           <span class="trainer-award-count">
                             {" "}
-                            (
-                            {
-                              rankings
-                                .get(award.number)
-                                ?.find((r) => r.playerNumber === player.number)!
-                                .scoreLabel
-                            }
+                            ({entry.scoreLabel}
+                            {entry.lateScoreLabel && (
+                              <span class="trainer-award-late">
+                                {lateSuffix(entry.lateScoreLabel)}
+                              </span>
+                            )}
                             )
                           </span>
                         )}
+                      </span>
                     </span>
-                  </span>
-                </a>
-              </li>
-            ))}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </CeefaxBlock>
       </>
@@ -363,6 +376,10 @@ const playerAwards = distributedAwards.filter((a) =>
   .trainer-award-count {
     color: var(--ceefax-cyan);
     font-weight: 700;
+  }
+
+  .trainer-award-late {
+    color: var(--ceefax-magenta);
   }
 
   .trainer-chart {

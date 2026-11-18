@@ -8,14 +8,17 @@ import { PLAYERS } from "../../data/players";
 import { FIRST_HALF_WEEKS } from "../../data/matches";
 import { STANDINGS_PAGE, STANDINGS_CHILD_PAGES } from "../../data/navigation";
 
-const headToHead = new Map<string, "W" | "L">();
+const headToHead = new Map<string, { outcome: "W" | "L"; late: boolean }>();
 for (const week of FIRST_HALF_WEEKS) {
   for (const match of week.matches) {
     if (match.wins1 === undefined || match.wins2 === undefined) continue;
-    headToHead.set(
-      `${match.p1}:${match.p2}`,
-      match.wins1 > match.wins2 ? "W" : "L",
-    );
+    const key = `${match.p1}:${match.p2}`;
+    const existing = headToHead.get(key);
+    if (existing && !existing.late && match.isLate) continue;
+    headToHead.set(key, {
+      outcome: match.wins1 > match.wins2 ? "W" : "L",
+      late: match.isLate ?? false,
+    });
   }
 }
 

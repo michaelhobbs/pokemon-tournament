@@ -7,10 +7,12 @@ export interface Match {
   wins1?: number;
   /** Battles won by player 2. All three games are played; battle count doubles as a tiebreaker. */
   wins2?: number;
+  /** True when the result was recorded after the scheduled week; excluded from official standings/awards. */
+  isLate?: boolean;
 }
 
 export interface Week {
-  /** 1-based week number (501–509 on Ceefax). */
+  /** 1-based week number (501–518 on Ceefax). */
   number: number;
   /** Week commencing date, e.g. "W/C 06/04". */
   date: string;
@@ -178,7 +180,7 @@ export const WEEKS: Week[] = [
     date: "W/C 12/10",
     matches: [
       { p1: 6, p2: 7, wins1: 1, wins2: 2 },
-      { p1: 2, p2: 1 },
+      { p1: 2, p2: 1, wins1: 1, wins2: 2, isLate: true },
       { p1: 8, p2: 10 },
       { p1: 9, p2: 3, wins1: 2, wins2: 1 },
       { p1: 5, p2: 11 },
@@ -231,4 +233,14 @@ export const SECOND_HALF_WEEKS: Week[] = WEEKS.filter(
 
 export function weekFor(number: number): Week | undefined {
   return WEEKS.find((week) => week.number === number);
+}
+
+/** A match has a result once both sides have a score. */
+export function isPlayedMatch(match: Match): boolean {
+  return match.wins1 !== undefined && match.wins2 !== undefined;
+}
+
+/** True when any match in the given weeks is a late result. */
+export function hasLateResults(weeks: Week[]): boolean {
+  return weeks.some((week) => week.matches.some((match) => match.isLate));
 }

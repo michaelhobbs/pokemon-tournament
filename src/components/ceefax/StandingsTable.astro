@@ -1,6 +1,7 @@
 ---
 import type { Week } from "../../data/matches";
 import { computeStandings } from "../../data/standings";
+import LateNote from "./LateNote.astro";
 
 interface Props {
   weeks: Week[];
@@ -10,6 +11,9 @@ const { weeks } = Astro.props;
 const base = import.meta.env.BASE_URL;
 
 const rows = computeStandings(weeks);
+const hasLate = rows.some(
+  ({ late }) => late.played > 0 || late.wins > 0 || late.battles > 0,
+);
 ---
 
 <table class="standings">
@@ -25,21 +29,46 @@ const rows = computeStandings(weeks);
   </thead>
   <tbody>
     {
-      rows.map(({ player, played, wins, battles }, index) => (
+      rows.map(({ player, played, wins, battles, late }, index) => (
         <tr>
           <td>{index + 1}</td>
           <td>
             <a href={`${base}trainers/${player.number}`}>{player.name}</a>
           </td>
-          <td>{played}</td>
-          <td>{wins}</td>
-          <td>{battles}</td>
-          <td>{wins * 3}</td>
+          <td>
+            {played}
+            {late.played > 0 && (
+              <span class="standings-late"> + {late.played}</span>
+            )}
+          </td>
+          <td>
+            {wins}
+            {late.wins > 0 && (
+              <span class="standings-late"> + {late.wins}</span>
+            )}
+          </td>
+          <td>
+            {battles}
+            {late.battles > 0 && (
+              <span class="standings-late"> + {late.battles}</span>
+            )}
+          </td>
+          <td>
+            {wins * 3}
+            {late.wins > 0 && (
+              <span class="standings-late"> + {late.wins * 3}</span>
+            )}
+          </td>
         </tr>
       ))
     }
   </tbody>
 </table>
+{
+  hasLate && (
+    <LateNote text="X + Y — X = OFFICIAL, PURPLE = LATE (NOT COUNTED)" />
+  )
+}
 
 <style>
   .standings {
@@ -71,5 +100,10 @@ const rows = computeStandings(weeks);
 
   .standings td a {
     color: var(--ceefax-cyan);
+  }
+
+  .standings-late {
+    color: var(--ceefax-magenta);
+    font-weight: 700;
   }
 </style>

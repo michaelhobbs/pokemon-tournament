@@ -4,6 +4,7 @@ import type { Week } from "./matches";
 import {
   computeAllAwardRankings,
   computeAllAwardWinners,
+  getAwardLateAlternates,
   getAwardProgressLeaders,
   getAwardRankings,
   getDistributedAwards,
@@ -77,5 +78,43 @@ describe("award progress", () => {
       .get(705)
       ?.find((entry) => entry.playerNumber === 3);
     expect(battles?.battles).toBe(0);
+  });
+
+  it("keeps official award order and reports the late split", () => {
+    const weeks: Week[] = [
+      {
+        number: 1,
+        date: "W/C TEST",
+        matches: [
+          { p1: 1, p2: 2, wins1: 1, wins2: 2 },
+          { p1: 3, p2: 5, wins1: 2, wins2: 1, isLate: true },
+        ],
+      },
+    ];
+
+    const rankings = computeAllAwardRankings(weeks);
+    const champion = rankings.get(701);
+    expect(champion?.[0].playerNumber).toBe(2);
+
+    const lateWinner = champion?.find((entry) => entry.playerNumber === 3);
+    expect(lateWinner?.lateScoreLabel).toBe("1W / 2B");
+  });
+
+  it("names an alternate winner when late results would change the award", () => {
+    const weeks: Week[] = [
+      {
+        number: 1,
+        date: "W/C TEST",
+        matches: [
+          { p1: 1, p2: 2, wins1: 1, wins2: 2 },
+          { p1: 1, p2: 3, wins1: 0, wins2: 3, isLate: true },
+          { p1: 1, p2: 5, wins1: 0, wins2: 3, isLate: true },
+        ],
+      },
+    ];
+
+    const alternates = getAwardLateAlternates(weeks);
+    expect(alternates.get(701)).toBeDefined();
+    expect(alternates.get(701)).not.toContain(2);
   });
 });

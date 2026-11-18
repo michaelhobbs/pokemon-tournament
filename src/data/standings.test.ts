@@ -75,4 +75,52 @@ describe("computeStandings", () => {
       }
     }
   });
+
+  it("keeps late results out of official totals and tracks them separately", () => {
+    const weeks: Week[] = [
+      {
+        number: 1,
+        date: "TEST",
+        matches: [
+          { p1: 1, p2: 2, wins1: 2, wins2: 1 },
+          { p1: 1, p2: 3, wins1: 1, wins2: 2, isLate: true },
+        ],
+      },
+    ];
+    const rows = byNumber(weeks);
+
+    expect(rows.get(1)!.played).toBe(1);
+    expect(rows.get(1)!.wins).toBe(1);
+    expect(rows.get(1)!.battles).toBe(2);
+    expect(rows.get(1)!.late).toEqual({ played: 1, wins: 0, battles: 1 });
+
+    expect(rows.get(2)!.played).toBe(1);
+    expect(rows.get(2)!.late).toEqual({ played: 0, wins: 0, battles: 0 });
+
+    expect(rows.get(3)!.played).toBe(0);
+    expect(rows.get(3)!.late).toEqual({ played: 1, wins: 1, battles: 2 });
+  });
+
+  it("sorts by official results only", () => {
+    const weeks: Week[] = [
+      {
+        number: 1,
+        date: "TEST",
+        matches: [
+          { p1: 1, p2: 2, wins1: 1, wins2: 2 },
+          { p1: 3, p2: 2, wins1: 3, wins2: 0, isLate: true },
+        ],
+      },
+    ];
+    const rows = computeStandings(weeks);
+
+    expect(rows[0].player.number).toBe(2);
+    expect(rows.find((row) => row.player.number === 3)!.late.wins).toBe(1);
+  });
+
+  it("tracks the real week 15 late result", () => {
+    const rows = byNumber(WEEKS);
+    expect(rows.get(2)!.late).toEqual({ played: 1, wins: 0, battles: 1 });
+    expect(rows.get(1)!.late).toEqual({ played: 1, wins: 1, battles: 2 });
+  });
 });

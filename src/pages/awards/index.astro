@@ -15,16 +15,27 @@ import {
   getDistributedAwards,
   getAwardRankings,
   getAwardProgressLeaders,
+  getAwardLateAlternates,
 } from "../../data/award-distribution";
 import { findPlayer } from "../../data/players";
 
 const awards = getDistributedAwards();
 const rankings = getAwardRankings();
 const leaders = getAwardProgressLeaders();
+const lateAlternates = getAwardLateAlternates();
+
+const namesFor = (playerNumbers: number[]): string =>
+  playerNumbers
+    .map((number) => findPlayer(number)?.name ?? String(number))
+    .join(" & ");
+
+const lateSuffix = (label: string): string =>
+  /^[+-]/.test(label) ? ` ${label}` : ` + ${label}`;
 
 interface ProgressLeader {
   name: string;
   score?: string;
+  lateScore?: string;
 }
 
 function progressLeadersFor(award: Award): ProgressLeader[] {
@@ -37,23 +48,9 @@ function progressLeadersFor(award: Award): ProgressLeader[] {
     return {
       name: player ? player.name : String(playerNumber),
       score: entry?.scoreLabel,
+      lateScore: entry?.lateScoreLabel,
     };
   });
-}
-
-function progressLabel(progressLeaders: ProgressLeader[]): string {
-  if (progressLeaders.length > 3) {
-    return `${progressLeaders.length} TRAINERS TIED`;
-  }
-  const prefix = progressLeaders.length === 1 ? "LEADING: " : "JOINT LEAD: ";
-  return (
-    prefix +
-    progressLeaders
-      .map((leader) =>
-        leader.score ? `${leader.name} (${leader.score})` : leader.name,
-      )
-      .join(" / ")
-  );
 }
 
 const progressByAward = new Map<number, ProgressLeader[]>(
@@ -96,7 +93,13 @@ const awardsNote = DISTRIBUTE_AWARDS
                     <>
                       {i > 0 && ", "}
                       {name}
-                      {entry ? ` (${entry.scoreLabel})` : ""}
+                      {entry ? ` (${entry.scoreLabel}` : ""}
+                      {entry?.lateScoreLabel && (
+                        <span class="award-late">
+                          {lateSuffix(entry.lateScoreLabel)}
+                        </span>
+                      )}
+                      {entry ? ")" : ""}
                     </>
                   );
                 })}
@@ -104,7 +107,31 @@ const awardsNote = DISTRIBUTE_AWARDS
             )}
             {progressByAward.get(award.number)?.length ? (
               <span class="award-progress">
-                {progressLabel(progressByAward.get(award.number)!)}
+                {progressByAward.get(award.number)!.length > 3
+                  ? `${progressByAward.get(award.number)!.length} TRAINERS TIED`
+                  : progressByAward.get(award.number)!.map((leader, i) => (
+                      <>
+                        {i === 0 &&
+                          (progressByAward.get(award.number)!.length === 1
+                            ? "LEADING: "
+                            : "JOINT LEAD: ")}
+                        {i > 0 && " / "}
+                        {leader.name}
+                        {leader.score && ` (${leader.score}`}
+                        {leader.lateScore && (
+                          <span class="award-late">
+                            {lateSuffix(leader.lateScore)}
+                          </span>
+                        )}
+                        {leader.score && ")"}
+                      </>
+                    ))}
+              </span>
+            ) : null}
+            {lateAlternates.get(award.number)?.length ? (
+              <span class="award-late-note">
+                INCLUDING LATE GAMES:{" "}
+                {namesFor(lateAlternates.get(award.number)!)}
               </span>
             ) : null}
           </a>
@@ -218,6 +245,25 @@ const awardsNote = DISTRIBUTE_AWARDS
   }
 
   .award-card:hover .award-progress {
+    color: var(--ceefax-black);
+  }
+
+  .award-late {
+    color: var(--ceefax-magenta);
+    font-weight: 700;
+  }
+
+  .award-card:hover .award-late {
+    color: var(--ceefax-black);
+  }
+
+  .award-late-note {
+    color: var(--ceefax-magenta);
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+
+  .award-card:hover .award-late-note {
     color: var(--ceefax-black);
   }
 

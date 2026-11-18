@@ -56,6 +56,24 @@ describe("WEEKS", () => {
       }
     }
   });
+
+  it("late results have both scores", () => {
+    for (const week of WEEKS) {
+      for (const match of week.matches) {
+        if (match.isLate) {
+          expect(match.wins1).toBeDefined();
+          expect(match.wins2).toBeDefined();
+        }
+      }
+    }
+  });
+
+  it("marks the week 15 Mark vs Gilang result as late", () => {
+    const match = WEEKS.find((week) => week.number === 15)?.matches.find(
+      (m) => m.p1 === 2 && m.p2 === 1,
+    );
+    expect(match).toMatchObject({ wins1: 1, wins2: 2, isLate: true });
+  });
 });
 
 describe("FIRST_HALF_WEEKS / SECOND_HALF_WEEKS", () => {
