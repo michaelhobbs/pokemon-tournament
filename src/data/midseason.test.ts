@@ -20,6 +20,16 @@ describe("MIDSEASON_SWAPS", () => {
       }
     }
   });
+
+  it("keeps every adoption blurb to 30 words or fewer", () => {
+    for (const swaps of Object.values(MIDSEASON_SWAPS)) {
+      for (const swap of swaps) {
+        expect(swap.blurb.length).toBeGreaterThan(0);
+        const words = swap.blurb.trim().split(/\s+/).filter(Boolean);
+        expect(words.length).toBeLessThanOrEqual(30);
+      }
+    }
+  });
 });
 
 describe("swapsFor", () => {
@@ -37,7 +47,13 @@ describe("swapsFor", () => {
 describe("applySwaps", () => {
   it("replaces removed Pokémon with replacements", () => {
     const team = ["Chansey", "Scizor", "Slowbro"];
-    const swaps = [{ removed: "Chansey", replacement: "Gardevoir" }];
+    const swaps = [
+      {
+        removed: "Chansey",
+        replacement: "Gardevoir",
+        blurb: "TEST BLURB",
+      },
+    ];
     const result = applySwaps(team, swaps);
     expect(result).toEqual(["Gardevoir", "Scizor", "Slowbro"]);
   });
@@ -51,8 +67,8 @@ describe("applySwaps", () => {
   it("handles multiple swaps", () => {
     const team = ["A", "B", "C"];
     const swaps = [
-      { removed: "A", replacement: "X" },
-      { removed: "C", replacement: "Y" },
+      { removed: "A", replacement: "X", blurb: "FIRST" },
+      { removed: "C", replacement: "Y", blurb: "SECOND" },
     ];
     expect(applySwaps(team, swaps)).toEqual(["X", "B", "Y"]);
   });
@@ -66,7 +82,13 @@ describe("applySwaps", () => {
       "Hisuian Lilligant",
       "Hisuian Goodra",
     ];
-    const swaps = [{ removed: "Pachirisu", replacement: "Porygon2" }];
+    const swaps = [
+      {
+        removed: "Pachirisu",
+        replacement: "Porygon2",
+        blurb: "TEST BLURB",
+      },
+    ];
     expect(applySwaps(team, swaps)).toHaveLength(team.length);
   });
 });
