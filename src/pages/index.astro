@@ -5,8 +5,10 @@ import NavigationHotkeys from "../components/ceefax/NavigationHotkeys.astro";
 import TournamentGraphic from "../components/ceefax/TournamentGraphic.astro";
 import TrainerSprite from "../components/ceefax/TrainerSprite.astro";
 import TrophySprite from "../components/ceefax/TrophySprite.astro";
+import PixelArt from "../components/ceefax/PixelArt.astro";
 import PageDirectory from "../components/ceefax/PageDirectory.astro";
 import { PAGES } from "../data/navigation";
+import { awardFor } from "../data/awards";
 import { PLAYERS } from "../data/players";
 import { WEEKS } from "../data/matches";
 import { computeStandings } from "../data/standings";
@@ -18,6 +20,8 @@ const standings = computeStandings(WEEKS);
 const champion = standings[0]!;
 const runnerUp = standings[1]!;
 const thirdPlace = standings[2]!;
+const runnerUpAward = awardFor(702)!;
+const thirdPlaceAward = awardFor(703)!;
 const discarded = PLAYERS.flatMap((player) =>
   swapsFor(player.number).map((swap) => ({
     name: swap.removed,
@@ -53,6 +57,13 @@ const confetti = Array.from({ length: 40 }, (_, i) => ({
         AFTER A LONG, TAXING, GRUELING FIGHT FULL OF NAIL-BITING MOMENTS, WE
         HAVE A WINNER.
       </p>
+      <p>
+        <a class="home-link" href={`${base}trophy`}>
+          <span class="home-arrow" aria-hidden="true">▶ </span>
+          <b>CHAMPION: {champion.player.name}</b>
+        </a>{" "}
+        — CONGRATULATIONS, {champion.player.name}!
+      </p>
       <div class="home-champion-display">
         <div class="home-confetti" aria-hidden="true">
           {
@@ -79,13 +90,64 @@ const confetti = Array.from({ length: 40 }, (_, i) => ({
           <TrophySprite />
         </a>
       </div>
-      <p>
-        <a class="home-link" href={`${base}trophy`}>
-          <span class="home-arrow" aria-hidden="true">▶</span>
-          <b>CHAMPION: {champion.player.name}</b>
-        </a>{" "}
-        — CONGRATULATIONS, {champion.player.name}!
-      </p>
+      <div class="home-podium-display">
+        <div class="home-podium-place">
+          <div class="home-podium-sprites">
+            <a
+              class="home-podium-sprite"
+              href={`${base}trainers/${runnerUp.player.number}`}
+              aria-label={`View ${runnerUp.player.name}'s trainer page`}
+            >
+              <TrainerSprite number={runnerUp.player.number} />
+            </a>
+            <a
+              class="home-podium-award"
+              href={`${base}awards/${runnerUpAward.number}`}
+              aria-label={`View the ${runnerUpAward.name} award`}
+            >
+              <PixelArt
+                sprite={runnerUpAward.sprite}
+                size="5rem"
+                label={`${runnerUpAward.name} award`}
+              />
+            </a>
+          </div>
+          <a
+            class="home-podium-caption"
+            href={`${base}trainers/${runnerUp.player.number}`}
+          >
+            2ND — {runnerUp.player.name}
+          </a>
+        </div>
+        <div class="home-podium-place">
+          <div class="home-podium-sprites">
+            <a
+              class="home-podium-sprite"
+              href={`${base}trainers/${thirdPlace.player.number}`}
+              aria-label={`View ${thirdPlace.player.name}'s trainer page`}
+            >
+              <TrainerSprite number={thirdPlace.player.number} />
+            </a>
+            <a
+              class="home-podium-award"
+              href={`${base}awards/${thirdPlaceAward.number}`}
+              aria-label={`View the ${thirdPlaceAward.name} award`}
+            >
+              <PixelArt
+                sprite={thirdPlaceAward.sprite}
+                size="5rem"
+                label={`${thirdPlaceAward.name} award`}
+              />
+            </a>
+          </div>
+          <a
+            class="home-podium-caption"
+            href={`${base}trainers/${thirdPlace.player.number}`}
+          >
+            3RD — {thirdPlace.player.name}
+          </a>
+        </div>
+      </div>
       <p>
         CONGRATULATIONS TO{" "}
         <a class="home-link" href={`${base}trainers/${runnerUp.player.number}`}
@@ -266,6 +328,65 @@ const confetti = Array.from({ length: 40 }, (_, i) => ({
 
     .home-champion-display :global(.trophy-sprite) {
       width: 9rem;
+    }
+  }
+
+  .home-podium-display {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 0.75rem 0;
+  }
+
+  .home-podium-place {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .home-podium-sprites {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .home-podium-sprite,
+  .home-podium-award {
+    display: block;
+    max-width: 100%;
+  }
+
+  .home-podium-place :global(.trainer-sprite) {
+    width: 5rem;
+  }
+
+  .home-podium-place :global(.pixel-art) {
+    max-width: 100%;
+  }
+
+  .home-podium-caption {
+    color: var(--ceefax-cyan);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .home-podium-caption:hover {
+    color: var(--ceefax-yellow);
+  }
+
+  @media (max-width: 30rem) {
+    .home-podium-display {
+      gap: 1rem;
+    }
+
+    .home-podium-place :global(.trainer-sprite),
+    .home-podium-place :global(.pixel-art) {
+      width: 4rem;
     }
   }
 
