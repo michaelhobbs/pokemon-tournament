@@ -13,8 +13,10 @@ import { PLAYERS, findPlayer } from "../../data/players";
 import {
   FIRST_HALF_WEEKS,
   SECOND_HALF_WEEKS,
+  WEEKS,
   type Week,
 } from "../../data/matches";
+import { computeStandings } from "../../data/standings";
 import { analyzeTeam } from "../../data/pokemon";
 import { spriteFor } from "../../data/pokemon-sprites";
 import { swapsFor, applySwaps } from "../../data/midseason";
@@ -72,6 +74,16 @@ const firstHalfAnalysis = analyzeTeam(player.team);
 const secondHalfAnalysis = analyzeTeam(secondTeam);
 
 const pageNumber = String(400 + player.number);
+const finalPosition =
+  computeStandings(WEEKS).findIndex(
+    (standing) => standing.player.number === player.number,
+  ) + 1;
+const lastTwo = finalPosition % 100;
+const positionLabel = `${finalPosition}${
+  lastTwo >= 11 && lastTwo <= 13
+    ? "TH"
+    : (["TH", "ST", "ND", "RD"][finalPosition % 10] ?? "TH")
+}`;
 const playerIndex = PLAYERS.findIndex((p) => p.number === player.number);
 const prev = PLAYERS[playerIndex - 1];
 const next = PLAYERS[playerIndex + 1];
@@ -104,6 +116,7 @@ const lateSuffix = (label: string): string =>
   <CeefaxHeading text={`${player.name} ${player.epithet}`} color="cyan" />
   <TrainerSprite number={player.number} />
   <CeefaxBlock title="PROFILE" number={player.number} color="cyan">
+    <p>FINAL POSITION: {positionLabel}</p>
     <p>HOMETOWN: {player.hometown}</p>
     <p>SIGNATURE: {player.signature}</p>
   </CeefaxBlock>
