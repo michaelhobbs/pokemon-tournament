@@ -12,6 +12,7 @@ import {
   AWARDS,
   DISTRIBUTE_AWARDS,
   SHOW_AWARD_PROGRESS,
+  awardWinners,
   type Award,
 } from "./awards";
 
@@ -663,6 +664,44 @@ export function getAwardLateAlternates(
     if (!same) alternates.set(awardNumber, combinedWinners);
   }
   return alternates;
+}
+
+/** Winners when late games are included, with manual winners taking precedence. */
+export function getAwardLateWinners(
+  baseAwards: Award[] = AWARDS,
+): Map<number, number[]> {
+  if (!SHOW_AWARD_PROGRESS && !DISTRIBUTE_AWARDS) {
+    return new Map();
+  }
+  const combined = computeAllAwardWinners(WEEKS, "combined");
+  return new Map(
+    baseAwards.map((award) => {
+      const manualWinners = award.winners;
+      return [
+        award.number,
+        manualWinners && manualWinners.length > 0
+          ? manualWinners
+          : (combined.get(award.number) ?? []),
+      ];
+    }),
+  );
+}
+
+/** Awards a trainer would win with late games counted, but not officially. */
+export function getLateOnlyAwardsForPlayer(
+  playerNumber: number,
+  baseAwards: Award[] = AWARDS,
+): Award[] {
+  const officialNumbers = new Set(
+    getDistributedAwards(baseAwards)
+      .filter((award) => awardWinners(award).includes(playerNumber))
+      .map((award) => award.number),
+  );
+  const late = getAwardLateWinners(baseAwards);
+  return baseAwards.filter((award) => {
+    if (award.hidden || officialNumbers.has(award.number)) return false;
+    return (late.get(award.number) ?? []).includes(playerNumber);
+  });
 }
 
 export function getDistributedAwards(baseAwards: Award[] = AWARDS): Award[] {

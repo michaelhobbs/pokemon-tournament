@@ -5,6 +5,8 @@ import {
   computeAllAwardRankings,
   computeAllAwardWinners,
   getAwardLateAlternates,
+  getAwardLateWinners,
+  getLateOnlyAwardsForPlayer,
   getAwardProgressLeaders,
   getAwardRankings,
   getDistributedAwards,
@@ -98,6 +100,27 @@ describe("award progress", () => {
 
     const lateWinner = champion?.find((entry) => entry.playerNumber === 3);
     expect(lateWinner?.lateScoreLabel).toBe("1W / 2B");
+  });
+
+  it("reports late-game winners alongside official winners", () => {
+    const official = computeAllAwardWinners();
+    const late = getAwardLateWinners();
+
+    if (SHOW_AWARD_PROGRESS || DISTRIBUTE_AWARDS) {
+      expect(late.get(701)).toEqual(official.get(701));
+      expect(late.get(702)).not.toEqual(official.get(702));
+      expect(late.get(717)).toEqual([9]);
+    } else {
+      expect(late.size).toBe(0);
+    }
+  });
+
+  it("lists awards won only when late games count", () => {
+    const numbers = getLateOnlyAwardsForPlayer(1).map((award) => award.number);
+    expect(numbers).toContain(702);
+    expect(numbers).toContain(706);
+    expect(numbers).toContain(712);
+    expect(numbers).not.toContain(701);
   });
 
   it("names an alternate winner when late results would change the award", () => {

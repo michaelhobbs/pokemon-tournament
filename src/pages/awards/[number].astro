@@ -13,13 +13,13 @@ import {
 import {
   getDistributedAwards,
   getAwardRankings,
-  getAwardLateAlternates,
+  getAwardLateWinners,
 } from "../../data/award-distribution";
 import { findPlayer } from "../../data/players";
 
 const awards = getDistributedAwards();
 const rankings = getAwardRankings();
-const lateAlternates = getAwardLateAlternates();
+const lateWinners = getAwardLateWinners();
 
 export function getStaticPaths() {
   return getDistributedAwards().map((award) => ({
@@ -39,10 +39,7 @@ const base = import.meta.env.BASE_URL;
 const winners = awardWinners(award);
 const awardRanking = !award.hidden ? rankings.get(award.number) : undefined;
 const isPlacement = award.number >= 701 && award.number <= 704;
-const alternateWinners = lateAlternates.get(award.number) ?? [];
-const alternateNames = alternateWinners
-  .map((number) => findPlayer(number)?.name ?? String(number))
-  .join(" & ");
+const lateWinnerNumbers = lateWinners.get(award.number) ?? [];
 
 const lateSuffix = (label: string): string =>
   /^[+-]/.test(label) ? ` ${label}` : ` + ${label}`;
@@ -106,6 +103,34 @@ const lateSuffix = (label: string): string =>
             )
           }
         </div>
+        {
+          !award.hidden &&
+            DISTRIBUTE_AWARDS &&
+            lateWinnerNumbers.length > 0 && (
+              <p class="nameplate-late">
+                INCLUDING LATE GAMES:{" "}
+                {lateWinnerNumbers.map((number, i) => {
+                  const p = findPlayer(number);
+                  const name = p ? p.name : String(number);
+                  return (
+                    <>
+                      {i > 0 && " & "}
+                      {p ? (
+                        <a
+                          class="nameplate-late-link"
+                          href={`${base}trainers/${p.number}`}
+                        >
+                          {name}
+                        </a>
+                      ) : (
+                        name
+                      )}
+                    </>
+                  );
+                })}
+              </p>
+            )
+        }
       </div>
     </CeefaxBlock>
   </div>
@@ -155,11 +180,6 @@ const lateSuffix = (label: string): string =>
               })}
             </tbody>
           </table>
-          {alternateWinners.length > 0 && (
-            <p class="ranking-late-note">
-              INCLUDING LATE GAMES: {alternateNames}
-            </p>
-          )}
           {!DISTRIBUTE_AWARDS && (
             <p class="ranking-note">
               SEASON IN PROGRESS — WINNER NOT YET AWARDED.
@@ -320,11 +340,21 @@ const lateSuffix = (label: string): string =>
     text-align: center;
   }
 
-  .ranking-late-note {
-    margin: 0.5rem 0 0;
+  .nameplate-late {
+    margin: 0.25rem 0 0;
     color: var(--ceefax-magenta);
     font-weight: 700;
+    font-size: 0.8rem;
     text-align: center;
+  }
+
+  .nameplate-late-link {
+    color: var(--ceefax-magenta);
+    text-decoration: none;
+  }
+
+  .nameplate-late-link:hover {
+    color: var(--ceefax-cyan);
   }
 
   .award-late {

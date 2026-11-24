@@ -22,6 +22,7 @@ import { awardWinners } from "../../data/awards";
 import {
   getDistributedAwards,
   getAwardRankings,
+  getLateOnlyAwardsForPlayer,
   type AwardRankingEntry,
 } from "../../data/award-distribution";
 import PixelArt from "../../components/ceefax/PixelArt.astro";
@@ -81,9 +82,10 @@ const rankings = getAwardRankings();
 const playerAwards = distributedAwards.filter((a) =>
   awardWinners(a).includes(player.number),
 );
+const lateOnlyAwards = getLateOnlyAwardsForPlayer(player.number);
 
 const awardEntries = new Map<number, AwardRankingEntry>();
-for (const award of playerAwards) {
+for (const award of distributedAwards) {
   if (award.hidden) continue;
   const entry = rankings
     .get(award.number)
@@ -125,6 +127,54 @@ const lateSuffix = (label: string): string =>
                     <span class="trainer-award-info">
                       <span class="trainer-award-number">{award.number}</span>
                       <span class="trainer-award-name">
+                        {award.name}
+                        {entry && (
+                          <span class="trainer-award-count">
+                            {" "}
+                            ({entry.scoreLabel}
+                            {entry.lateScoreLabel && (
+                              <span class="trainer-award-late">
+                                {lateSuffix(entry.lateScoreLabel)}
+                              </span>
+                            )}
+                            )
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </CeefaxBlock>
+      </>
+    )
+  }
+  {
+    lateOnlyAwards.length > 0 && (
+      <>
+        <CeefaxHeading text="LATE GAME AWARDS" color="magenta" />
+        <CeefaxBlock
+          title="IF LATE GAMES COUNTED"
+          number={player.number}
+          color="magenta"
+        >
+          <ul class="trainer-awards-list">
+            {lateOnlyAwards.map((award) => {
+              const entry = awardEntries.get(award.number);
+              return (
+                <li class="trainer-award-item">
+                  <a
+                    href={`${base}awards/${award.number}`}
+                    class="trainer-award-link trainer-late-award-link"
+                  >
+                    <span class="trainer-award-sprite">
+                      <PixelArt sprite={award.sprite} size="2.5rem" />
+                    </span>
+                    <span class="trainer-award-info">
+                      <span class="trainer-award-number">{award.number}</span>
+                      <span class="trainer-late-award-name">
                         {award.name}
                         {entry && (
                           <span class="trainer-award-count">
@@ -370,6 +420,24 @@ const lateSuffix = (label: string): string =>
   }
 
   .trainer-award-link:hover .trainer-award-name {
+    color: var(--ceefax-cyan);
+  }
+
+  .trainer-late-award-link:hover {
+    color: var(--ceefax-magenta);
+  }
+
+  .trainer-late-award-link .trainer-award-number {
+    background: var(--ceefax-magenta);
+    color: var(--ceefax-black);
+  }
+
+  .trainer-late-award-name {
+    color: var(--ceefax-magenta);
+    font-weight: 700;
+  }
+
+  .trainer-late-award-link:hover .trainer-late-award-name {
     color: var(--ceefax-cyan);
   }
 

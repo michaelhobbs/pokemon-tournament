@@ -13,7 +13,7 @@ export interface Award {
 }
 
 /** When true, awards are distributed/programmatically computed where possible. */
-export const DISTRIBUTE_AWARDS = false;
+export const DISTRIBUTE_AWARDS = true;
 
 /** When true, current award rankings are shown without declaring winners. */
 export const SHOW_AWARD_PROGRESS = true;
@@ -408,6 +408,7 @@ export const AWARDS: Award[] = [
       ],
       palette: { B: "#000000", S: "#c9d1d9", Y: "#ffd700" },
     },
+    winners: [],
   },
   {
     number: 714,
@@ -468,7 +469,7 @@ export const AWARDS: Award[] = [
     name: "MR. MIME",
     description:
       "BE THE FIRST TRAINER TO REVEAL A SECRET PAGE TO THE OTHER TRAINERS",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",
@@ -495,7 +496,7 @@ export const AWARDS: Award[] = [
     number: 717,
     name: "DETECTIVE PIKACHU",
     description: "BE THE FIRST TO REPORT A HIDDEN PAGE TO THE WEB HOST",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",
@@ -523,7 +524,7 @@ export const AWARDS: Award[] = [
     number: 718,
     name: "COMPLETIONIST",
     description: "FIND ALL HIDDEN PAGES AND REPORT THEM TO THE WEB HOST",
-    hidden: true,
+    hidden: false,
     sprite: {
       map: [
         "................",

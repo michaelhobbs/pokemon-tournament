@@ -15,14 +15,14 @@ import {
   getDistributedAwards,
   getAwardRankings,
   getAwardProgressLeaders,
-  getAwardLateAlternates,
+  getAwardLateWinners,
 } from "../../data/award-distribution";
 import { findPlayer } from "../../data/players";
 
 const awards = getDistributedAwards();
 const rankings = getAwardRankings();
 const leaders = getAwardProgressLeaders();
-const lateAlternates = getAwardLateAlternates();
+const lateWinners = getAwardLateWinners();
 
 const namesFor = (playerNumbers: number[]): string =>
   playerNumbers
@@ -58,7 +58,7 @@ const progressByAward = new Map<number, ProgressLeader[]>(
 );
 
 const awardsNote = DISTRIBUTE_AWARDS
-  ? "AWARDS FINAL."
+  ? "OFFICIAL WINNERS SHOWN — LATE-GAME WINNERS IN MAGENTA."
   : SHOW_AWARD_PROGRESS
     ? "CURRENT LEADERS SHOWN — WINNERS REVEALED AT THE END OF THE SEASON."
     : "WINNERS REVEALED AT THE END OF THE SEASON.";
@@ -128,12 +128,14 @@ const awardsNote = DISTRIBUTE_AWARDS
                     ))}
               </span>
             ) : null}
-            {lateAlternates.get(award.number)?.length ? (
-              <span class="award-late-note">
-                INCLUDING LATE GAMES:{" "}
-                {namesFor(lateAlternates.get(award.number)!)}
-              </span>
-            ) : null}
+            {!award.hidden &&
+              DISTRIBUTE_AWARDS &&
+              (lateWinners.get(award.number) ?? []).length > 0 && (
+                <span class="award-late-note">
+                  INCLUDING LATE GAMES:{" "}
+                  {namesFor(lateWinners.get(award.number)!)}
+                </span>
+              )}
           </a>
         </li>
       ))

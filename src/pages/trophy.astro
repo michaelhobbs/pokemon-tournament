@@ -3,6 +3,11 @@ import CeefaxLayout from "../layouts/CeefaxLayout.astro";
 import CeefaxBlock from "../components/ceefax/CeefaxBlock.astro";
 import CeefaxHeading from "../components/ceefax/CeefaxHeading.astro";
 import TrophySprite from "../components/ceefax/TrophySprite.astro";
+import { WEEKS } from "../data/matches";
+import { computeStandings } from "../data/standings";
+
+const base = import.meta.env.BASE_URL;
+const champion = computeStandings(WEEKS)[0];
 ---
 
 <CeefaxLayout title="TROPHY" pageNumber="600">
@@ -13,12 +18,17 @@ import TrophySprite from "../components/ceefax/TrophySprite.astro";
         <TrophySprite />
         <div class="trophy-nameplate">
           <span class="nameplate-label">CHAMPION</span>
-          <span class="nameplate-name">TO BE DECIDED</span>
+          <a
+            class="nameplate-name"
+            href={`${base}trainers/${champion.player.number}`}
+          >
+            {champion.player.name}
+          </a>
         </div>
       </div>
-      <p class="trophy-note">UNDER CONSTRUCTION</p>
+      <p class="trophy-note">SEASON 3 COMPLETE</p>
       <p class="trophy-detail">
-        THE WINNER OF SEASON 3 WILL HAVE THEIR NAME ENGRAVED HERE.
+        {champion.wins} MATCH WINS / {champion.battles} BATTLE WINS.
       </p>
     </CeefaxBlock>
   </div>
@@ -68,14 +78,19 @@ import TrophySprite from "../components/ceefax/TrophySprite.astro";
     font-size: 1.1rem;
     letter-spacing: 0.08em;
     color: var(--ceefax-yellow);
+    text-decoration: none;
     text-transform: uppercase;
+  }
+
+  .nameplate-name:hover {
+    color: var(--ceefax-cyan);
   }
 
   .trophy-note {
     margin: 0.75rem 0 0;
     text-align: center;
     font-weight: 700;
-    color: var(--ceefax-red);
+    color: var(--ceefax-green);
   }
 
   .trophy-detail {

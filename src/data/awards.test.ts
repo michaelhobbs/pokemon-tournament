@@ -37,9 +37,8 @@ describe("AWARDS", () => {
     }
   });
 
-  it("some awards are hidden", () => {
-    const hidden = AWARDS.filter((a) => a.hidden);
-    expect(hidden.length).toBeGreaterThan(0);
+  it("all awards are revealed", () => {
+    expect(AWARDS.filter((a) => a.hidden)).toHaveLength(0);
   });
 });
 
@@ -63,7 +62,7 @@ describe("awardDisplayName", () => {
   });
 
   it("returns SURPRISE for hidden awards", () => {
-    const hidden = AWARDS.find((a) => a.hidden)!;
+    const hidden = { ...awardFor(701)!, hidden: true };
     expect(awardDisplayName(hidden)).toBe(SURPRISE_NAME);
   });
 });
@@ -75,7 +74,7 @@ describe("awardDisplayDescription", () => {
   });
 
   it("returns surprise description for hidden awards", () => {
-    const hidden = AWARDS.find((a) => a.hidden)!;
+    const hidden = { ...awardFor(701)!, hidden: true };
     expect(awardDisplayDescription(hidden)).toBe(SURPRISE_DESCRIPTION);
   });
 });
@@ -87,7 +86,7 @@ describe("awardDisplaySprite", () => {
   });
 
   it("returns SURPRISE_SPRITE for hidden awards", () => {
-    const hidden = AWARDS.find((a) => a.hidden)!;
+    const hidden = { ...awardFor(701)!, hidden: true };
     expect(awardDisplaySprite(hidden)).toBe(SURPRISE_SPRITE);
   });
 });
