@@ -3,67 +3,336 @@ import CeefaxLayout from "../layouts/CeefaxLayout.astro";
 import CeefaxBlock from "../components/ceefax/CeefaxBlock.astro";
 import NavigationHotkeys from "../components/ceefax/NavigationHotkeys.astro";
 import TournamentGraphic from "../components/ceefax/TournamentGraphic.astro";
+import TrainerSprite from "../components/ceefax/TrainerSprite.astro";
+import TrophySprite from "../components/ceefax/TrophySprite.astro";
 import PageDirectory from "../components/ceefax/PageDirectory.astro";
 import { PAGES } from "../data/navigation";
+import { PLAYERS } from "../data/players";
+import { WEEKS } from "../data/matches";
+import { computeStandings } from "../data/standings";
+import { swapsFor } from "../data/midseason";
+import { spriteFor } from "../data/pokemon-sprites";
 
 const base = import.meta.env.BASE_URL;
+const standings = computeStandings(WEEKS);
+const champion = standings[0]!;
+const runnerUp = standings[1]!;
+const thirdPlace = standings[2]!;
+const discarded = PLAYERS.flatMap((player) =>
+  swapsFor(player.number).map((swap) => ({
+    name: swap.removed,
+    player,
+    sprite: spriteFor(swap.removed),
+  })),
+);
+const confettiColors = [
+  "var(--ceefax-yellow)",
+  "var(--ceefax-cyan)",
+  "var(--ceefax-magenta)",
+  "var(--ceefax-green)",
+  "var(--ceefax-white)",
+];
+const confetti = Array.from({ length: 40 }, (_, i) => ({
+  x: `${(i * 37) % 100}%`,
+  delay: `${(i % 8) * 0.17}s`,
+  duration: `${2.4 + (i % 5) * 0.35}s`,
+  color: confettiColors[i % confettiColors.length] ?? "var(--ceefax-yellow)",
+  drift: `${((i % 7) - 3) * 14}px`,
+  spin: `${(i % 2 === 0 ? 1 : -1) * (180 + (i % 3) * 90)}deg`,
+}));
 ---
 
 <CeefaxLayout title="TOURNAMENT" pageNumber="100">
   <div class="home-hero">
     <TournamentGraphic />
   </div>
-  <CeefaxBlock title="STATUS" number="1" color="green">
-    <p>
-      <a class="home-status-link" href={`${base}games/18`}>
-        <span class="home-status-arrow" aria-hidden="true">▶</span>
-        <b> LAST WEEK - WEEK 18</b></a
-      >
-    </p>
-    <p>
-      <a class="home-status-link" href={`${base}awards`}
-        ><span class="home-status-arrow" aria-hidden="true">▶</span> VIEW AWARDS PROGRESS</a
-      >
-    </p>
-    <p>
-      <a class="home-status-link" href={`${base}standings/draft-mid`}
-        ><span class="home-status-arrow" aria-hidden="true">▶</span> VIEW MID-SEASON
-        DRAFT</a
-      >
-    </p>
-    <p>
-      <a class="home-status-link" href={`${base}standings`}
-        ><span class="home-status-arrow" aria-hidden="true">▶</span> VIEW STANDINGS</a
-      >
-    </p>
-  </CeefaxBlock>
-  <CeefaxBlock title="NAVIGATION HOTKEYS" number="2" color="yellow">
+  <div class="home-wide">
+    <CeefaxBlock title="SEASON OVER" number="1" color="yellow">
+      <p>THE TOURNAMENT IS OVER.</p>
+      <p>
+        AFTER A LONG, TAXING, GRUELING FIGHT FULL OF NAIL-BITING MOMENTS, WE
+        HAVE A WINNER.
+      </p>
+      <div class="home-champion-display">
+        <div class="home-confetti" aria-hidden="true">
+          {
+            confetti.map((piece) => (
+              <span
+                class="home-confetti-piece"
+                style={`--x: ${piece.x}; --delay: ${piece.delay}; --duration: ${piece.duration}; --color: ${piece.color}; --drift: ${piece.drift}; --spin: ${piece.spin};`}
+              />
+            ))
+          }
+        </div>
+        <a
+          class="home-champion-sprite"
+          href={`${base}trainers/${champion.player.number}`}
+          aria-label={`View ${champion.player.name}'s trainer page`}
+        >
+          <TrainerSprite number={champion.player.number} />
+        </a>
+        <a
+          class="home-trophy-sprite"
+          href={`${base}trophy`}
+          aria-label="View the trophy page"
+        >
+          <TrophySprite />
+        </a>
+      </div>
+      <p>
+        <a class="home-link" href={`${base}trophy`}>
+          <span class="home-arrow" aria-hidden="true">▶</span>
+          <b>CHAMPION: {champion.player.name}</b>
+        </a>{" "}
+        — CONGRATULATIONS, {champion.player.name}!
+      </p>
+      <p>
+        CONGRATULATIONS TO{" "}
+        <a class="home-link" href={`${base}trainers/${runnerUp.player.number}`}
+          >{runnerUp.player.name}</a
+        >{" "}
+        IN SECOND AND{" "}
+        <a
+          class="home-link"
+          href={`${base}trainers/${thirdPlace.player.number}`}
+          >{thirdPlace.player.name}</a
+        >{" "}
+        IN THIRD.
+      </p>
+      <p>
+        <a class="home-link" href={`${base}standings`}
+          ><span class="home-arrow" aria-hidden="true">▶</span> VIEW FINAL STANDINGS</a
+        >{" "}
+        — FINAL SCORES FOR EVERY TRAINER.
+      </p>
+      <p>
+        <a class="home-link" href={`${base}awards`}
+          ><span class="home-arrow" aria-hidden="true">▶</span> VIEW AWARDS</a
+        >{" "}
+        — ALL AWARDS HAVE BEEN DISTRIBUTED.
+      </p>
+      <p>
+        REALITY SPLIT: WE HAVE TWO TIMELINES — ONE WITH ALL GAMES PLAYED, LATE
+        ONES INCLUDED, AND ONE WITH ONLY GAMES PLAYED ON TIME. WE WILL KEEP
+        UPDATING ANY LATE RESULTS, AND THE EFFECTS OF NEW RESULTS WILL BE
+        REFLECTED ON THE CORRESPONDING PAGES. AWARDS ARE HANDED OUT FOR BOTH
+        TIMELINES.
+      </p>
+    </CeefaxBlock>
+  </div>
+  <div class="home-wide">
+    <CeefaxBlock title="ADOPTION" number="2" color="magenta">
+      <p>EVERY POKEMON SEASON WE LOSE SOME FRIENDS ALONG THE WAY.</p>
+      <p class="home-plea">
+        HAVE A HEART. CONSIDER ADOPTING THE POKEMON CAST ASIDE BY THEIR TRAINERS
+        ON THE WAY THROUGH THE CHAMPIONSHIP AS THEY STROVE TO BE THE BEST THEY
+        COULD BE.
+      </p>
+      <p class="home-discards-label">LOOKING FOR A NEW HOME</p>
+      <ul class="home-discards">
+        {
+          discarded.map(({ name, player, sprite }) => (
+            <li class="home-discard">
+              {sprite && (
+                <img
+                  class="home-discard-sprite"
+                  src={sprite}
+                  alt={name}
+                  width="48"
+                  height="48"
+                  loading="lazy"
+                />
+              )}
+              <span class="home-discard-info">
+                <span class="home-discard-name">{name}</span>
+                <a
+                  class="home-discard-trainer"
+                  href={`${base}trainers/${player.number}`}
+                >
+                  {player.name}
+                </a>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </CeefaxBlock>
+  </div>
+  <CeefaxBlock title="NAVIGATION HOTKEYS" number="3" color="cyan">
     <NavigationHotkeys />
   </CeefaxBlock>
   <PageDirectory pages={PAGES} />
 </CeefaxLayout>
 
 <style>
-  .home-hero {
+  .home-hero,
+  .home-wide {
     grid-column: 1 / -1;
   }
 
-  .home-status-link {
+  .home-link {
     color: var(--ceefax-magenta);
     font-weight: 400;
     text-decoration: none;
   }
 
-  .home-status-arrow {
+  .home-arrow {
     color: var(--ceefax-magenta);
     font-size: 0.8em;
   }
 
-  .home-status-link:hover {
+  .home-link:hover,
+  .home-link:hover .home-arrow {
     color: var(--ceefax-cyan);
   }
 
-  .home-status-link:hover .home-status-arrow {
+  .home-champion-display {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1.5rem 0 0.5rem;
+  }
+
+  .home-champion-sprite,
+  .home-trophy-sprite {
+    display: block;
+    max-width: 100%;
+  }
+
+  .home-champion-display :global(.trainer-sprite),
+  .home-champion-display :global(.trophy-sprite) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .home-champion-display :global(.trainer-sprite) {
+    width: 8rem;
+  }
+
+  .home-champion-display :global(.trophy-sprite) {
+    width: 12rem;
+  }
+
+  .home-confetti {
+    position: absolute;
+    inset: -1rem 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .home-confetti-piece {
+    position: absolute;
+    top: -0.75rem;
+    left: var(--x);
+    width: 0.4rem;
+    height: 0.7rem;
+    background: var(--color);
+    opacity: 0;
+    animation: home-confetti-fall var(--duration) linear var(--delay) infinite;
+  }
+
+  @keyframes home-confetti-fall {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, -0.75rem, 0) rotate(0deg);
+    }
+    12% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(var(--drift), 12rem, 0) rotate(var(--spin));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-confetti {
+      display: none;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .home-champion-display {
+      gap: 0.75rem;
+    }
+
+    .home-champion-display :global(.trainer-sprite) {
+      width: 6rem;
+    }
+
+    .home-champion-display :global(.trophy-sprite) {
+      width: 9rem;
+    }
+  }
+
+  .home-plea {
+    color: var(--ceefax-white);
+  }
+
+  .home-discards-label {
+    margin-top: 1rem;
+    color: var(--ceefax-cyan);
+    font-weight: 700;
+  }
+
+  .home-discards {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 48rem) {
+    .home-discards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .home-discards {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .home-discard {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .home-discard-sprite {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background: var(--ceefax-black);
+    border: 1px solid var(--ceefax-white);
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
+
+  .home-discard-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .home-discard-name {
+    color: var(--ceefax-yellow);
+    font-weight: 700;
+  }
+
+  .home-discard-trainer {
+    color: var(--ceefax-magenta);
+    font-size: 0.75rem;
+    text-decoration: none;
+  }
+
+  .home-discard-trainer:hover {
     color: var(--ceefax-cyan);
   }
 </style>
