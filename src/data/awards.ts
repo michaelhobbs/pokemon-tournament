@@ -10,6 +10,8 @@ export interface Award {
   hidden?: boolean;
   /** Player numbers who won this award (set manually or by distribution). */
   winners?: number[];
+  /** Player numbers awarded manually as late winners, after the tournament. */
+  lateWinners?: number[];
 }
 
 /** When true, awards are distributed/programmatically computed where possible. */
@@ -24,6 +26,10 @@ export function awardWinners(award: Award): number[] {
 
 export function hasAwardWinner(award: Award): boolean {
   return awardWinners(award).length > 0;
+}
+
+export function awardLateWinners(award: Award): number[] {
+  return award.lateWinners ?? [];
 }
 
 export const SURPRISE_NAME = "SURPRISE";
@@ -470,6 +476,7 @@ export const AWARDS: Award[] = [
     description:
       "BE THE FIRST TRAINER TO REVEAL A SECRET PAGE TO THE OTHER TRAINERS",
     hidden: false,
+    lateWinners: [1],
     sprite: {
       map: [
         "................",
@@ -525,6 +532,7 @@ export const AWARDS: Award[] = [
     name: "COMPLETIONIST",
     description: "FIND ALL HIDDEN PAGES AND REPORT THEM TO THE WEB HOST",
     hidden: false,
+    lateWinners: [5],
     sprite: {
       map: [
         "................",

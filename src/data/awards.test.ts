@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   AWARDS,
   awardFor,
+  awardLateWinners,
   awardDisplayName,
   awardDisplayDescription,
   awardDisplaySprite,
@@ -52,6 +53,17 @@ describe("awardFor", () => {
   it("returns undefined for unknown numbers", () => {
     expect(awardFor(600)).toBeUndefined();
     expect(awardFor(999)).toBeUndefined();
+  });
+});
+
+describe("awardLateWinners", () => {
+  it("returns manually assigned late winners", () => {
+    expect(awardLateWinners(awardFor(716)!)).toEqual([1]);
+    expect(awardLateWinners(awardFor(718)!)).toEqual([5]);
+  });
+
+  it("returns an empty list for awards without late winners", () => {
+    expect(awardLateWinners(awardFor(701)!)).toEqual([]);
   });
 });
 

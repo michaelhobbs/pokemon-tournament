@@ -12,6 +12,7 @@ import {
   AWARDS,
   DISTRIBUTE_AWARDS,
   SHOW_AWARD_PROGRESS,
+  awardLateWinners,
   awardWinners,
   type Award,
 } from "./awards";
@@ -666,7 +667,7 @@ export function getAwardLateAlternates(
   return alternates;
 }
 
-/** Winners when late games are included, with manual winners taking precedence. */
+/** Winners when late games count, with manually assigned late winners taking precedence. */
 export function getAwardLateWinners(
   baseAwards: Award[] = AWARDS,
 ): Map<number, number[]> {
@@ -676,13 +677,15 @@ export function getAwardLateWinners(
   const combined = computeAllAwardWinners(WEEKS, "combined");
   return new Map(
     baseAwards.map((award) => {
-      const manualWinners = award.winners;
-      return [
-        award.number,
-        manualWinners && manualWinners.length > 0
-          ? manualWinners
-          : (combined.get(award.number) ?? []),
-      ];
+      const manualLateWinners = awardLateWinners(award);
+      if (manualLateWinners.length > 0) {
+        return [award.number, manualLateWinners];
+      }
+      const manualWinners = awardWinners(award);
+      if (manualWinners.length > 0) {
+        return [award.number, manualWinners];
+      }
+      return [award.number, combined.get(award.number) ?? []];
     }),
   );
 }

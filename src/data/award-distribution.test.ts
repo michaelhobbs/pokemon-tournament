@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DISTRIBUTE_AWARDS, SHOW_AWARD_PROGRESS } from "./awards";
+import { AWARDS, DISTRIBUTE_AWARDS, SHOW_AWARD_PROGRESS } from "./awards";
 import type { Week } from "./matches";
 import {
   computeAllAwardRankings,
@@ -109,10 +109,20 @@ describe("award progress", () => {
     if (SHOW_AWARD_PROGRESS || DISTRIBUTE_AWARDS) {
       expect(late.get(701)).toEqual(official.get(701));
       expect(late.get(702)).not.toEqual(official.get(702));
+      expect(late.get(716)).toEqual([1]);
       expect(late.get(717)).toEqual([9]);
+      expect(late.get(718)).toEqual([5]);
     } else {
       expect(late.size).toBe(0);
     }
+  });
+
+  it("lets manual late winners take precedence over official ones", () => {
+    if (!SHOW_AWARD_PROGRESS && !DISTRIBUTE_AWARDS) return;
+    const baseAwards = AWARDS.map((award) =>
+      award.number === 701 ? { ...award, lateWinners: [5] } : award,
+    );
+    expect(getAwardLateWinners(baseAwards).get(701)).toEqual([5]);
   });
 
   it("lists awards won only when late games count", () => {
