@@ -532,7 +532,7 @@ export const AWARDS: Award[] = [
     name: "COMPLETIONIST",
     description: "FIND ALL HIDDEN PAGES AND REPORT THEM TO THE WEB HOST",
     hidden: false,
-    lateWinners: [5],
+    lateWinners: [], // 5
     sprite: {
       map: [
         "................",
